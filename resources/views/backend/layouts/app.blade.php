@@ -13,8 +13,6 @@
     <script src="{{ asset('assets/js/pace.min.js') }}"></script>
     <!--favicon-->
     <link rel="icon" href="{{ asset('assets/images/favicon.ico') }}" type="image/x-icon">
-    <!-- Vector CSS -->
-    <link href="{{ asset('assets/plugins/vectormap/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
     <!-- simplebar CSS-->
     <link href="{{ asset('assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
     <!-- Bootstrap core CSS-->
@@ -145,15 +143,17 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img src="https://via.placeholder.com/110x110" class="img-circle"
-                                    alt="user avatar"></span>
+                            <span class="user-profile"><img
+                                    src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
+                                    class="img-circle" alt="user avatar"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li class="dropdown-item user-details">
                                 <a href="javaScript:void();">
                                     <div class="media">
                                         <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                                src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
+                                                alt="user avatar"></div>
                                         <div class="media-body">
                                             <h6 class="mt-2 user-title">{{ auth()->user()->name ?? 'Guest User' }}</h6>
                                             <p class="user-subtitle">{{ auth()->user()->email ?? 'guest@example.com' }}
@@ -210,6 +210,39 @@
         </footer>
         <!--End footer-->
 
+        <!--start color switcher-->
+        <div class="right-sidebar">
+            <div class="switcher-icon">
+                <i class="zmdi zmdi-settings zmdi-hc-spin"></i>
+            </div>
+            <div class="right-sidebar-content">
+                <p class="mb-0">Gaussion Texture</p>
+                <hr>
+                <ul class="switcher">
+                    <li id="theme1"></li>
+                    <li id="theme2"></li>
+                    <li id="theme3"></li>
+                    <li id="theme4"></li>
+                    <li id="theme5"></li>
+                    <li id="theme6"></li>
+                </ul>
+                <p class="mb-0">Gradient Background</p>
+                <hr>
+                <ul class="switcher">
+                    <li id="theme7"></li>
+                    <li id="theme8"></li>
+                    <li id="theme9"></li>
+                    <li id="theme10"></li>
+                    <li id="theme11"></li>
+                    <li id="theme12"></li>
+                    <li id="theme13"></li>
+                    <li id="theme14"></li>
+                    <li id="theme15"></li>
+                </ul>
+            </div>
+        </div>
+        <!--end color switcher-->
+
     </div>
     <!--End wrapper-->
 
@@ -225,6 +258,49 @@
     <!-- Custom scripts -->
     <script src="{{ asset('assets/js/app-script.js') }}"></script>
     @yield('scripts')
+
+    <!-- Theme persistence script -->
+    <script>
+        $(document).ready(function() {
+            // Switcher icon click handler
+            $('.switcher-icon').on('click', function() {
+                $('.right-sidebar').toggleClass('show');
+            });
+
+            // Close sidebar when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.right-sidebar, .switcher-icon').length) {
+                    $('.right-sidebar').removeClass('show');
+                }
+            });
+
+            // Function to apply theme
+            function applyTheme(themeId) {
+                // Remove any existing theme classes
+                $('body').removeClass(function(index, className) {
+                    return (className.match(/(^|\s)bg-theme\d+/g) || []).join(' ');
+                });
+                // Add the new theme class
+                $('body').addClass('bg-theme bg-' + themeId);
+                localStorage.setItem('selectedTheme', themeId);
+            }
+
+            // Check localStorage for saved theme
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            }
+
+            // Theme switcher click handlers
+            $('.switcher li').each(function() {
+                $(this).on('click', function() {
+                    const themeId = $(this).attr('id');
+                    applyTheme(themeId);
+                });
+            });
+        });
+    </script>
+
 </body>
 
 </html>

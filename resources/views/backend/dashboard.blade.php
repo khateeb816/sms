@@ -1,10 +1,27 @@
-@extends('layouts.app')
+@extends('backend.layouts.app')
 
 @section('title', 'Dashboard - Dashtreme Admin')
 
 @section('styles')
-<!-- Chart CSS -->
-<link href="{{ asset('assets/plugins/Chart.js/Chart.min.css') }}" rel="stylesheet">
+<style>
+    .traffic-summary,
+    .sales-summary {
+        padding: 1rem;
+    }
+
+    .traffic-source {
+        padding: 1rem;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .progress-data {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 5px;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -60,7 +77,7 @@
 <div class="row">
     <div class="col-12 col-lg-8 col-xl-8">
         <div class="card">
-            <div class="card-header">Site Traffic
+            <div class="card-header">Site Traffic Summary
                 <div class="card-action">
                     <div class="dropdown">
                         <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
@@ -78,8 +95,36 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="chart-container-1">
-                    <canvas id="chart1"></canvas>
+                <div class="traffic-summary">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h4 class="mb-0">Traffic Overview</h4>
+                            <p class="text-muted">Last 30 days statistics</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <div class="traffic-source">
+                                <h5>Direct</h5>
+                                <p class="mb-0">45% <span class="text-success"><i class="fa fa-arrow-up"></i> 5%</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="traffic-source">
+                                <h5>Referral</h5>
+                                <p class="mb-0">30% <span class="text-danger"><i class="fa fa-arrow-down"></i> 2%</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="traffic-source">
+                                <h5>Social</h5>
+                                <p class="mb-0">25% <span class="text-success"><i class="fa fa-arrow-up"></i> 8%</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -103,13 +148,12 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div class="col-12 col-lg-4 col-xl-4">
         <div class="card">
-            <div class="card-header">Weekly sales
+            <div class="card-header">Sales Summary
                 <div class="card-action">
                     <div class="dropdown">
                         <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
@@ -127,35 +171,55 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="chart-container-2">
-                    <canvas id="chart2"></canvas>
+                <div class="sales-summary">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="sales-data">
+                                <h5 class="mb-1">Total Sales</h5>
+                                <h3 class="mb-1">$24,500</h3>
+                                <p class="mb-0 text-success"><i class="fa fa-arrow-up"></i> 12% This Month</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sales-categories">
+                        <div class="progress-data mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <h6 class="mb-0">Direct</h6>
+                                <h6 class="mb-0">$5,856</h6>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 55%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-data mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <h6 class="mb-0">Affiliate</h6>
+                                <h6 class="mb-0">$2,602</h6>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 25%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-data mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <h6 class="mb-0">E-mail</h6>
+                                <h6 class="mb-0">$1,802</h6>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 15%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-data">
+                            <div class="d-flex justify-content-between mb-1">
+                                <h6 class="mb-0">Other</h6>
+                                <h6 class="mb-0">$1,105</h6>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 5%"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-items-center">
-                    <tbody>
-                        <tr>
-                            <td><i class="fa fa-circle text-white mr-2"></i> Direct</td>
-                            <td>$5856</td>
-                            <td>+55%</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-circle text-light-1 mr-2"></i>Affiliate</td>
-                            <td>$2602</td>
-                            <td>+25%</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-circle text-light-2 mr-2"></i>E-mail</td>
-                            <td>$1802</td>
-                            <td>+15%</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-circle text-light-3 mr-2"></i>Other</td>
-                            <td>$1105</td>
-                            <td>+5%</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -197,8 +261,8 @@
                     <tbody>
                         <tr>
                             <td>Iphone 5</td>
-                            <td><img src="https://via.placeholder.com/110x110" class="product-img" alt="product img">
-                            </td>
+                            <td><img src="https://as1.ftcdn.net/jpg/01/17/74/42/220_F_117744270_RcWaPulPITQhQZSQHcJV0zLVGzgU17PJ.jpg"
+                                    class="product-img" alt="product img"></td>
                             <td>#9405822</td>
                             <td>$ 1250.00</td>
                             <td>03 Aug 2017</td>
@@ -211,8 +275,8 @@
 
                         <tr>
                             <td>Earphone GL</td>
-                            <td><img src="https://via.placeholder.com/110x110" class="product-img" alt="product img">
-                            </td>
+                            <td><img src="https://as1.ftcdn.net/jpg/01/17/74/42/220_F_117744270_RcWaPulPITQhQZSQHcJV0zLVGzgU17PJ.jpg"
+                                    class="product-img" alt="product img"></td>
                             <td>#9405820</td>
                             <td>$ 1500.00</td>
                             <td>03 Aug 2017</td>
@@ -225,8 +289,8 @@
 
                         <tr>
                             <td>HD Hand Camera</td>
-                            <td><img src="https://via.placeholder.com/110x110" class="product-img" alt="product img">
-                            </td>
+                            <td><img src="https://as1.ftcdn.net/jpg/01/17/74/42/220_F_117744270_RcWaPulPITQhQZSQHcJV0zLVGzgU17PJ.jpg"
+                                    class="product-img" alt="product img"></td>
                             <td>#9405830</td>
                             <td>$ 1400.00</td>
                             <td>03 Aug 2017</td>
@@ -238,9 +302,9 @@
                         </tr>
 
                         <tr>
-                            <td>Clasic Shoes</td>
-                            <td><img src="https://via.placeholder.com/110x110" class="product-img" alt="product img">
-                            </td>
+                            <td>Classic Shoes</td>
+                            <td><img src="https://as1.ftcdn.net/jpg/01/17/74/42/220_F_117744270_RcWaPulPITQhQZSQHcJV0zLVGzgU17PJ.jpg"
+                                    class="product-img" alt="product img"></td>
                             <td>#9405825</td>
                             <td>$ 1200.00</td>
                             <td>03 Aug 2017</td>
@@ -253,8 +317,8 @@
 
                         <tr>
                             <td>Hand Watch</td>
-                            <td><img src="https://via.placeholder.com/110x110" class="product-img" alt="product img">
-                            </td>
+                            <td><img src="https://as1.ftcdn.net/jpg/01/17/74/42/220_F_117744270_RcWaPulPITQhQZSQHcJV0zLVGzgU17PJ.jpg"
+                                    class="product-img" alt="product img"></td>
                             <td>#9405840</td>
                             <td>$ 1800.00</td>
                             <td>03 Aug 2017</td>
@@ -264,7 +328,6 @@
                                 </div>
                             </td>
                         </tr>
-
                     </tbody>
                 </table>
             </div>
@@ -277,109 +340,6 @@
 @endsection
 
 @section('scripts')
-<!-- Chart js -->
-<script src="{{ asset('assets/plugins/Chart.js/Chart.min.js') }}"></script>
-<!-- Vector map JavaScript -->
-<script src="{{ asset('assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js') }}"></script>
-<script src="{{ asset('assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
 <!-- Sparkline JS -->
 <script src="{{ asset('assets/plugins/sparkline-charts/jquery.sparkline.min.js') }}"></script>
-<!-- Chart js -->
-<script>
-    $(function() {
-    "use strict";
-    
-    // chart 1
-    var ctx = document.getElementById('chart1').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
-        datasets: [{
-          label: 'New Visitors',
-          data: [3, 3, 8, 5, 7, 4, 6, 4, 6, 3],
-          backgroundColor: '#fff',
-          borderColor: "transparent",
-          pointRadius :"0",
-          borderWidth: 3
-        }, {
-          label: 'Old Visitors',
-          data: [7, 5, 14, 7, 12, 6, 10, 6, 11, 5],
-          backgroundColor: "rgba(255, 255, 255, 0.25)",
-          borderColor: "transparent",
-          pointRadius :"0",
-          borderWidth: 1
-        }]
-      },
-      options: {
-        maintainAspectRatio: false,
-        legend: {
-          display: false,
-          labels: {
-            fontColor: '#ddd',  
-            boxWidth:40
-          }
-        },
-        tooltips: {
-          displayColors:false
-        },	
-        scales: {
-          xAxes: [{
-            ticks: {
-              beginAtZero:true,
-              fontColor: '#ddd'
-            },
-            gridLines: {
-              display: true ,
-              color: "rgba(221, 221, 221, 0.08)"
-            },
-          }],
-          yAxes: [{
-            ticks: {
-              beginAtZero:true,
-              fontColor: '#ddd'
-            },
-            gridLines: {
-              display: true ,
-              color: "rgba(221, 221, 221, 0.08)"
-            },
-          }]
-        }
-      }
-    });
-
-    // chart 2
-    var ctx = document.getElementById("chart2").getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ["Direct", "Affiliate", "E-mail", "Other"],
-        datasets: [{
-          backgroundColor: [
-            "#ffffff",
-            "rgba(255, 255, 255, 0.70)",
-            "rgba(255, 255, 255, 0.50)",
-            "rgba(255, 255, 255, 0.20)"
-          ],
-          data: [5856, 2602, 1802, 1105],
-          borderWidth: [0, 0, 0, 0]
-        }]
-      },
-      options: {
-        maintainAspectRatio: false,
-        legend: {
-          position :"bottom",	
-          display: false,
-          labels: {
-            fontColor: '#ddd',  
-            boxWidth:15
-          }
-        },
-        tooltips: {
-          displayColors:false
-        }
-      }
-    });
-  });
-</script>
 @endsection

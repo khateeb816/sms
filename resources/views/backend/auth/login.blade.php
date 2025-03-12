@@ -161,7 +161,46 @@
 
     <!-- Custom scripts -->
     <script src="{{ asset('assets/js/app-script.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // Switcher icon click handler
+            $('.switcher-icon').on('click', function() {
+                $('.right-sidebar').toggleClass('show');
+            });
 
+            // Close sidebar when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.right-sidebar, .switcher-icon').length) {
+                    $('.right-sidebar').removeClass('show');
+                }
+            });
+
+            // Function to apply theme
+            function applyTheme(themeId) {
+                // Remove any existing theme classes
+                $('body').removeClass(function(index, className) {
+                    return (className.match(/(^|\s)bg-theme\d+/g) || []).join(' ');
+                });
+                // Add the new theme class
+                $('body').addClass('bg-theme bg-' + themeId);
+                localStorage.setItem('selectedTheme', themeId);
+            }
+
+            // Check localStorage for saved theme
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            }
+
+            // Theme switcher click handlers
+            $('.switcher li').each(function() {
+                $(this).on('click', function() {
+                    const themeId = $(this).attr('id');
+                    applyTheme(themeId);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

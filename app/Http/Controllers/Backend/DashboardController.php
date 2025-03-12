@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Backend;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -11,10 +12,10 @@ class DashboardController extends Controller
      *
      * @return void
      */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth')->except(['login', 'register']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
 
     /**
      * Show the dashboard page.
@@ -23,7 +24,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboard');
+        return view('backend.dashboard');
     }
 
     /**
@@ -33,7 +34,7 @@ class DashboardController extends Controller
      */
     public function icons()
     {
-        return view('icons');
+        return view('backend.icons');
     }
 
     /**
@@ -43,7 +44,7 @@ class DashboardController extends Controller
      */
     public function forms()
     {
-        return view('forms');
+        return view('backend.forms');
     }
 
     /**
@@ -53,7 +54,7 @@ class DashboardController extends Controller
      */
     public function tables()
     {
-        return view('tables');
+        return view('backend.tables');
     }
 
     /**
@@ -63,7 +64,7 @@ class DashboardController extends Controller
      */
     public function calendar()
     {
-        return view('calendar');
+        return view('backend.calendar');
     }
 
     /**
@@ -73,6 +74,6 @@ class DashboardController extends Controller
      */
     public function profile()
     {
-        return view('profile');
+        return view('backend.profile');
     }
 }
