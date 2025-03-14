@@ -24,6 +24,8 @@ class User extends Authenticatable
         'role',
         'status',
         'image',
+        'phone',
+        'address',
     ];
 
     /**
@@ -44,4 +46,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the teacher details associated with the user.
+     */
+    public function teacherDetail()
+    {
+        return $this->hasOne(TeacherDetail::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
 }

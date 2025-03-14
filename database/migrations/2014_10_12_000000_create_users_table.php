@@ -19,14 +19,19 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('role')->default(2);
-            $table->string('status')->default('pending');
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->integer('role')->default(2); //Role 1 = Admin, 3 = Parent, 2 = Teacher, 4 = Student
+            $table->integer('parent_id')->nullable();
+            $table->string('status')->default('inactive');
             $table->string('image')->nullable();
+            $table->string('class')->nullable();
+            $table->string('roll_number')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *

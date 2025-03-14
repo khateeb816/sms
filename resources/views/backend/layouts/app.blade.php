@@ -8,9 +8,157 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>@yield('title', 'Dashtreme Admin - Laravel Dashboard')</title>
-    <!-- loader-->
-    <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet" />
-    <script src="{{ asset('assets/js/pace.min.js') }}"></script>
+
+    <!-- Custom Alert Styling -->
+    <style>
+        /* Alert Styling */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 100%;
+            max-width: 450px;
+            padding: 0 20px;
+        }
+
+        .alert {
+            margin: 0;
+            padding: 16px 20px !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: slideDown 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(-100%);
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            line-height: 1.5;
+            border: none;
+            background: #fff;
+        }
+
+        .alert.hide {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        .alert-success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert-success i {
+            color: #2e7d32;
+        }
+
+        .alert-danger {
+            color: #c62828;
+            background: #ffebee;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-danger i {
+            color: #c62828;
+        }
+
+        .alert-warning {
+            color: #ef6c00;
+            background: #fff3e0;
+            border-left: 4px solid #ef6c00;
+        }
+
+        .alert-warning i {
+            color: #ef6c00;
+        }
+
+        .alert-info {
+            color: #1565c0;
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+        }
+
+        .alert-info i {
+            color: #1565c0;
+        }
+
+        .alert .close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: inherit;
+            opacity: 0.5;
+            transition: all 0.2s ease;
+            background: none;
+            border: none;
+            padding: 4px;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0;
+        }
+
+        .alert .close span {
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .alert .close:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .alert i {
+            margin-right: 12px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .alert .message {
+            flex-grow: 1;
+            margin-right: 40px;
+            font-weight: 500;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+    </style>
+
     <!--favicon-->
     <link rel="icon" href="{{ asset('assets/images/favicon.ico') }}" type="image/x-icon">
     <!-- simplebar CSS-->
@@ -25,7 +173,125 @@
     <link href="{{ asset('assets/css/sidebar-menu.css') }}" rel="stylesheet" />
     <!-- Custom Style-->
     <link href="{{ asset('assets/css/app-style.css') }}" rel="stylesheet" />
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <style>
+        /* Custom DataTables styling to match theme */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_processing,
+        .dataTables_wrapper .dataTables_paginate {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            color: #333 !important;
+        }
+
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+        }
+
+        table.dataTable thead th,
+        table.dataTable thead td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+    </style>
     @yield('styles')
+
+    <!-- Toast Alert Script - Placed in head to be available early -->
+    <script>
+        // Store session alerts to show after page load
+        var sessionAlerts = [];
+        @if(session('success'))
+            sessionAlerts.push({message: "{{ session('success') }}", type: 'success'});
+        @endif
+        
+        @if(session('error'))
+            sessionAlerts.push({message: "{{ session('error') }}", type: 'error'});
+        @endif
+        
+        @if(session('warning'))
+            sessionAlerts.push({message: "{{ session('warning') }}", type: 'warning'});
+        @endif
+        
+        @if(session('info'))
+            sessionAlerts.push({message: "{{ session('info') }}", type: 'info'});
+        @endif
+    </script>
+
+    <!-- Custom Dropdown Script -->
+    <script>
+        // Store the currently open dropdown
+        let currentDropdown = null;
+
+        // Function to toggle dropdown
+        function toggleDropdown(event, dropdownId) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const dropdown = document.getElementById(dropdownId);
+            
+            // If clicking the same dropdown that's already open, close it
+            if (currentDropdown === dropdown) {
+                dropdown.classList.remove('show');
+                currentDropdown = null;
+                return;
+            }
+
+            // Close any other open dropdown
+            if (currentDropdown) {
+                currentDropdown.classList.remove('show');
+            }
+
+            // Open the clicked dropdown
+            dropdown.classList.add('show');
+            currentDropdown = dropdown;
+        }
+
+        // Initialize dropdown functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (currentDropdown && !currentDropdown.contains(event.target)) {
+                    currentDropdown.classList.remove('show');
+                    currentDropdown = null;
+                }
+            });
+
+            // Close dropdown when pressing escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && currentDropdown) {
+                    currentDropdown.classList.remove('show');
+                    currentDropdown = null;
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
+            });
+        });
+    </script>
 </head>
 
 <body class="bg-theme bg-theme1">
@@ -36,7 +302,7 @@
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
             <div class="brand-logo">
-                <a href="{{ route('dashboard') }}">
+                <a href="{{ url('/admin/dashboard') }}">
                     <img src="{{ asset('assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
                     <h5 class="logo-text">Dashtreme Admin</h5>
                 </a>
@@ -44,60 +310,71 @@
             <ul class="sidebar-menu do-nicescrol">
                 <li class="sidebar-header">MAIN NAVIGATION</li>
                 <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ url('/admin/dashboard') }}">
                         <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->routeIs('icons') ? 'active' : '' }}">
-                    <a href="{{ route('icons') }}">
-                        <i class="zmdi zmdi-invert-colors"></i> <span>UI Icons</span>
+                <li class="{{ request()->routeIs('parents.*') ? 'active' : '' }}">
+                    <a href="{{ route('parents.index') }}">
+                        <i class="zmdi zmdi-accounts-list"></i> <span>Parents</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->routeIs('forms') ? 'active' : '' }}">
-                    <a href="{{ route('forms') }}">
-                        <i class="zmdi zmdi-format-list-bulleted"></i> <span>Forms</span>
+                <li class="{{ request()->routeIs('students.*') ? 'active' : '' }}">
+                    <a href="{{ route('students.index') }}">
+                        <i class="zmdi zmdi-face"></i> <span>Students</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->routeIs('tables') ? 'active' : '' }}">
-                    <a href="{{ route('tables') }}">
-                        <i class="zmdi zmdi-grid"></i> <span>Tables</span>
+                <li class="{{ request()->routeIs('teachers.*') ? 'active' : '' }}">
+                    <a href="{{ route('teachers.index') }}">
+                        <i class="zmdi zmdi-accounts-alt"></i> <span>Teachers</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->routeIs('calendar') ? 'active' : '' }}">
-                    <a href="{{ route('calendar') }}">
-                        <i class="zmdi zmdi-calendar-check"></i> <span>Calendar</span>
-                        <small class="badge float-right badge-light">New</small>
+                <li class="{{ request()->routeIs('periods.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/periods') }}">
+                        <i class="zmdi zmdi-time"></i> <span>Period Management</span>
                     </a>
                 </li>
 
+                <li class="{{ request()->routeIs('classes.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/classes') }}">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Class Management</span>
+                    </a>
+                </li>
+
+                <li class="{{ request()->routeIs('timetable.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/timetable') }}">
+                        <i class="zmdi zmdi-calendar"></i> <span>Timetable</span>
+                    </a>
+                </li>
+
+                <li class="{{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/messages') }}">
+                        <i class="zmdi zmdi-email"></i> <span>Messages</span>
+                    </a>
+                </li>
+
+                <li class="{{ request()->routeIs('fees.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/fees') }}">
+                        <i class="zmdi zmdi-money"></i> <span>Fees / Fines</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-header">SETTINGS</li>
                 <li class="{{ request()->routeIs('profile') ? 'active' : '' }}">
-                    <a href="{{ route('profile') }}">
+                    <a href="{{ url('/admin/profile') }}">
                         <i class="zmdi zmdi-face"></i> <span>Profile</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('login') }}" target="_blank">
-                        <i class="zmdi zmdi-lock"></i> <span>Login</span>
+                    <a href="{{ url('/admin/logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="zmdi zmdi-power"></i> <span>Logout</span>
                     </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('register') }}" target="_blank">
-                        <i class="zmdi zmdi-account-circle"></i> <span>Registration</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-header">LABELS</li>
-                <li><a href="javascript:void();"><i class="zmdi zmdi-coffee text-danger"></i> <span>Important</span></a>
-                </li>
-                <li><a href="javascript:void();"><i class="zmdi zmdi-chart-donut text-success"></i>
-                        <span>Warning</span></a></li>
-                <li><a href="javascript:void();"><i class="zmdi zmdi-share text-info"></i> <span>Information</span></a>
                 </li>
             </ul>
         </div>
@@ -112,74 +389,75 @@
                             <i class="icon-menu menu-icon"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <form class="search-bar">
-                            <input type="text" class="form-control" placeholder="Enter keywords">
-                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
-                        </form>
-                    </li>
+
                 </ul>
 
                 <ul class="navbar-nav align-items-center right-nav-link">
-                    <li class="nav-item dropdown-lg">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret waves-effect" data-toggle="dropdown"
-                            href="javascript:void();">
-                            <i class="fa fa-envelope-open-o"></i></a>
-                    </li>
-                    <li class="nav-item dropdown-lg">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret waves-effect" data-toggle="dropdown"
-                            href="javascript:void();">
-                            <i class="fa fa-bell-o"></i></a>
-                    </li>
-                    <li class="nav-item language">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret waves-effect" data-toggle="dropdown"
-                            href="javascript:void();"><i class="fa fa-flag"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item"> <i class="flag-icon flag-icon-gb mr-2"></i> English</li>
-                            <li class="dropdown-item"> <i class="flag-icon flag-icon-fr mr-2"></i> French</li>
-                            <li class="dropdown-item"> <i class="flag-icon flag-icon-cn mr-2"></i> Chinese</li>
-                            <li class="dropdown-item"> <i class="flag-icon flag-icon-de mr-2"></i> German</li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="toggleDropdown(event, 'messages-dropdown')">
+                            <i class="fa fa-envelope-open-o"></i>
+                        </a>
+                        <div id="messages-dropdown" class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-header">Messages</div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">No new messages</a>
+                        </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img
-                                    src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
-                                    class="img-circle" alt="user avatar"></span>
+                        <a class="nav-link" href="#" onclick="toggleDropdown(event, 'notifications-dropdown')">
+                            <i class="fa fa-bell-o"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item user-details">
-                                <a href="javaScript:void();">
-                                    <div class="media">
-                                        <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
-                                                alt="user avatar"></div>
-                                        <div class="media-body">
-                                            <h6 class="mt-2 user-title">{{ auth()->user()->name ?? 'Guest User' }}</h6>
-                                            <p class="user-subtitle">{{ auth()->user()->email ?? 'guest@example.com' }}
-                                            </p>
-                                        </div>
+                        <div id="notifications-dropdown" class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-header">Notifications</div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">No new notifications</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="toggleDropdown(event, 'language-dropdown')">
+                            <i class="fa fa-flag"></i>
+                        </a>
+                        <div id="language-dropdown" class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-gb mr-2"></i> English</a>
+                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr mr-2"></i> French</a>
+                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-cn mr-2"></i> Chinese</a>
+                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de mr-2"></i> German</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="toggleDropdown(event, 'profile-dropdown')">
+                            <span class="user-profile">
+                                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
+                                    class="img-circle" alt="user avatar">
+                            </span>
+                        </a>
+                        <div id="profile-dropdown" class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-item user-details">
+                                <div class="media">
+                                    <div class="avatar">
+                                        <img class="align-self-start mr-3"
+                                            src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
+                                            alt="user avatar">
                                     </div>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-envelope mr-2"></i> Inbox</li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-wallet mr-2"></i> Account</li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Setting</li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item">
-                                <a href="{{ route('logout') }}"
-                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="icon-power mr-2"></i> Logout
-                                </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                    style="display: none;">
-                                    @csrf
-                                </form>
-                            </li>
-                        </ul>
+                                    <div class="media-body">
+                                        <h6 class="mt-2 user-title">{{ auth()->user()->name ?? 'Guest User' }}</h6>
+                                        <p class="user-subtitle">{{ auth()->user()->email ?? 'guest@example.com' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#"><i class="icon-envelope mr-2"></i> Inbox</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#"><i class="icon-wallet mr-2"></i> Account</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url('/admin/profile') }}"><i
+                                    class="icon-settings mr-2"></i> Setting</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url('/admin/logout') }}"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="icon-power mr-2"></i> Logout
+                            </a>
+                        </div>
                     </li>
                 </ul>
             </nav>
@@ -187,6 +465,9 @@
         <!--End topbar header-->
 
         <div class="clearfix"></div>
+
+        <!-- Alert Container -->
+        <div class="alert-container"></div>
 
         <div class="content-wrapper">
             <div class="container-fluid">
@@ -248,8 +529,8 @@
 
     <!-- Bootstrap core JavaScript-->
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <!-- simplebar js -->
     <script src="{{ asset('assets/plugins/simplebar/js/simplebar.js') }}"></script>
@@ -257,35 +538,110 @@
     <script src="{{ asset('assets/js/sidebar-menu.js') }}"></script>
     <!-- Custom scripts -->
     <script src="{{ asset('assets/js/app-script.js') }}"></script>
-    @yield('scripts')
-
-    <!-- Theme persistence script -->
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <!-- Initialize all datatables -->
     <script>
-        $(document).ready(function() {
-            // Switcher icon click handler
-            $('.switcher-icon').on('click', function() {
-                $('.right-sidebar').toggleClass('show');
+        // Initialize DataTables
+        function initializeDataTables() {
+            $('.datatable').each(function() {
+                var table = $(this);
+                
+                // Check if DataTable is already initialized
+                if ($.fn.DataTable.isDataTable(table)) {
+                    return; // Skip if already initialized
+                }
+                
+                // Ensure table has proper structure
+                if (!table.find('thead').length || !table.find('tbody').length) {
+                    console.warn('Table missing required thead or tbody elements');
+                    return;
+                }
+                
+                var hasData = table.find('tbody tr').length > 0;
+                
+                // Add basic wrapper and styling for all tables
+                if (!table.parent().hasClass('dataTables_wrapper')) {
+                    var wrapper = $('<div class="dataTables_wrapper"></div>');
+                    table.wrap(wrapper);
+                }
+                
+                // Only initialize DataTables if there is data
+                if (hasData) {
+                    try {
+                        // Add DataTables classes for consistent styling
+                        table.addClass('dataTable no-footer');
+                        table.find('thead').addClass('dataTables-header');
+                        table.find('tbody').addClass('dataTables-body');
+                        
+                        // Initialize DataTable with default settings
+                        var dataTable = table.DataTable({
+                            "responsive": true,
+                            "autoWidth": false,
+                            "language": {
+                                "lengthMenu": "Show _MENU_ entries",
+                                "zeroRecords": "No records found",
+                                "info": "Showing page _PAGE_ of _PAGES_",
+                                "infoEmpty": "No records available",
+                                "infoFiltered": "(filtered from _MAX_ total records)"
+                            },
+                            "columnDefs": [
+                                {
+                                    "targets": "_all",
+                                    "defaultContent": " "
+                                }
+                            ]
+                        });
+                    } catch (error) {
+                        console.error('Error initializing DataTable:', error);
+                    }
+                } else {
+                    // For empty tables, add empty state message
+                    var info = $('<div class="dataTables_info">No records available</div>');
+                    table.after(info);
+                    
+                    // Add empty state styling
+                    table.addClass('table table-striped');
+                    table.find('thead').addClass('thead-dark');
+                }
+            });
+        }
+
+        // Initialize Sidebar
+        function initializeSidebar() {
+            // Remove any existing click handlers
+            $('.toggle-menu').off('click');
+            $(document).off('click');
+            $('#sidebar-wrapper').off('click');
+
+            // Toggle sidebar on menu icon click
+            $('.toggle-menu').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#wrapper').toggleClass('toggled');
             });
 
             // Close sidebar when clicking outside
             $(document).on('click', function(e) {
-                if (!$(e.target).closest('.right-sidebar, .switcher-icon').length) {
-                    $('.right-sidebar').removeClass('show');
+                if (!$(e.target).closest('#sidebar-wrapper, .toggle-menu').length) {
+                    $('#wrapper').removeClass('toggled');
                 }
             });
 
-            // Function to apply theme
-            function applyTheme(themeId) {
-                // Remove any existing theme classes
-                $('body').removeClass(function(index, className) {
-                    return (className.match(/(^|\s)bg-theme\d+/g) || []).join(' ');
-                });
-                // Add the new theme class
-                $('body').addClass('bg-theme bg-' + themeId);
-                localStorage.setItem('selectedTheme', themeId);
-            }
+            // Prevent sidebar from closing when clicking inside it
+            $('#sidebar-wrapper').on('click', function(e) {
+                e.stopPropagation();
+            });
 
-            // Check localStorage for saved theme
+            // Initialize SimpleBar
+            if (typeof SimpleBar !== 'undefined') {
+                new SimpleBar(document.getElementById('sidebar-wrapper'));
+            }
+        }
+
+        // Initialize Theme
+        function initializeTheme() {
             const savedTheme = localStorage.getItem('selectedTheme');
             if (savedTheme) {
                 applyTheme(savedTheme);
@@ -298,8 +654,252 @@
                     applyTheme(themeId);
                 });
             });
+
+            // Close right sidebar (theme switcher) when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.right-sidebar, .switcher-icon').length) {
+                    $('.right-sidebar').removeClass('right-toggled');
+                }
+            });
+        }
+
+        // Function to apply theme
+        function applyTheme(themeId) {
+            $('body').removeClass(function(index, className) {
+                return (className.match(/(^|\s)bg-theme\d+/g) || []).join(' ');
+            });
+            $('body').addClass('bg-theme bg-' + themeId);
+            localStorage.setItem('selectedTheme', themeId);
+        }
+
+        // Initialize everything when document is ready
+        $(document).ready(function() {
+            try {
+                initializeDataTables();
+                initializeSidebar();
+                initializeTheme();
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        });
+
+        // Backup initialization in case document ready doesn't fire
+        window.addEventListener('load', function() {
+            try {
+                initializeDataTables();
+                initializeSidebar();
+                initializeTheme();
+            } catch (error) {
+                console.error('Error during backup initialization:', error);
+            }
         });
     </script>
+
+    <!-- Handle AJAX alerts -->
+    <script>
+        let alertTimeout;
+
+        function showAlert(message, type) {
+            // Clear any existing timeout
+            if (alertTimeout) { 
+                clearTimeout(alertTimeout);
+            }
+
+            // Remove any existing alerts
+            $('.alert').remove();
+
+            // Get icon based on type
+            let icon = '';
+            switch(type) {
+                case 'success':
+                    icon = '<i class="zmdi zmdi-check-circle"></i>';
+                    break;
+                case 'danger':
+                    icon = '<i class="zmdi zmdi-close-circle"></i>';
+                    break;
+                case 'warning':
+                    icon = '<i class="zmdi zmdi-alert-circle"></i>';
+                    break;
+                case 'info':
+                    icon = '<i class="zmdi zmdi-info"></i>';
+                    break;
+            }
+
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${icon}
+                    <div class="message">${message}</div>
+                    <button type="button" class="close"  style='margin-top: 17px;' data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+            
+            // Add new alert
+            $('.alert-container').html(alertHtml);
+
+            // Set timeout to hide alert after 3 seconds
+            alertTimeout = setTimeout(() => {
+                const alert = $('.alert');
+                alert.addClass('hide');
+                setTimeout(() => {
+                    alert.remove();
+                }, 400);
+            }, 3000);
+
+            // Handle close button click
+            $('.alert .close').on('click', function() {
+                clearTimeout(alertTimeout);
+                const alert = $(this).closest('.alert');
+                alert.addClass('hide');
+                setTimeout(() => {
+                    alert.remove();
+                }, 400);
+            });
+        }
+
+        // Show session alerts on page load
+        $(document).ready(function() {
+            @if(session('success'))
+                showAlert("{{ session('success') }}", 'success');
+            @endif
+            
+            @if(session('error'))
+                showAlert("{{ session('error') }}", 'danger');
+            @endif
+            
+            @if(session('warning'))
+                showAlert("{{ session('warning') }}", 'warning');
+            @endif
+            
+            @if(session('info'))
+                showAlert("{{ session('info') }}", 'info');
+            @endif
+        });
+
+        // Handle AJAX responses
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    showAlert(response.success, 'success');
+                }
+                if (response.error) {
+                    showAlert(response.error, 'danger');
+                }
+                if (response.warning) {
+                    showAlert(response.warning, 'warning');
+                }
+                if (response.info) {
+                    showAlert(response.info, 'info');
+                }
+            } catch (e) {
+                // Not a JSON response, ignore
+            }
+        });
+    </script>
+
+    @push('styles')
+    <style>
+        .nav-item {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            min-width: 200px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 0.5rem;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            display: block;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .dropdown-divider {
+            border-top-color: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+        }
+
+        .dropdown-header {
+            color: rgba(255, 255, 255, 0.6);
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .user-profile {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .user-details .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-title {
+            color: #fff;
+            margin-bottom: 0;
+            font-size: 0.875rem;
+        }
+
+        .user-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            margin-bottom: 0;
+        }
+    </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+        // Remove the dropdown functionality from here since it's now in the head
+    </script>
+    @endpush
 
 </body>
 

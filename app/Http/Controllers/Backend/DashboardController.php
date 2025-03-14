@@ -76,4 +76,9 @@ class DashboardController extends Controller
     {
         return view('backend.profile');
     }
+
+    public function parents()
+    {
+        return view('backend.pages.parent.index');
+    }
 }
