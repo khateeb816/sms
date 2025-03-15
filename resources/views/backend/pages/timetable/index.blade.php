@@ -9,103 +9,73 @@
             <div class="card-header">
                 <h3 class="card-title">Timetable Management</h3>
                 <div class="card-action">
-                    <a href="#" class="btn btn-primary">Create New Timetable</a>
+                    <a href="{{ route('timetable.create') }}" class="btn btn-primary">Create New Timetable Entry</a>
                 </div>
             </div>
             <div class="card-body">
-                <div class="form-group row">
-                    <div class="col-md-4">
-                        <label for="class">Select Class</label>
-                        <select class="form-control" id="class">
-                            <option value="">Select Class</option>
-                            <option value="1">Class 1A</option>
-                            <option value="2">Class 2B</option>
-                            <option value="3">Class 3C</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="section">Select Section</label>
-                        <select class="form-control" id="section">
-                            <option value="">Select Section</option>
-                            <option value="A">Section A</option>
-                            <option value="B">Section B</option>
-                            <option value="C">Section C</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 align-self-end">
-                        <button type="button" class="btn btn-primary">View Timetable</button>
-                    </div>
+                @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
                 </div>
+                @endif
 
-                <div class="table-responsive mt-4">
+                @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+                @endif
+
+                <form action="{{ route('timetable.view') }}" method="POST" class="mb-4">
+                    @csrf
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label for="class_id">Select Class</label>
+                            <select class="form-control @error('class_id') is-invalid @enderror" id="class_id"
+                                name="class_id" required>
+                                <option value="">Select Class</option>
+                                @foreach($classes as $class)
+                                <option value="{{ $class->id }}">{{ $class->name }} ({{ $class->grade_year }})</option>
+                                @endforeach
+                            </select>
+                            @error('class_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 align-self-end">
+                            <button type="submit" class="btn btn-primary">View Timetable</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
                     <table class="table table-bordered datatable">
                         <thead>
                             <tr>
-                                <th>Day/Period</th>
-                                <th>Period 1<br>8:00-9:00</th>
-                                <th>Period 2<br>9:10-10:10</th>
-                                <th>Break<br>10:10-10:30</th>
-                                <th>Period 3<br>10:30-11:30</th>
-                                <th>Period 4<br>11:40-12:40</th>
+                                <th>ID</th>
+                                <th>Class</th>
+                                <th>Grade/Year</th>
+                                <th>Teacher</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($classes as $class)
                             <tr>
-                                <td>Monday</td>
-                                <td>Mathematics<br>John Smith</td>
-                                <td>Science<br>Sarah Johnson</td>
-                                <td class="bg-light text-center">BREAK</td>
-                                <td>English<br>Michael Brown</td>
-                                <td>History<br>Emily Davis</td>
+                                <td>{{ $class->id }}</td>
+                                <td>{{ $class->name }}</td>
+                                <td>{{ $class->grade_year }}</td>
+                                <td>{{ $class->teacher ? $class->teacher->name : 'Not Assigned' }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-primary btn-sm">Edit</a>
+                                    <form action="{{ route('timetable.view') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="class_id" value="{{ $class->id }}">
+                                        <button type="submit" class="btn btn-info btn-sm">
+                                            <i class="zmdi zmdi-eye"></i> View Timetable
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Tuesday</td>
-                                <td>Science<br>Sarah Johnson</td>
-                                <td>Mathematics<br>John Smith</td>
-                                <td class="bg-light text-center">BREAK</td>
-                                <td>Geography<br>Robert Wilson</td>
-                                <td>English<br>Michael Brown</td>
-                                <td>
-                                    <a href="#" class="btn btn-primary btn-sm">Edit</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Wednesday</td>
-                                <td>English<br>Michael Brown</td>
-                                <td>Physical Education<br>James Taylor</td>
-                                <td class="bg-light text-center">BREAK</td>
-                                <td>Mathematics<br>John Smith</td>
-                                <td>Art<br>Lisa Anderson</td>
-                                <td>
-                                    <a href="#" class="btn btn-primary btn-sm">Edit</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Thursday</td>
-                                <td>History<br>Emily Davis</td>
-                                <td>English<br>Michael Brown</td>
-                                <td class="bg-light text-center">BREAK</td>
-                                <td>Science<br>Sarah Johnson</td>
-                                <td>Mathematics<br>John Smith</td>
-                                <td>
-                                    <a href="#" class="btn btn-primary btn-sm">Edit</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Friday</td>
-                                <td>Mathematics<br>John Smith</td>
-                                <td>Science<br>Sarah Johnson</td>
-                                <td class="bg-light text-center">BREAK</td>
-                                <td>Computer Science<br>David Miller</td>
-                                <td>Music<br>Jennifer Lee</td>
-                                <td>
-                                    <a href="#" class="btn btn-primary btn-sm">Edit</a>
-                                </td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

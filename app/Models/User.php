@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\ClassRoom;
 
 class User extends Authenticatable
 {
@@ -58,5 +59,14 @@ class User extends Authenticatable
     public function activities()
     {
         return $this->hasMany(Activity::class);
+    }
+
+    /**
+     * Get the classes that the student belongs to.
+     */
+    public function classes()
+    {
+        return $this->belongsToMany(ClassRoom::class, 'class_student', 'student_id', 'class_id')
+            ->withTimestamps();
     }
 }

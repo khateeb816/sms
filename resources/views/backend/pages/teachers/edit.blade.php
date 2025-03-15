@@ -67,7 +67,7 @@
                                         <label class="col-sm-4 col-form-label">Qualification:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="qualification" class="form-control"
-                                                value="{{ $teacher->teacherDetail->qualification }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->qualification : '' }}">
                                         </div>
                                     </div>
 
@@ -75,7 +75,7 @@
                                         <label class="col-sm-4 col-form-label">Specialization:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="specialization" class="form-control"
-                                                value="{{ $teacher->teacherDetail->specialization }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->specialization : '' }}">
                                         </div>
                                     </div>
 
@@ -115,21 +115,21 @@
                                         <label class="col-sm-4 col-form-label">Education Level:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="education_level" class="form-control"
-                                                value="{{ $teacher->teacherDetail->education_level }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->education_level : '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">University:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="university" class="form-control"
-                                                value="{{ $teacher->teacherDetail->university }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->university : '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Degree:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="degree" class="form-control"
-                                                value="{{ $teacher->teacherDetail->degree }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->degree : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -138,21 +138,21 @@
                                         <label class="col-sm-4 col-form-label">Major:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="major" class="form-control"
-                                                value="{{ $teacher->teacherDetail->major }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->major : '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Graduation Year:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="graduation_year" class="form-control"
-                                                value="{{ $teacher->teacherDetail->graduation_year }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->graduation_year : '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Certification:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="certification" class="form-control"
-                                                value="{{ $teacher->teacherDetail->certification }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->certification : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -162,7 +162,7 @@
                                     <div class="form-group">
                                         <label>Teaching Experience:</label>
                                         <textarea name="teaching_experience" class="form-control"
-                                            rows="4">{{ $teacher->teacherDetail->teaching_experience }}</textarea>
+                                            rows="4">{{ $teacher->teacherDetail ? $teacher->teacherDetail->teaching_experience : '' }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +171,7 @@
                                     <div class="form-group">
                                         <label>Biography:</label>
                                         <textarea name="biography" class="form-control"
-                                            rows="4">{{ $teacher->teacherDetail->biography }}</textarea>
+                                            rows="4">{{ $teacher->teacherDetail ? $teacher->teacherDetail->biography : '' }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +190,7 @@
                                         <label class="col-sm-4 col-form-label">Contact Name:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_name" class="form-control"
-                                                value="{{ $teacher->teacherDetail->emergency_contact_name }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->emergency_contact_name : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -199,7 +199,7 @@
                                         <label class="col-sm-4 col-form-label">Contact Phone:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_phone" class="form-control"
-                                                value="{{ $teacher->teacherDetail->emergency_contact_phone }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->emergency_contact_phone : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -211,7 +211,7 @@
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_relationship"
                                                 class="form-control"
-                                                value="{{ $teacher->teacherDetail->emergency_contact_relationship }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->emergency_contact_relationship : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -231,14 +231,14 @@
                                         <label class="col-sm-4 col-form-label">Bank Name:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_name" class="form-control"
-                                                value="{{ $teacher->teacherDetail->bank_name }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->bank_name : '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Account Number:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_account_number" class="form-control"
-                                                value="{{ $teacher->teacherDetail->bank_account_number }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->bank_account_number : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -247,7 +247,7 @@
                                         <label class="col-sm-4 col-form-label">Branch:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_branch" class="form-control"
-                                                value="{{ $teacher->teacherDetail->bank_branch }}">
+                                                value="{{ $teacher->teacherDetail ? $teacher->teacherDetail->bank_branch : '' }}">
                                         </div>
                                     </div>
                                 </div>

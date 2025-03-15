@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\ClassRoom;
 use App\Models\Period;
 use App\Models\Timetable;
@@ -34,7 +33,7 @@ class TimetableController extends Controller
     {
         $classes = ClassRoom::where('is_active', true)->get();
         $periods = Period::all();
-        $teachers = User::where('role', 2)->where('status', 'active')->get(); // Role 2 is for teachers
+        $teachers = User::where('role', 3)->where('status', 'active')->get(); // Role 3 is for teachers
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         return view('backend.pages.timetable.create', compact('classes', 'periods', 'teachers', 'days'));
@@ -48,25 +47,17 @@ class TimetableController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if this is a break period
-        $isBreak = $request->has('is_break') && $request->is_break == 1;
-
-        // Set validation rules based on whether it's a break period
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'class_id' => 'required|exists:class_rooms,id',
             'day_of_week' => 'required|string',
             'period_id' => 'required|exists:periods,id',
+            'subject' => 'required|string|max:255',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'teacher_id' => 'nullable|exists:users,id',
             'notes' => 'nullable|string',
             'is_break' => 'boolean',
-        ];
-
-        // Only require subject and teacher if it's not a break period
-        if (!$isBreak) {
-            $rules['subject'] = 'required|string|max:255';
-            $rules['teacher_id'] = 'nullable|exists:users,id';
-        }
-
-        $validator = Validator::make($request->all(), $rules);
+        ]);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -86,24 +77,9 @@ class TimetableController extends Controller
                 ->withInput();
         }
 
-        // Get the period to extract start_time and end_time
-        $period = Period::findOrFail($request->period_id);
+        Timetable::create($request->all());
 
-        // If it's a break period, set subject to "BREAK" and teacher_id to null
-        $data = $request->all();
-        if ($isBreak) {
-            $data['subject'] = 'BREAK';
-            $data['teacher_id'] = null;
-        }
-
-        // Set the start_time and end_time from the period
-        $data['start_time'] = $period->start_time->format('H:i');
-        $data['end_time'] = $period->end_time->format('H:i');
-
-        Timetable::create($data);
-
-        // Redirect to the timetable view for this class
-        return redirect()->route('timetable.class', ['class_id' => $request->class_id])
+        return redirect()->route('timetable.index')
             ->with('success', 'Timetable entry created successfully.');
     }
 
@@ -137,7 +113,7 @@ class TimetableController extends Controller
         $timetable = Timetable::findOrFail($id);
         $classes = ClassRoom::where('is_active', true)->get();
         $periods = Period::all();
-        $teachers = User::where('role', 2)->where('status', 'active')->get(); // Role 2 is for teachers
+        $teachers = User::where('role', 3)->where('status', 'active')->get(); // Role 3 is for teachers
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         return view('backend.pages.timetable.edit', compact('timetable', 'classes', 'periods', 'teachers', 'days'));
@@ -152,25 +128,17 @@ class TimetableController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Check if this is a break period
-        $isBreak = $request->has('is_break') && $request->is_break == 1;
-
-        // Set validation rules based on whether it's a break period
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'class_id' => 'required|exists:class_rooms,id',
             'day_of_week' => 'required|string',
             'period_id' => 'required|exists:periods,id',
+            'subject' => 'required|string|max:255',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'teacher_id' => 'nullable|exists:users,id',
             'notes' => 'nullable|string',
             'is_break' => 'boolean',
-        ];
-
-        // Only require subject and teacher if it's not a break period
-        if (!$isBreak) {
-            $rules['subject'] = 'required|string|max:255';
-            $rules['teacher_id'] = 'nullable|exists:users,id';
-        }
-
-        $validator = Validator::make($request->all(), $rules);
+        ]);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -193,24 +161,9 @@ class TimetableController extends Controller
                 ->withInput();
         }
 
-        // Get the period to extract start_time and end_time
-        $period = Period::findOrFail($request->period_id);
+        $timetable->update($request->all());
 
-        // If it's a break period, set subject to "BREAK" and teacher_id to null
-        $data = $request->all();
-        if ($isBreak) {
-            $data['subject'] = 'BREAK';
-            $data['teacher_id'] = null;
-        }
-
-        // Set the start_time and end_time from the period
-        $data['start_time'] = $period->start_time->format('H:i');
-        $data['end_time'] = $period->end_time->format('H:i');
-
-        $timetable->update($data);
-
-        // Redirect to the timetable view for this class
-        return redirect()->route('timetable.class', ['class_id' => $request->class_id])
+        return redirect()->route('timetable.index')
             ->with('success', 'Timetable entry updated successfully.');
     }
 
@@ -223,11 +176,9 @@ class TimetableController extends Controller
     public function destroy($id)
     {
         $timetable = Timetable::findOrFail($id);
-        $class_id = $timetable->class_id; // Store the class_id before deleting
         $timetable->delete();
 
-        // Redirect back to the timetable view for this class
-        return redirect()->route('timetable.class', ['class_id' => $class_id])
+        return redirect()->route('timetable.index')
             ->with('success', 'Timetable entry deleted successfully.');
     }
 
@@ -251,26 +202,6 @@ class TimetableController extends Controller
 
         $class = ClassRoom::findOrFail($request->class_id);
         $timetable = Timetable::where('class_id', $request->class_id)
-            ->orderBy('day_of_week')
-            ->orderBy('start_time')
-            ->get()
-            ->groupBy('day_of_week');
-        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        $periods = Period::orderBy('start_time')->get();
-
-        return view('backend.pages.timetable.view', compact('class', 'timetable', 'days', 'periods'));
-    }
-
-    /**
-     * View timetable for a specific class by ID (GET route).
-     *
-     * @param  int  $class_id
-     * @return \Illuminate\Http\Response
-     */
-    public function viewClassTimetable($class_id)
-    {
-        $class = ClassRoom::findOrFail($class_id);
-        $timetable = Timetable::where('class_id', $class_id)
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get()

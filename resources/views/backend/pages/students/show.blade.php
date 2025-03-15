@@ -32,7 +32,9 @@
                         <h4 class="mt-3">{{ $student->name }}</h4>
                         <p class="text-muted">Student</p>
                         <div class="d-flex justify-content-center">
-                            <span class="badge badge-primary mr-2">Class: {{ $student->class ?? 'Not assigned' }}</span>
+                            <span class="badge badge-primary mr-2">Class: {{ isset($student->classes) &&
+                                count($student->classes) > 0 ? $student->classes->first()->name : 'Not assigned'
+                                }}</span>
                             <span class="badge badge-info">Roll: {{ $student->roll_number ?? 'Not assigned' }}</span>
                         </div>
                     </div>
@@ -116,7 +118,17 @@
                             <div class="card bg-dark">
                                 <div class="card-body">
                                     <h5 class="card-title">Class</h5>
-                                    <p class="card-text">{{ $student->class ?? 'Not assigned' }}</p>
+                                    <p class="card-text">
+                                        @if(isset($student->classes) && count($student->classes) > 0)
+                                        {{ $student->classes->first()->name }}
+                                        @if($student->classes->count() > 1)
+                                        <span class="badge badge-info ml-2">+{{ $student->classes->count() - 1 }}
+                                            more</span>
+                                        @endif
+                                        @else
+                                        Not assigned
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                         </div>
