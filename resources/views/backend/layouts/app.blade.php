@@ -8,6 +8,13 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>@yield('title', 'Dashtreme Admin - Laravel Dashboard')</title>
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    @php
+    use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Storage;
+    @endphp
 
     <!-- Custom Alert Styling -->
     <style>
@@ -156,6 +163,66 @@
                 transform: translateY(-100%);
                 opacity: 0;
             }
+        }
+
+        /* Custom Dropdown Styling */
+        .dropdown-menu {
+            border: 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Badge Styling */
+        .nav-item .badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 10px;
+            padding: 3px 5px;
+            border-radius: 50%;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        /* Message Dropdown Styling */
+        #messages-dropdown {
+            width: 300px;
+            padding: 0;
+        }
+
+        #messages-dropdown .dropdown-header {
+            padding: 12px 15px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+
+        #messages-dropdown .dropdown-item {
+            padding: 10px 15px;
+            white-space: normal;
+        }
+
+        #messages-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        #messages-dropdown .user-img img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+
+        #messages-dropdown h6 {
+            font-size: 14px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        #messages-dropdown small {
+            font-size: 11px;
         }
     </style>
 
@@ -357,9 +424,16 @@
                     </a>
                 </li>
 
-                <li class="{{ request()->routeIs('fees.*') ? 'active' : '' }}">
+                <li
+                    class="{{ request()->routeIs('fees.*') || request()->is('admin/fees*') || request()->is('admin/fines*') || request()->is('admin/student-fees*') || request()->is('admin/public-report*') ? 'active' : '' }}">
                     <a href="{{ url('/admin/fees') }}">
                         <i class="zmdi zmdi-money"></i> <span>Fees / Fines</span>
+                    </a>
+                </li>
+
+                <li class="{{ request()->routeIs('activities.*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/activities') }}">
+                        <i class="zmdi zmdi-trending-up"></i> <span>Activity Log</span>
                     </a>
                 </li>
 
@@ -396,11 +470,108 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleDropdown(event, 'messages-dropdown')">
                             <i class="fa fa-envelope-open-o"></i>
+                            @php
+                            $user = Auth::user();
+                            $userType = '';
+                            switch ($user->role) {
+                            case 1:
+                            $userType = 'admin';
+                            break;
+                            case 2:
+                            $userType = 'teacher';
+                            break;
+                            case 3:
+                            $userType = 'parent';
+                            break;
+                            case 4:
+                            $userType = 'student';
+                            break;
+                            default:
+                            $userType = 'unknown';
+                            }
+
+                            $userKey = $user->id . '_' . $userType;
+
+                            $unreadMessages = App\Models\Message::where(function ($query) use ($user, $userType,
+                            $userKey) {
+                            $query->where(function ($q) use ($user, $userType) {
+                            $q->where('recipient_id', $user->id)
+                            ->where('recipient_type', $userType)
+                            ->where('deleted_by_recipient', false);
+                            })->orWhere(function ($q) use ($userType, $userKey) {
+                            $q->where('is_broadcast', true)
+                            ->where(function ($sq) use ($userType) {
+                            $sq->where('recipient_type', $userType)
+                            ->orWhere('recipient_type', 'all');
+                            })
+                            ->where(function($sq) use ($userKey) {
+                            $sq->whereNull('deleted_by_users')
+                            ->orWhereRaw("NOT JSON_CONTAINS(deleted_by_users, '\"$userKey\"')");
+                            });
+                            });
+                            })
+                            ->where('is_read', false)
+                            ->count();
+
+                            $recentUnreadMessages = App\Models\Message::with('sender')
+                            ->where(function ($query) use ($user, $userType, $userKey) {
+                            $query->where(function ($q) use ($user, $userType) {
+                            $q->where('recipient_id', $user->id)
+                            ->where('recipient_type', $userType)
+                            ->where('deleted_by_recipient', false);
+                            })->orWhere(function ($q) use ($userType, $userKey) {
+                            $q->where('is_broadcast', true)
+                            ->where(function ($sq) use ($userType) {
+                            $sq->where('recipient_type', $userType)
+                            ->orWhere('recipient_type', 'all');
+                            })
+                            ->where(function($sq) use ($userKey) {
+                            $sq->whereNull('deleted_by_users')
+                            ->orWhereRaw("NOT JSON_CONTAINS(deleted_by_users, '\"$userKey\"')");
+                            });
+                            });
+                            })
+                            ->where('is_read', false)
+                            ->orderBy('created_at', 'desc')
+                            ->take(5)
+                            ->get();
+                            @endphp
+                            @if($unreadMessages > 0)
+                            <span class="badge badge-danger">{{ $unreadMessages }}</span>
+                            @endif
                         </a>
                         <div id="messages-dropdown" class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Messages</div>
+                            <div class="dropdown-header">Messages ({{ $unreadMessages }} unread)</div>
                             <div class="dropdown-divider"></div>
+                            @if($recentUnreadMessages->count() > 0)
+                            @foreach($recentUnreadMessages as $message)
+                            <a class="dropdown-item" href="{{ route('messages.show', $message->id) }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-img">
+                                        @if($message->sender && $message->sender->image)
+                                        <img src="{{ Storage::url('profile-images/'.$message->sender->image) }}"
+                                            alt="user avatar" class="img-circle" width="40">
+                                        @else
+                                        <img src="https://ui-avatars.com/api/?name={{ $message->sender ? urlencode($message->sender->name) : 'Unknown' }}&background=random"
+                                            alt="user avatar" class="img-circle" width="40">
+                                        @endif
+                                    </div>
+                                    <div class="ml-2">
+                                        <h6 class="mb-0">{{ $message->subject }}</h6>
+                                        <small class="text-muted">From: {{ $message->sender ? $message->sender->name :
+                                            'System' }}</small>
+                                        <small class="text-muted d-block">{{ $message->created_at->diffForHumans()
+                                            }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                            @endforeach
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-center" href="{{ route('messages.inbox') }}">View All
+                                Messages</a>
+                            @else
                             <a class="dropdown-item" href="#">No new messages</a>
+                            @endif
                         </div>
                     </li>
                     <li class="nav-item">
@@ -414,30 +585,30 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="toggleDropdown(event, 'language-dropdown')">
-                            <i class="fa fa-flag"></i>
-                        </a>
-                        <div id="language-dropdown" class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-gb mr-2"></i> English</a>
-                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr mr-2"></i> French</a>
-                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-cn mr-2"></i> Chinese</a>
-                            <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de mr-2"></i> German</a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleDropdown(event, 'profile-dropdown')">
                             <span class="user-profile">
+                                @if(auth()->user()->image)
+                                <img src="{{ Storage::url('profile-images/'.auth()->user()->image) }}"
+                                    class="img-circle" alt="user avatar">
+                                @else
                                 <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
                                     class="img-circle" alt="user avatar">
+                                @endif
                             </span>
                         </a>
                         <div id="profile-dropdown" class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-item user-details">
                                 <div class="media">
                                     <div class="avatar">
+                                        @if(auth()->user()->image)
+                                        <img class="align-self-start mr-3"
+                                            src="{{ Storage::url('profile-images/'.auth()->user()->image) }}"
+                                            alt="user avatar">
+                                        @else
                                         <img class="align-self-start mr-3"
                                             src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
                                             alt="user avatar">
+                                        @endif
                                     </div>
                                     <div class="media-body">
                                         <h6 class="mt-2 user-title">{{ auth()->user()->name ?? 'Guest User' }}</h6>
@@ -446,9 +617,8 @@
                                 </div>
                             </div>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#"><i class="icon-envelope mr-2"></i> Inbox</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#"><i class="icon-wallet mr-2"></i> Account</a>
+                            <a class="dropdown-item" href="{{ route('messages.inbox') }}"><i
+                                    class="icon-envelope mr-2"></i> Inbox</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url('/admin/profile') }}"><i
                                     class="icon-settings mr-2"></i> Setting</a>

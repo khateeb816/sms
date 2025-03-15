@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Services\ActivityService;
 
 class StudentController extends Controller
 {
@@ -70,6 +71,9 @@ class StudentController extends Controller
         $user->status = $request->status;
         $user->role = 4; // 4 = student
         $user->save();
+
+        // Log the activity
+        ActivityService::logStudentActivity('Created', $user->name, $user->id);
 
         return redirect('/admin/students')->with('success', 'Student added successfully!');
     }
@@ -147,6 +151,9 @@ class StudentController extends Controller
 
         $student->save();
 
+        // Log the activity
+        ActivityService::logStudentActivity('Updated', $student->name, $student->id);
+
         return redirect('/admin/students')->with('success', 'Student updated successfully!');
     }
 
@@ -161,10 +168,13 @@ class StudentController extends Controller
         // Find the student user
         $student = User::where('role', 4)->findOrFail($id);
 
-        // Delete the student
+        $studentName = $student->name;
         $student->delete();
 
-        return redirect('/admin/students')->with('success', 'Student deleted successfully!');
+        // Log the activity
+        ActivityService::logStudentActivity('Deleted', $studentName, $id);
+
+        return redirect('/admin/students')->with('success', "Student '{$studentName}' deleted successfully!");
     }
 
     /**

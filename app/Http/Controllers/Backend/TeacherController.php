@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\TeacherDetail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Services\ActivityService;
 
 class TeacherController extends Controller
 {
@@ -79,6 +80,8 @@ class TeacherController extends Controller
             $user->status = $request->status;
             $user->role = 2; // 2 = teacher
             $user->save();
+
+            ActivityService::logTeacherActivity('Created', $user->name, $user->id);
 
             // Create teacher details
             $teacherDetail = new TeacherDetail();
@@ -207,6 +210,8 @@ class TeacherController extends Controller
 
             $teacher->save();
 
+            ActivityService::logTeacherActivity('Updated', $teacher->name, $teacher->id);
+
             // Update or create teacher details
             $teacherDetail = TeacherDetail::updateOrCreate(
                 ['user_id' => $teacher->id],
@@ -251,6 +256,8 @@ class TeacherController extends Controller
 
             // Delete the teacher (teacher details will be deleted via cascade)
             $teacher->delete();
+
+            ActivityService::logTeacherActivity('Deleted', $teacherName, $id);
 
             return redirect()->route('teachers.index')->with('success', "Teacher '{$teacherName}' deleted successfully!");
         } catch (\Exception $e) {

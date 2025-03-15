@@ -7,6 +7,7 @@ use App\Models\ClassRoom;
 use App\Models\Period;
 use App\Models\Timetable;
 use App\Models\User;
+use App\Services\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -100,7 +101,12 @@ class TimetableController extends Controller
         $data['start_time'] = $period->start_time->format('H:i');
         $data['end_time'] = $period->end_time->format('H:i');
 
-        Timetable::create($data);
+        $timetable = Timetable::create($data);
+
+        // Get class name for activity log
+        $className = ClassRoom::find($request->class_id)->name;
+
+        ActivityService::logTimetableActivity('Created', $className, $request->day_of_week, $timetable->id);
 
         // Redirect to the timetable view for this class
         return redirect()->route('timetable.class', ['class_id' => $request->class_id])
@@ -209,6 +215,11 @@ class TimetableController extends Controller
 
         $timetable->update($data);
 
+        // Get class name for activity log
+        $className = ClassRoom::find($request->class_id)->name;
+
+        ActivityService::logTimetableActivity('Updated', $className, $request->day_of_week, $timetable->id);
+
         // Redirect to the timetable view for this class
         return redirect()->route('timetable.class', ['class_id' => $request->class_id])
             ->with('success', 'Timetable entry updated successfully.');
@@ -224,7 +235,15 @@ class TimetableController extends Controller
     {
         $timetable = Timetable::findOrFail($id);
         $class_id = $timetable->class_id; // Store the class_id before deleting
+
+        // Get class name and day for activity log
+        $className = ClassRoom::find($timetable->class_id)->name;
+        $day = $timetable->day_of_week;
+        $timetableId = $timetable->id;
+
         $timetable->delete();
+
+        ActivityService::logTimetableActivity('Deleted', $className, $day, $timetableId);
 
         // Redirect back to the timetable view for this class
         return redirect()->route('timetable.class', ['class_id' => $class_id])

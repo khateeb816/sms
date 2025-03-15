@@ -14,7 +14,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="studentsTable" class="table table-bordered table-striped">
+                    <table id="studentsTable" class="table table-bordered table-striped datatable">
                         <thead>
                             <tr>
                                 <th>Name</th>

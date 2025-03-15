@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\ClassRoom;
 use App\Models\User;
+use App\Services\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -59,6 +60,8 @@ class ClassController extends Controller
 
         try {
             $class = ClassRoom::create($validated);
+
+            ActivityService::logClassActivity('Created', $class->name, $class->id);
 
             // Debug: Log the created class
             Log::info('Class created successfully:', $class->toArray());
@@ -121,6 +124,8 @@ class ClassController extends Controller
         try {
             $class->update($validated);
 
+            ActivityService::logClassActivity('Updated', $class->name, $class->id);
+
             // Debug: Log the updated class
             Log::info('Class updated successfully:', $class->toArray());
 
@@ -137,8 +142,13 @@ class ClassController extends Controller
      */
     public function destroy(ClassRoom $class)
     {
+        $className = $class->name;
+        $classId = $class->id;
+        $class->delete();
+
+        ActivityService::logClassActivity('Deleted', $className, $classId);
+
         try {
-            $class->delete();
             return redirect()->route('classes.index')->with('success', 'Class deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to delete class: ' . $e->getMessage());

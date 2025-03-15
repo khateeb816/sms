@@ -14,7 +14,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="periodsTable">
+                    <table class="table table-bordered datatable" id="periodsTable">
                         <thead>
                             <tr>
                                 <th width="5%">ID</th>

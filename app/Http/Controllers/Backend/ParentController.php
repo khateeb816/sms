@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Services\ActivityService;
 
 class ParentController extends Controller
 {
@@ -47,6 +48,9 @@ class ParentController extends Controller
             $user->status = $request->status;
             $user->role = 3; // 3 = parent
             $user->save();
+
+            // Log the activity
+            ActivityService::logParentActivity('Created', $user->name, $user->id);
 
             return redirect('/admin/parents')->with('success', 'Parent added successfully!');
         } catch (\Exception $e) {
@@ -136,6 +140,9 @@ class ParentController extends Controller
 
             $parent->save();
 
+            // Log the activity
+            ActivityService::logParentActivity('Updated', $parent->name, $parent->id);
+
             return redirect('/admin/parents')->with('success', 'Parent updated successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update parent: ' . $e->getMessage())->withInput();
@@ -151,6 +158,9 @@ class ParentController extends Controller
 
             // Delete the parent
             $parent->delete();
+
+            // Log the activity
+            ActivityService::logParentActivity('Deleted', $parentName, $id);
 
             return redirect('/admin/parents')->with('success', "Parent '{$parentName}' deleted successfully!");
         } catch (\Exception $e) {

@@ -14,7 +14,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="parentsTable" class="table table-bordered table-striped">
+                    <table id="parentsTable" class="table table-bordered table-striped datatable">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -37,8 +37,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="{{ route('parents.show', $parent->id) }}"
-                                            class="btn btn-info btn-sm">
+                                        <a href="{{ route('parents.show', $parent->id) }}" class="btn btn-info btn-sm">
                                             View
                                         </a>
                                         <a href="{{ route('parents.edit', $parent->id) }}"

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Period;
+use App\Services\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -70,6 +71,8 @@ class PeriodController extends Controller
             // Debug: Log the created period
             Log::info('Period created successfully:', $period->toArray());
 
+            ActivityService::logPeriodActivity('Created', $period->name, $period->id);
+
             return redirect()->route('periods.index')->with('success', 'Period created successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to create period: ' . $e->getMessage());
@@ -130,6 +133,8 @@ class PeriodController extends Controller
             // Debug: Log the updated period
             Log::info('Period updated successfully:', $period->toArray());
 
+            ActivityService::logPeriodActivity('Updated', $period->name, $period->id);
+
             return redirect()->route('periods.index')->with('success', 'Period updated successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to update period: ' . $e->getMessage());
@@ -143,8 +148,13 @@ class PeriodController extends Controller
      */
     public function destroy(Period $period)
     {
+        $periodName = $period->name;
+        $periodId = $period->id;
+        $period->delete();
+
+        ActivityService::logPeriodActivity('Deleted', $periodName, $periodId);
+
         try {
-            $period->delete();
             return redirect()->route('periods.index')->with('success', 'Period deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to delete period: ' . $e->getMessage());
