@@ -164,13 +164,14 @@
                             <a class="dropdown-item" href="javascript:void();">Weekly View</a>
                             <a class="dropdown-item" href="javascript:void();">Monthly View</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:void();">Export Report</a>
+                            <a class="dropdown-item" href="{{ route('attendance.reports') }}">View Full Reports</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <div class="traffic-summary">
+                <!-- Student Attendance -->
+                <div class="traffic-summary mb-4">
                     <div class="row mb-3">
                         <div class="col-12">
                             <h4 class="mb-0">Student Attendance</h4>
@@ -178,27 +179,160 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <div class="traffic-source">
-                                <h5>Present</h5>
-                                <p class="mb-0">{{ $attendanceData['present'] }}% <span class="text-success"><i
-                                            class="fa fa-arrow-up"></i> 3%</span>
+                                <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
+                                <p class="mb-0">{{ $attendanceData['student_present'] ?? $attendanceData['present'] }}%
+                                    @if(isset($attendanceData['student_present_trend']) &&
+                                    $attendanceData['student_present_trend'] > 0)
+                                    <span class="text-success"><i class="fa fa-arrow-up"></i> {{
+                                        $attendanceData['student_present_trend'] }}%</span>
+                                    @elseif(isset($attendanceData['student_present_trend']) &&
+                                    $attendanceData['student_present_trend'] < 0) <span class="text-danger"><i
+                                            class="fa fa-arrow-down"></i> {{
+                                        abs($attendanceData['student_present_trend']) }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-up"></i> 3%</span>
+                                        @endif
                                 </p>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <div class="traffic-source">
-                                <h5>Absent</h5>
-                                <p class="mb-0">{{ $attendanceData['absent'] }}% <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> 1%</span>
+                                <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
+                                <p class="mb-0">{{ $attendanceData['student_absent'] ?? $attendanceData['absent'] }}%
+                                    @if(isset($attendanceData['student_absent_trend']) &&
+                                    $attendanceData['student_absent_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{
+                                        abs($attendanceData['student_absent_trend']) }}%</span>
+                                        @elseif(isset($attendanceData['student_absent_trend']) &&
+                                        $attendanceData['student_absent_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['student_absent_trend'] }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 1%</span>
+                                        @endif
                                 </p>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <div class="traffic-source">
-                                <h5>Leave</h5>
-                                <p class="mb-0">{{ $attendanceData['leave'] }}% <span class="text-danger"><i
-                                            class="fa fa-arrow-up"></i> 0.5%</span>
+                                <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
+                                <p class="mb-0">{{ $attendanceData['student_late'] ?? ($attendanceData['late'] ?? 0) }}%
+                                    @if(isset($attendanceData['student_late_trend']) &&
+                                    $attendanceData['student_late_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['student_late_trend'])
+                                        }}%</span>
+                                        @elseif(isset($attendanceData['student_late_trend']) &&
+                                        $attendanceData['student_late_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['student_late_trend'] }}%</span>
+                                        @else
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
+                                        @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="traffic-source">
+                                <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
+                                <p class="mb-0">{{ $attendanceData['student_leave'] ?? $attendanceData['leave'] }}%
+                                    @if(isset($attendanceData['student_leave_trend']) &&
+                                    $attendanceData['student_leave_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['student_leave_trend'])
+                                        }}%</span>
+                                        @elseif(isset($attendanceData['student_leave_trend']) &&
+                                        $attendanceData['student_leave_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['student_leave_trend'] }}%</span>
+                                        @else
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
+                                        @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher Attendance -->
+                <div class="traffic-summary">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h4 class="mb-0">Teacher Attendance</h4>
+                            <p class="text-muted">Last 30 days statistics</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-3">
+                            <div class="traffic-source">
+                                <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
+                                <p class="mb-0">{{ $attendanceData['teacher_present'] ?? ($attendanceData['teacher'] ??
+                                    95) }}%
+                                    @if(isset($attendanceData['teacher_present_trend']) &&
+                                    $attendanceData['teacher_present_trend'] > 0)
+                                    <span class="text-success"><i class="fa fa-arrow-up"></i> {{
+                                        $attendanceData['teacher_present_trend'] }}%</span>
+                                    @elseif(isset($attendanceData['teacher_present_trend']) &&
+                                    $attendanceData['teacher_present_trend'] < 0) <span class="text-danger"><i
+                                            class="fa fa-arrow-down"></i> {{
+                                        abs($attendanceData['teacher_present_trend']) }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-up"></i> 1.5%</span>
+                                        @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="traffic-source">
+                                <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
+                                <p class="mb-0">{{ $attendanceData['teacher_absent'] ?? 2 }}%
+                                    @if(isset($attendanceData['teacher_absent_trend']) &&
+                                    $attendanceData['teacher_absent_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{
+                                        abs($attendanceData['teacher_absent_trend']) }}%</span>
+                                        @elseif(isset($attendanceData['teacher_absent_trend']) &&
+                                        $attendanceData['teacher_absent_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['teacher_absent_trend'] }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.5%</span>
+                                        @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="traffic-source">
+                                <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
+                                <p class="mb-0">{{ $attendanceData['teacher_late'] ?? 1 }}%
+                                    @if(isset($attendanceData['teacher_late_trend']) &&
+                                    $attendanceData['teacher_late_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['teacher_late_trend'])
+                                        }}%</span>
+                                        @elseif(isset($attendanceData['teacher_late_trend']) &&
+                                        $attendanceData['teacher_late_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['teacher_late_trend'] }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.2%</span>
+                                        @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="traffic-source">
+                                <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
+                                <p class="mb-0">{{ $attendanceData['teacher_leave'] ?? 2 }}%
+                                    @if(isset($attendanceData['teacher_leave_trend']) &&
+                                    $attendanceData['teacher_leave_trend'] < 0) <span class="text-success"><i
+                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['teacher_leave_trend'])
+                                        }}%</span>
+                                        @elseif(isset($attendanceData['teacher_leave_trend']) &&
+                                        $attendanceData['teacher_leave_trend'] > 0)
+                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
+                                            $attendanceData['teacher_leave_trend'] }}%</span>
+                                        @else
+                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.3%</span>
+                                        @endif
                                 </p>
                             </div>
                         </div>
@@ -377,6 +511,12 @@
                         <a href="{{ url('/admin/timetable') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-calendar d-block"></i>
                             <span>Timetable</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('attendance.students.index') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-calendar-check d-block"></i>
+                            <span>Attendance</span>
                         </a>
                     </div>
                     <div class="col-6">

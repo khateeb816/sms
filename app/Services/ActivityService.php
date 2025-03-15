@@ -66,8 +66,14 @@ class ActivityService
      */
     public static function logStudentActivity($action, $studentName, $studentId)
     {
-        $description = "{$action} student record for {$studentName} (#{$studentId})";
-        return self::log($description);
+        $user = auth()->user();
+
+        Activity::create([
+            'user_id' => $user->id,
+            'action' => "$action student: $studentName",
+            'action_model' => 'Student',
+            'action_id' => $studentId
+        ]);
     }
 
     /**
@@ -80,8 +86,14 @@ class ActivityService
      */
     public static function logTeacherActivity($action, $teacherName, $teacherId)
     {
-        $description = "{$action} teacher record for {$teacherName} (#{$teacherId})";
-        return self::log($description);
+        $user = auth()->user();
+
+        Activity::create([
+            'user_id' => $user->id,
+            'action' => "$action teacher: $teacherName",
+            'action_model' => 'Teacher',
+            'action_id' => $teacherId
+        ]);
     }
 
     /**
@@ -122,8 +134,14 @@ class ActivityService
      */
     public static function logParentActivity($action, $parentName, $parentId)
     {
-        $description = "{$action} parent record for {$parentName} (#{$parentId})";
-        return self::log($description);
+        $user = auth()->user();
+
+        Activity::create([
+            'user_id' => $user->id,
+            'action' => "$action parent: $parentName",
+            'action_model' => 'Parent',
+            'action_id' => $parentId
+        ]);
     }
 
     /**
@@ -185,6 +203,21 @@ class ActivityService
             $description .= " with filters: {$filters}";
         }
 
+        return self::log($description);
+    }
+
+    /**
+     * Log attendance activity
+     *
+     * @param string $action
+     * @param string $userName
+     * @param int $userId
+     * @param string $type
+     * @return void
+     */
+    public static function logAttendanceActivity($action, $userName, $userId, $type = 'student')
+    {
+        $description = "$action attendance for $type: $userName";
         return self::log($description);
     }
 }

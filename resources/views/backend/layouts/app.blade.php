@@ -377,9 +377,36 @@
             <ul class="sidebar-menu do-nicescrol">
                 <li class="sidebar-header">MAIN NAVIGATION</li>
                 <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/dashboard') }}">
+                    <a href="{{ route('dashboard') }}">
                         <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
                     </a>
+                </li>
+
+                <li class="{{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                    <a href="javaScript:void();" class="waves-effect">
+                        <i class="fa fa-calendar-check-o"></i>
+                        <span>Attendance</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li
+                            class="{{ request()->routeIs('attendance.students.*') || request()->is('admin/attendance/students*') ? 'active' : '' }}">
+                            <a href="{{ route('attendance.students.index') }}">
+                                <i class="fa fa-circle-o"></i> Student Attendance
+                            </a>
+                        </li>
+                        <li
+                            class="{{ request()->routeIs('attendance.teachers.*') || request()->is('admin/attendance/teachers*') ? 'active' : '' }}">
+                            <a href="{{ route('attendance.teachers.index') }}">
+                                <i class="fa fa-circle-o"></i> Teacher Attendance
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('attendance.reports') ? 'active' : '' }}">
+                            <a href="{{ route('attendance.reports') }}">
+                                <i class="fa fa-circle-o"></i> Attendance Reports
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li class="{{ request()->routeIs('parents.*') ? 'active' : '' }}">
