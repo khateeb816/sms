@@ -369,7 +369,7 @@
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
             <div class="brand-logo">
-                <a href="{{ url('/admin/dashboard') }}">
+                <a href="{{ url('/dash/dashboard') }}">
                     <img src="{{ asset('assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
                     <h5 class="logo-text">Dashtreme Admin</h5>
                 </a>
@@ -390,13 +390,13 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li
-                            class="{{ request()->routeIs('attendance.students.*') || request()->is('admin/attendance/students*') ? 'active' : '' }}">
+                            class="{{ request()->routeIs('attendance.students.*') || request()->is('dash/attendance/students*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.students.index') }}">
                                 <i class="fa fa-circle-o"></i> Student Attendance
                             </a>
                         </li>
                         <li
-                            class="{{ request()->routeIs('attendance.teachers.*') || request()->is('admin/attendance/teachers*') ? 'active' : '' }}">
+                            class="{{ request()->routeIs('attendance.teachers.*') || request()->is('dash/attendance/teachers*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.teachers.index') }}">
                                 <i class="fa fa-circle-o"></i> Teacher Attendance
                             </a>
@@ -428,51 +428,51 @@
                 </li>
 
                 <li class="{{ request()->routeIs('periods.*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/periods') }}">
+                    <a href="{{ url('/dash/periods') }}">
                         <i class="zmdi zmdi-time"></i> <span>Period Management</span>
                     </a>
                 </li>
 
                 <li class="{{ request()->routeIs('classes.*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/classes') }}">
+                    <a href="{{ url('/dash/classes') }}">
                         <i class="zmdi zmdi-graduation-cap"></i> <span>Class Management</span>
                     </a>
                 </li>
 
                 <li class="{{ request()->routeIs('timetable.*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/timetable') }}">
+                    <a href="{{ url('/dash/timetable') }}">
                         <i class="zmdi zmdi-calendar"></i> <span>Timetable</span>
                     </a>
                 </li>
 
                 <li class="{{ request()->routeIs('messages.*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/messages') }}">
+                    <a href="{{ url('/dash/messages') }}">
                         <i class="zmdi zmdi-email"></i> <span>Messages</span>
                     </a>
                 </li>
 
                 <li
-                    class="{{ request()->routeIs('fees.*') || request()->is('admin/fees*') || request()->is('admin/fines*') || request()->is('admin/student-fees*') || request()->is('admin/public-report*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/fees') }}">
+                    class="{{ request()->routeIs('fees.*') || request()->is('dash/fees*') || request()->is('dash/fines*') || request()->is('dash/student-fees*') || request()->is('dash/public-report*') ? 'active' : '' }}">
+                    <a href="{{ url('/dash/fees') }}">
                         <i class="zmdi zmdi-money"></i> <span>Fees / Fines</span>
                     </a>
                 </li>
 
                 <li class="{{ request()->routeIs('activities.*') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/activities') }}">
+                    <a href="{{ url('/dash/activities') }}">
                         <i class="zmdi zmdi-trending-up"></i> <span>Activity Log</span>
                     </a>
                 </li>
 
                 <li class="sidebar-header">SETTINGS</li>
                 <li class="{{ request()->routeIs('profile') ? 'active' : '' }}">
-                    <a href="{{ url('/admin/profile') }}">
+                    <a href="{{ url('/dash/profile') }}">
                         <i class="zmdi zmdi-face"></i> <span>Profile</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ url('/admin/logout') }}"
+                    <a href="{{ url('/dash/logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="zmdi zmdi-power"></i> <span>Logout</span>
                     </a>
@@ -647,10 +647,10 @@
                             <a class="dropdown-item" href="{{ route('messages.inbox') }}"><i
                                     class="icon-envelope mr-2"></i> Inbox</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url('/admin/profile') }}"><i
+                            <a class="dropdown-item" href="{{ url('/dash/profile') }}"><i
                                     class="icon-settings mr-2"></i> Setting</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url('/admin/logout') }}"
+                            <a class="dropdown-item" href="{{ url('/dash/logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="icon-power mr-2"></i> Logout
                             </a>

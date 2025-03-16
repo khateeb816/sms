@@ -18,7 +18,7 @@
                     </ul>
                 </div>
                 @endif
-                <form action="{{ url('/admin/students') }}" method="POST">
+                <form action="{{ url('/dash/students') }}" method="POST">
                     @csrf
                     <div class="form-group row">
                         <label for="name" class="col-sm-2 col-form-label">Full Name</label>
@@ -111,7 +111,7 @@
                         <label class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary px-5">Save</button>
-                            <a href="{{ url('/admin/students') }}" class="btn btn-light px-5">Cancel</a>
+                            <a href="{{ url('/dash/students') }}" class="btn btn-light px-5">Cancel</a>
                         </div>
                     </div>
                 </form>

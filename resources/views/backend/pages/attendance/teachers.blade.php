@@ -126,16 +126,11 @@
                                                     class="btn btn-sm btn-primary">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
-                                                <a href="#" class="btn btn-sm btn-danger"
-                                                    onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this attendance record?')) document.getElementById('delete-form-{{ $teacher->attendance->id }}').submit();">
+                                                <button type="button" class="btn btn-sm btn-danger delete-attendance"
+                                                    data-id="{{ $teacher->attendance->id }}"
+                                                    data-teacher="{{ $teacher->name }}">
                                                     <i class="fa fa-trash"></i>
-                                                </a>
-                                                <form id="delete-form-{{ $teacher->attendance->id }}"
-                                                    action="{{ route('attendance.delete', $teacher->attendance->id) }}"
-                                                    method="POST" style="display: none;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form>
+                                                </button>
                                                 @else
                                                 <span class="text-muted">Not marked</span>
                                                 @endif
@@ -154,6 +149,19 @@
                             </div>
                             @endif
                         </form>
+
+                        <!-- Delete Forms - Moved outside the main form -->
+                        @foreach($teachers as $teacher)
+                        @if($teacher->attendance)
+                        <form id="delete-form-{{ $teacher->attendance->id }}"
+                            action="{{ route('attendance.delete', $teacher->attendance->id) }}" method="POST"
+                            style="display: none;">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                        @endif
+                        @endforeach
+
                         @else
                         <div class="alert alert-info">
                             <i class="fa fa-info-circle mr-1"></i> No teachers found.
@@ -165,7 +173,79 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit form when date changes
+        document.getElementById('date').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
+        // Handle delete button clicks
+        document.querySelectorAll('.delete-attendance').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                var id = this.getAttribute('data-id');
+                var teacherName = this.getAttribute('data-teacher');
+                var form = document.getElementById('delete-form-' + id);
+                
+                if (!form) {
+                    console.error('Could not find form with ID: delete-form-' + id);
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to delete attendance record for ' + teacherName + '?')) {
+                    form.submit();
+                }
+            });
+        });
+        
+        // Add status indicators to the attendance status dropdowns
+        document.querySelectorAll('.attendance-status-select').forEach(function(select) {
+            var selectedValue = select.value;
+            
+            // Add status indicators to each option
+            select.querySelectorAll('option').forEach(function(option) {
+                var value = option.value;
+                var text = option.text;
+                var colorClass = '';
+                var icon = '';
+                
+                switch(value) {
+                    case 'present':
+                        colorClass = 'text-success';
+                        icon = '<i class="fa fa-check-circle"></i> ';
+                        break;
+                    case 'absent':
+                        colorClass = 'text-danger';
+                        icon = '<i class="fa fa-times-circle"></i> ';
+                        break;
+                    case 'late':
+                        colorClass = 'text-warning';
+                        icon = '<i class="fa fa-clock"></i> ';
+                        break;
+                    case 'leave':
+                        colorClass = 'text-info';
+                        icon = '<i class="fa fa-calendar-minus"></i> ';
+                        break;
+                }
+                
+                // We can't add HTML to options directly, but we can add a status indicator before the select
+                if (value === selectedValue && !select.disabled) {
+                    var statusIndicator = document.createElement('span');
+                    statusIndicator.className = 'status-indicator status-' + value;
+                    select.parentNode.insertBefore(statusIndicator, select);
+                }
+            });
+        });
+    });
+</script>
+
 @endsection
+
+@section('header')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
+
 
 @push('styles')
 <style>
@@ -227,55 +307,4 @@
         background-color: #17a2b8;
     }
 </style>
-@endpush
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        // Auto-submit form when date changes
-        $('#date').change(function() {
-            $('#filterForm').submit();
-        });
-        
-        // Add status indicators to the attendance status dropdowns
-        $('.attendance-status-select').each(function() {
-            var select = $(this);
-            var selectedValue = select.val();
-            
-            // Add status indicators to each option
-            select.find('option').each(function() {
-                var option = $(this);
-                var value = option.val();
-                var text = option.text();
-                var colorClass = '';
-                var icon = '';
-                
-                switch(value) {
-                    case 'present':
-                        colorClass = 'text-success';
-                        icon = '<i class="fa fa-check-circle"></i> ';
-                        break;
-                    case 'absent':
-                        colorClass = 'text-danger';
-                        icon = '<i class="fa fa-times-circle"></i> ';
-                        break;
-                    case 'late':
-                        colorClass = 'text-warning';
-                        icon = '<i class="fa fa-clock"></i> ';
-                        break;
-                    case 'leave':
-                        colorClass = 'text-info';
-                        icon = '<i class="fa fa-calendar-minus"></i> ';
-                        break;
-                }
-                
-                // We can't add HTML to options directly, but we can add a status indicator before the select
-                if (value === selectedValue && !select.prop('disabled')) {
-                    var statusIndicator = $('<span class="status-indicator status-' + value + '"></span>');
-                    select.before(statusIndicator);
-                }
-            });
-        });
-    });
-</script>
 @endpush

@@ -56,7 +56,7 @@ class LoginController extends Controller
             $user = Auth::user();
 
             if ($user->role == 1 && $user->status == 'active') {
-                return redirect()->intended('admin/dashboard');
+                return redirect()->intended('dash/dashboard');
             }
 
             Auth::logout();

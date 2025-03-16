@@ -15,7 +15,7 @@
                     <button onclick="printTables()" class="btn btn-primary">
                         <i class="fa fa-print mr-1"></i> Print Report
                     </button>
-                    <a href="/admin/fees" class="btn btn-secondary">
+                    <a href="/dash/fees" class="btn btn-secondary">
                         <i class="fa fa-arrow-left mr-1"></i> Back to Dashboard
                     </a>
                 </div>
@@ -29,7 +29,7 @@
                                 <h5 class="card-title text-primary"><i class="fa fa-filter mr-2"></i>Report Filters</h5>
                             </div>
                             <div class="card-body">
-                                <form action="/admin/public-report" method="GET" id="reportFilterForm">
+                                <form action="/dash/public-report" method="GET" id="reportFilterForm">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">

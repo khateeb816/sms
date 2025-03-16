@@ -41,6 +41,6 @@ class ForgotPasswordController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return redirect('admin/login')->with('success', 'Password Reset Successfully!');
+        return redirect('dash/login')->with('success', 'Password Reset Successfully!');
     }
 }

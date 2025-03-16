@@ -18,7 +18,7 @@
                     </ul>
                 </div>
                 @endif
-                <form action="{{ url('/admin/students/'.$student->id) }}" method="POST">
+                <form action="{{ url('/dash/students/'.$student->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="form-group row">
@@ -117,7 +117,7 @@
                         <label class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary px-5">Update</button>
-                            <a href="{{ url('/admin/students') }}" class="btn btn-light px-5">Cancel</a>
+                            <a href="{{ url('/dash/students') }}" class="btn btn-light px-5">Cancel</a>
                         </div>
                     </div>
                 </form>

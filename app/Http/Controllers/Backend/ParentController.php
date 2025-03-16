@@ -52,7 +52,7 @@ class ParentController extends Controller
             // Log the activity
             ActivityService::logParentActivity('Created', $user->name, $user->id);
 
-            return redirect('/admin/parents')->with('success', 'Parent added successfully!');
+            return redirect('/dash/parents')->with('success', 'Parent added successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to add parent: ' . $e->getMessage())->withInput();
         }
@@ -84,7 +84,7 @@ class ParentController extends Controller
 
             return view('backend.pages.parents.show', compact('parent', 'children'));
         } catch (\Exception $e) {
-            return redirect('/admin/parents')->with('error', 'Parent not found!');
+            return redirect('/dash/parents')->with('error', 'Parent not found!');
         }
     }
 
@@ -96,7 +96,7 @@ class ParentController extends Controller
 
             return view('backend.pages.parents.edit', compact('parent'));
         } catch (\Exception $e) {
-            return redirect('/admin/parents')->with('error', 'Parent not found!');
+            return redirect('/dash/parents')->with('error', 'Parent not found!');
         }
     }
 
@@ -143,7 +143,7 @@ class ParentController extends Controller
             // Log the activity
             ActivityService::logParentActivity('Updated', $parent->name, $parent->id);
 
-            return redirect('/admin/parents')->with('success', 'Parent updated successfully!');
+            return redirect('/dash/parents')->with('success', 'Parent updated successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update parent: ' . $e->getMessage())->withInput();
         }
@@ -162,9 +162,9 @@ class ParentController extends Controller
             // Log the activity
             ActivityService::logParentActivity('Deleted', $parentName, $id);
 
-            return redirect('/admin/parents')->with('success', "Parent '{$parentName}' deleted successfully!");
+            return redirect('/dash/parents')->with('success', "Parent '{$parentName}' deleted successfully!");
         } catch (\Exception $e) {
-            return redirect('/admin/parents')->with('error', 'Failed to delete parent: ' . $e->getMessage());
+            return redirect('/dash/parents')->with('error', 'Failed to delete parent: ' . $e->getMessage());
         }
     }
 
@@ -190,7 +190,7 @@ class ParentController extends Controller
 
             return view('backend.pages.parents.add_child', compact('parent', 'students'));
         } catch (\Exception $e) {
-            return redirect('/admin/parents')->with('error', 'Parent not found!');
+            return redirect('/dash/parents')->with('error', 'Parent not found!');
         }
     }
 

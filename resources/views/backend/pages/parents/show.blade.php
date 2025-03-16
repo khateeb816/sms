@@ -48,7 +48,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Children</h3>
-                    <a href="{{ url('/admin/parents/'.$parent->id.'/add-child') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ url('/dash/parents/'.$parent->id.'/add-child') }}" class="btn btn-primary btn-sm">
                         <i class="icon-plus"></i> Add Child
                     </a>
                 </div>
@@ -79,14 +79,14 @@
                                                 $child->address ?? 'Not provided' }}</p>
 
                                             <div class="mt-3 d-flex">
-                                                <a href="{{ url('/admin/students/'.$child->id) }}"
+                                                <a href="{{ url('/dash/students/'.$child->id) }}"
                                                     class="btn btn-info btn-sm mr-1">View</a>
-                                                <a href="{{ url('/admin/students/'.$child->id.'/edit') }}"
+                                                <a href="{{ url('/dash/students/'.$child->id.'/edit') }}"
                                                     class="btn btn-primary btn-sm mr-1">Edit</a>
                                                 <a href="#" class="btn btn-danger btn-sm"
                                                     onclick="event.preventDefault(); if(confirm('Are you sure you want to remove this child from this parent?')) { document.getElementById('remove-child-form-{{ $child->id }}').submit(); }">Remove</a>
                                                 <form id="remove-child-form-{{ $child->id }}"
-                                                    action="{{ url('/admin/parents/'.$parent->id.'/remove-child/'.$child->id) }}"
+                                                    action="{{ url('/dash/parents/'.$parent->id.'/remove-child/'.$child->id) }}"
                                                     method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
@@ -103,7 +103,7 @@
                     <div class="text-center py-5">
                         <i class="zmdi zmdi-mood-bad" style="font-size: 48px;"></i>
                         <p class="mt-3">No children records found</p>
-                        <a href="{{ url('/admin/parents/'.$parent->id.'/add-child') }}"
+                        <a href="{{ url('/dash/parents/'.$parent->id.'/add-child') }}"
                             class="btn btn-primary btn-sm mt-2">
                             <i class="icon-plus"></i> Add Child
                         </a>
@@ -141,8 +141,8 @@
     </div>
     <div class="row mt-3">
         <div class="col-12">
-            <a href="{{ url('/admin/parents') }}" class="btn btn-light">Back to List</a>
-            <a href="{{ url('/admin/parents/'.$parent->id.'/edit') }}" class="btn btn-primary">Edit Parent</a>
+            <a href="{{ url('/dash/parents') }}" class="btn btn-light">Back to List</a>
+            <a href="{{ url('/dash/parents/'.$parent->id.'/edit') }}" class="btn btn-primary">Edit Parent</a>
         </div>
     </div>
 </div>

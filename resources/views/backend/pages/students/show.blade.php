@@ -22,7 +22,7 @@
                             </div>
                         </div>
                         <form id="profile_picture_form"
-                            action="{{ url('/admin/students/'.$student->id.'/update-picture') }}" method="POST"
+                            action="{{ url('/dash/students/'.$student->id.'/update-picture') }}" method="POST"
                             enctype="multipart/form-data" style="display: none;">
                             @csrf
                             @method('PUT')
@@ -93,14 +93,14 @@
                             <p class="mb-1"><i class="zmdi zmdi-email mr-2"></i> {{ $parent->email }}</p>
                             <p class="mb-1"><i class="zmdi zmdi-phone mr-2"></i> {{ $parent->phone ?? 'Not provided' }}
                             </p>
-                            <a href="{{ url('/admin/parents/'.$parent->id) }}" class="btn btn-info btn-sm mt-2">View
+                            <a href="{{ url('/dash/parents/'.$parent->id) }}" class="btn btn-info btn-sm mt-2">View
                                 Parent Profile</a>
                         </div>
                     </div>
                     @else
                     <div class="text-center py-3">
                         <p class="mb-0">No parent assigned to this student.</p>
-                        <a href="{{ url('/admin/students/'.$student->id.'/edit') }}"
+                        <a href="{{ url('/dash/students/'.$student->id.'/edit') }}"
                             class="btn btn-primary btn-sm mt-2">Assign
                             Parent</a>
                     </div>
@@ -176,8 +176,8 @@
     </div>
     <div class="row mt-3">
         <div class="col-12">
-            <a href="{{ url('/admin/students') }}" class="btn btn-light">Back to List</a>
-            <a href="{{ url('/admin/students/'.$student->id.'/edit') }}" class="btn btn-primary">Edit Student</a>
+            <a href="{{ url('/dash/students') }}" class="btn btn-light">Back to List</a>
+            <a href="{{ url('/dash/students/'.$student->id.'/edit') }}" class="btn btn-primary">Edit Student</a>
         </div>
     </div>
 </div>

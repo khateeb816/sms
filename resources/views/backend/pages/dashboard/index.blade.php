@@ -153,21 +153,6 @@
     <div class="col-12 col-lg-8 col-xl-8">
         <div class="card">
             <div class="card-header">Attendance Overview
-                <div class="card-action">
-                    <div class="dropdown">
-                        <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
-                            data-toggle="dropdown">
-                            <i class="icon-options"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="javascript:void();">Daily View</a>
-                            <a class="dropdown-item" href="javascript:void();">Weekly View</a>
-                            <a class="dropdown-item" href="javascript:void();">Monthly View</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ route('attendance.reports') }}">View Full Reports</a>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="card-body">
                 <!-- Student Attendance -->
@@ -365,21 +350,6 @@
         <!-- Recent Activity -->
         <div class="card mt-3">
             <div class="card-header">Recent Activities
-                <div class="card-action">
-                    <div class="dropdown">
-                        <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
-                            data-toggle="dropdown">
-                            <i class="icon-options"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="javascript:void();">Action</a>
-                            <a class="dropdown-item" href="javascript:void();">Another action</a>
-                            <a class="dropdown-item" href="javascript:void();">Something else here</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:void();">Separated link</a>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="card-body">
                 <div class="recent-activity">
@@ -410,21 +380,6 @@
     <div class="col-12 col-lg-4 col-xl-4">
         <div class="card">
             <div class="card-header">Fee Collection Summary
-                <div class="card-action">
-                    <div class="dropdown">
-                        <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
-                            data-toggle="dropdown">
-                            <i class="icon-options"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="javascript:void();">Action</a>
-                            <a class="dropdown-item" href="javascript:void();">Another action</a>
-                            <a class="dropdown-item" href="javascript:void();">Something else here</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:void();">Separated link</a>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="card-body">
                 <div class="sales-summary">
@@ -490,25 +445,25 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
-                        <a href="{{ url('/admin/fees') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/fees') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-money d-block"></i>
                             <span>Fees Management</span>
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="{{ url('/admin/students') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/students') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-accounts d-block"></i>
                             <span>Students</span>
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="{{ url('/admin/teachers') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/teachers') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-accounts-list d-block"></i>
                             <span>Teachers</span>
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="{{ url('/admin/timetable') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/timetable') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-calendar d-block"></i>
                             <span>Timetable</span>
                         </a>
@@ -520,13 +475,13 @@
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="{{ url('/admin/messages') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/messages') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-email d-block"></i>
                             <span>Messages</span>
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="{{ url('/admin/public-report') }}" class="quick-link text-center">
+                        <a href="{{ url('/dash/public-report') }}" class="quick-link text-center">
                             <i class="zmdi zmdi-file-text d-block"></i>
                             <span>Reports</span>
                         </a>
@@ -542,20 +497,6 @@
     <div class="col-12 col-lg-12">
         <div class="card">
             <div class="card-header">Recent Fee Payments
-                <div class="card-action">
-                    <div class="dropdown">
-                        <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret"
-                            data-toggle="dropdown">
-                            <i class="icon-options"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="{{ url('/admin/fees') }}">View All Fees</a>
-                            <a class="dropdown-item" href="{{ url('/admin/public-report') }}">Generate Report</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:void();">Export Data</a>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="table-responsive">
                 <table class="table align-items-center table-flush table-borderless">

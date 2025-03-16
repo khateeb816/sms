@@ -63,7 +63,7 @@
 
                     <!-- Select from List Tab -->
                     <div class="tab-pane fade" id="select" role="tabpanel" aria-labelledby="select-tab">
-                        <form action="{{ url('/admin/parents/'.$parent->id.'/add-child') }}" method="POST">
+                        <form action="{{ url('/dash/parents/'.$parent->id.'/add-child') }}" method="POST">
                             @csrf
                             <div class="form-group row">
                                 <label for="student_id" class="col-sm-2 col-form-label">Select Student</label>
@@ -122,7 +122,7 @@
                                 <div class="col-sm-12 text-center">
                                     <button type="submit" class="btn btn-primary px-5" {{ $students->isEmpty() ?
                                         'disabled' : '' }}>Add Child</button>
-                                    <a href="{{ url('/admin/parents/'.$parent->id) }}"
+                                    <a href="{{ url('/dash/parents/'.$parent->id) }}"
                                         class="btn btn-light px-5">Cancel</a>
                                 </div>
                             </div>
@@ -200,7 +200,7 @@
                                     <h5>${student.name}</h5>
                                     <p class="mb-1"><strong>Class:</strong> ${student.class}</p>
                                     <p class="mb-1"><strong>Roll Number:</strong> ${student.roll}</p>
-                                    <form action="{{ url('/admin/parents/'.$parent->id.'/add-child') }}" method="POST" class="mt-2">
+                                    <form action="{{ url('/dash/parents/'.$parent->id.'/add-child') }}" method="POST" class="mt-2">
                                         @csrf
                                         <input type="hidden" name="student_id" value="${student.id}">
                                         <button type="submit" class="btn btn-success btn-sm">Add as Child</button>

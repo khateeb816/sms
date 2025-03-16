@@ -9,7 +9,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Fees & Fines Dashboard</h4>
                 <div>
-                    <a href="/admin/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=both"
+                    <a href="/dash/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=both"
                         class="btn btn-info">
                         <i class="fa fa-file-text mr-1"></i> Generate Report
                     </a>
@@ -196,7 +196,7 @@
                             <div class="card-body text-center">
                                 <h5 class="card-title">Fees Report</h5>
                                 <p>Generate a report of all fees for the selected period</p>
-                                <a href="/admin/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=fees"
+                                <a href="/dash/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=fees"
                                     class="btn btn-primary">
                                     <i class="fa fa-file-text mr-1"></i> Fees Report
                                 </a>
@@ -208,7 +208,7 @@
                             <div class="card-body text-center">
                                 <h5 class="card-title">Fines Report</h5>
                                 <p>Generate a report of all fines for the selected period</p>
-                                <a href="/admin/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=fines"
+                                <a href="/dash/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=fines"
                                     class="btn btn-danger">
                                     <i class="fa fa-file-text mr-1"></i> Fines Report
                                 </a>
@@ -220,7 +220,7 @@
                             <div class="card-body text-center">
                                 <h5 class="card-title">Combined Report</h5>
                                 <p>Generate a report of both fees and fines</p>
-                                <a href="/admin/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=both"
+                                <a href="/dash/public-report?start_date={{ date('Y-m-01') }}&end_date={{ date('Y-m-t') }}&report_type=both"
                                     class="btn btn-info">
                                     <i class="fa fa-file-text mr-1"></i> Combined Report
                                 </a>

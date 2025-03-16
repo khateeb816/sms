@@ -75,7 +75,7 @@ class StudentController extends Controller
         // Log the activity
         ActivityService::logStudentActivity('Created', $user->name, $user->id);
 
-        return redirect('/admin/students')->with('success', 'Student added successfully!');
+        return redirect('/dash/students')->with('success', 'Student added successfully!');
     }
 
     /**
@@ -154,7 +154,7 @@ class StudentController extends Controller
         // Log the activity
         ActivityService::logStudentActivity('Updated', $student->name, $student->id);
 
-        return redirect('/admin/students')->with('success', 'Student updated successfully!');
+        return redirect('/dash/students')->with('success', 'Student updated successfully!');
     }
 
     /**
@@ -174,7 +174,7 @@ class StudentController extends Controller
         // Log the activity
         ActivityService::logStudentActivity('Deleted', $studentName, $id);
 
-        return redirect('/admin/students')->with('success', "Student '{$studentName}' deleted successfully!");
+        return redirect('/dash/students')->with('success', "Student '{$studentName}' deleted successfully!");
     }
 
     /**
@@ -218,6 +218,6 @@ class StudentController extends Controller
             $student->save();
         }
 
-        return redirect('/admin/students/' . $id)->with('success', 'Profile picture updated successfully!');
+        return redirect('/dash/students/' . $id)->with('success', 'Profile picture updated successfully!');
     }
 }

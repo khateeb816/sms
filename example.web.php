@@ -33,13 +33,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect('/admin/login');
+    return redirect('/dash/login');
 });
-Route::get('/admin', function () {
-    return redirect('/admin/login');
+Route::get('/dash', function () {
+    return redirect('/dash/login');
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('dash')->group(function () {
     // Authentication Routes
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
@@ -169,13 +169,14 @@ Route::prefix('admin')->group(function () {
 
         // Activity Routes
         Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
+        Route::get('/activities/data', [ActivityController::class, 'getData'])->name('activities.data');
         Route::get('/activities/clear', [ActivityController::class, 'clearAll'])->name('activities.clear');
         Route::get('/activities/{id}', [ActivityController::class, 'show'])->name('activities.show');
     });
 });
 
 // Attendance routes
-Route::prefix('admin/attendance')->middleware(['auth'])->group(function () {
+Route::prefix('dash/attendance')->middleware(['auth'])->group(function () {
     Route::get('/students', [AttendanceController::class, 'studentsIndex'])->name('attendance.students.index');
     Route::post('/students/mark', [AttendanceController::class, 'markStudentAttendance'])->name('attendance.students.mark');
     Route::get('/teachers', [AttendanceController::class, 'teachersIndex'])->name('attendance.teachers.index');

@@ -66,14 +66,8 @@ class ActivityService
      */
     public static function logStudentActivity($action, $studentName, $studentId)
     {
-        $user = auth()->user();
-
-        Activity::create([
-            'user_id' => $user->id,
-            'action' => "$action student: $studentName",
-            'action_model' => 'Student',
-            'action_id' => $studentId
-        ]);
+        $description = "{$action} student: {$studentName} (#{$studentId})";
+        return self::log($description);
     }
 
     /**
@@ -86,14 +80,8 @@ class ActivityService
      */
     public static function logTeacherActivity($action, $teacherName, $teacherId)
     {
-        $user = auth()->user();
-
-        Activity::create([
-            'user_id' => $user->id,
-            'action' => "$action teacher: $teacherName",
-            'action_model' => 'Teacher',
-            'action_id' => $teacherId
-        ]);
+        $description = "{$action} teacher: {$teacherName} (#{$teacherId})";
+        return self::log($description);
     }
 
     /**
@@ -134,14 +122,8 @@ class ActivityService
      */
     public static function logParentActivity($action, $parentName, $parentId)
     {
-        $user = auth()->user();
-
-        Activity::create([
-            'user_id' => $user->id,
-            'action' => "$action parent: $parentName",
-            'action_model' => 'Parent',
-            'action_id' => $parentId
-        ]);
+        $description = "{$action} parent: {$parentName} (#{$parentId})";
+        return self::log($description);
     }
 
     /**
