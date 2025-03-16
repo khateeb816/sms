@@ -12,8 +12,12 @@ class Activity extends Model
 
     protected $fillable = [
         'user_id',
+        'action',
         'description',
-        'ip_address'
+        'ip_address',
+        'user_agent',
+        'created_by'
+        
     ];
 
     protected $casts = [

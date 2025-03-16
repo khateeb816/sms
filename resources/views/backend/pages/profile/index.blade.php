@@ -11,14 +11,14 @@
                     <div class="text-center">
                         @if(auth()->user()->image)
                         <div class="position-relative d-inline-block">
-                            <img src="{{ Storage::url('profile-images/' . auth()->user()->image) }}"
+                            <img src="{{ asset('storage/profile-images/' . auth()->user()->image) }}"
                                 class="rounded-circle img-thumbnail" alt="Profile Image"
                                 style="width: 150px; height: 150px; object-fit: cover;">
                             <form action="{{ route('profile.photo') }}" method="POST" enctype="multipart/form-data"
                                 id="photoForm" class="position-absolute" style="bottom: 0; right: 0;">
                                 @csrf
                                 @method('PUT')
-                                <input type="file" name="photo" id="photoInput" accept="image/*" style="display: none;" 
+                                <input type="file" name="photo" id="photoInput" accept="image/*" style="display: none;"
                                     onchange="document.getElementById('photoForm').submit()">
                                 <button type="button" class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     onclick="document.getElementById('photoInput').click()">

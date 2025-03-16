@@ -14,15 +14,19 @@ class Fine extends Model
         'fine_type',
         'amount',
         'issue_date',
+        'due_date',
         'payment_date',
         'status',
         'reason',
         'notes',
+        'created_by'
     ];
 
     protected $casts = [
         'issue_date' => 'date',
+        'due_date' => 'date',
         'payment_date' => 'date',
+        'amount' => 'decimal:2'
     ];
 
     /**
@@ -34,35 +38,10 @@ class Fine extends Model
     }
 
     /**
-     * Scope a query to only include pending fines.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * Get the user who created the fine.
      */
-    public function scopePending($query)
+    public function creator()
     {
-        return $query->where('status', 'pending');
-    }
-
-    /**
-     * Scope a query to only include paid fines.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopePaid($query)
-    {
-        return $query->where('status', 'paid');
-    }
-
-    /**
-     * Scope a query to only include waived fines.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeWaived($query)
-    {
-        return $query->where('status', 'waived');
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

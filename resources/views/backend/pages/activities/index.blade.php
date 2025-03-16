@@ -140,7 +140,7 @@
                 { data: 'formatted_date', name: 'created_at' },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false }
             ],
-            order: [[0, 'desc']],
+            order: [[4, 'desc']],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100],
             dom: 'Bfrtip',
@@ -167,6 +167,7 @@
                 }
             ],
             drawCallback: function(settings) {
+                console.log('Data received:', settings);
             }
         });
 

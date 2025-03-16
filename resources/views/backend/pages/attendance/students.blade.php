@@ -8,54 +8,62 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Student Attendance</h4>
+                @if(auth()->user()->role != 2)
                 <div>
                     <a href="{{ route('attendance.reports', ['type' => 'student']) }}" class="btn btn-info btn-sm">
                         <i class="fa fa-chart-bar mr-1"></i> Attendance Reports
                     </a>
                 </div>
+                @endif
             </div>
             <div class="card-body">
                 <!-- Date and Class Selection -->
                 <div class="row mb-4">
                     <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">
-                                    <i class="fa fa-filter mr-2"></i>Select Date and Class
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <form action="{{ route('attendance.students.index') }}" method="GET" id="filterForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="date">Date</label>
-                                                <input type="date" class="form-control" id="date" name="date"
-                                                    value="{{ $selectedDate->format('Y-m-d') }}">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="class_id">Class</label>
-                                                <select class="form-control" id="class_id" name="class_id" required>
-                                                    <option value="">Select Class</option>
-                                                    @foreach($classes as $class)
-                                                    <option value="{{ $class->id }}" {{ $selectedClass &&
-                                                        $selectedClass->id == $class->id ? 'selected' : '' }}>
-                                                        {{ $class->name }}
-                                                    </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12 text-right">
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fa fa-search mr-1"></i> Load Students
-                                            </button>
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                @if(auth()->user()->role == 2)
+                                <i class="fa fa-filter mr-2"></i>Select Class for Today's Attendance
+                                @else
+                                <i class="fa fa-filter mr-2"></i>Select Date and Class
+                                @endif
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('attendance.students.index') }}" method="GET" id="filterForm">
+                                <div class="row">
+                                    @if(auth()->user()->role != 2)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="date">Date</label>
+                                            <input type="date" class="form-control" id="date" name="date"
+                                                value="{{ $selectedDate->format('Y-m-d') }}">
                                         </div>
                                     </div>
-                                </form>
-                            </div>
+                                    @else
+                                    <input type="hidden" name="date" value="{{ now()->format('Y-m-d') }}">
+                                    @endif
+                                    <div class="col-md-{{ auth()->user()->role == 2 ? '12' : '6' }}">
+                                        <div class="form-group">
+                                            <label for="class_id">Class</label>
+                                            <select class="form-control" id="class_id" name="class_id" required>
+                                                <option value="">Select Class</option>
+                                                @foreach($classes as $class)
+                                                <option value="{{ $class->id }}" {{ $selectedClass && $selectedClass->id
+                                                    == $class->id ? 'selected' : '' }}>
+                                                    {{ $class->name }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 text-right">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-search mr-1"></i> Load Students
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -65,8 +73,12 @@
                 <div class="card">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
-                            <i class="fa fa-clipboard-check mr-2"></i>Mark Attendance for {{ $selectedClass->name }} -
-                            {{ $selectedDate->format('d M, Y') }}
+                            <i class="fa fa-clipboard-check mr-2"></i>
+                            @if(auth()->user()->role == 2)
+                            Mark Today's Attendance for {{ $selectedClass->name }}
+                            @else
+                            Mark Attendance for {{ $selectedClass->name }} - {{ $selectedDate->format('d M, Y') }}
+                            @endif
                         </h5>
 
                         @php
@@ -100,7 +112,9 @@
                                             <th width="15%">Roll Number</th>
                                             <th width="20%">Status</th>
                                             <th width="30%">Remarks</th>
+                                            @if(auth()->user()->role != 2)
                                             <th width="10%">Actions</th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -111,8 +125,8 @@
                                             <td>{{ $student->roll_number ?? 'N/A' }}</td>
                                             <td>
                                                 <select class="form-control attendance-status-select"
-                                                    name="attendance[{{ $index }}][status]" {{ $student->attendance ?
-                                                    'disabled' : '' }}>
+                                                    name="attendance[{{ $index }}][status]" {{ $student->attendance ||
+                                                    (auth()->user()->role == 2 && !$isToday) ? 'disabled' : '' }}>
                                                     <option value="present" {{ $student->attendance &&
                                                         $student->attendance->status == 'present' ? 'selected' : ''
                                                         }}>Present</option>
@@ -133,8 +147,10 @@
                                                 <input type="text" class="form-control"
                                                     name="attendance[{{ $index }}][remarks]"
                                                     value="{{ $student->attendance ? $student->attendance->remarks : '' }}"
-                                                    {{ $student->attendance ? 'disabled' : '' }}>
+                                                    {{ $student->attendance || (auth()->user()->role == 2 && !$isToday)
+                                                ? 'disabled' : '' }}>
                                             </td>
+                                            @if(auth()->user()->role != 2)
                                             <td class="text-center">
                                                 @if($student->attendance)
                                                 <a href="{{ route('attendance.edit', $student->attendance->id) }}"
@@ -155,13 +171,14 @@
                                                 <span class="text-muted">Not marked</span>
                                                 @endif
                                             </td>
+                                            @endif
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
 
-                            @if(!$hasAttendance)
+                            @if(!$hasAttendance && ($isToday || auth()->user()->role != 2))
                             <div class="form-group text-center mt-4">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-save mr-1"></i> Save Attendance

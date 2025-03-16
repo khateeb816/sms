@@ -242,6 +242,8 @@
     <link href="{{ asset('assets/css/app-style.css') }}" rel="stylesheet" />
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         /* Custom DataTables styling to match theme */
         .dataTables_wrapper .dataTables_length,
@@ -384,36 +386,40 @@
 
                 <li class="{{ request()->routeIs('attendance.*') ? 'active' : '' }}">
                     <a href="javaScript:void();" class="waves-effect">
-                        <i class="fa fa-calendar-check-o"></i>
+                        <i class="fas fa-calendar-check"></i>
                         <span>Attendance</span>
-                        <i class="fa fa-angle-left pull-right"></i>
+                        <i class="fas fa-angle-left pull-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
                         <li
                             class="{{ request()->routeIs('attendance.students.*') || request()->is('dash/attendance/students*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.students.index') }}">
-                                <i class="fa fa-circle-o"></i> Student Attendance
+                                <i class="fas fa-circle"></i> Student Attendance
                             </a>
                         </li>
+                        @if(auth()->user()->role != 2)
                         <li
                             class="{{ request()->routeIs('attendance.teachers.*') || request()->is('dash/attendance/teachers*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.teachers.index') }}">
-                                <i class="fa fa-circle-o"></i> Teacher Attendance
+                                <i class="fas fa-circle"></i> Teacher Attendance
                             </a>
                         </li>
+                        @endif
                         <li class="{{ request()->routeIs('attendance.reports') ? 'active' : '' }}">
                             <a href="{{ route('attendance.reports') }}">
-                                <i class="fa fa-circle-o"></i> Attendance Reports
+                                <i class="fas fa-circle"></i> Attendance Reports
                             </a>
                         </li>
                     </ul>
                 </li>
 
+                @if(auth()->user()->role != 2)
                 <li class="{{ request()->routeIs('parents.*') ? 'active' : '' }}">
                     <a href="{{ route('parents.index') }}">
                         <i class="zmdi zmdi-accounts-list"></i> <span>Parents</span>
                     </a>
                 </li>
+                @endif
 
                 <li class="{{ request()->routeIs('students.*') ? 'active' : '' }}">
                     <a href="{{ route('students.index') }}">
@@ -421,6 +427,7 @@
                     </a>
                 </li>
 
+                @if(auth()->user()->role != 2)
                 <li class="{{ request()->routeIs('teachers.*') ? 'active' : '' }}">
                     <a href="{{ route('teachers.index') }}">
                         <i class="zmdi zmdi-accounts-alt"></i> <span>Teachers</span>
@@ -444,13 +451,32 @@
                         <i class="zmdi zmdi-calendar"></i> <span>Timetable</span>
                     </a>
                 </li>
+                @endif
 
                 <li class="{{ request()->routeIs('messages.*') ? 'active' : '' }}">
                     <a href="{{ url('/dash/messages') }}">
                         <i class="zmdi zmdi-email"></i> <span>Messages</span>
                     </a>
                 </li>
+                @if(auth()->user()->role == 2)
+                <li class="{{ request()->routeIs('notes.*') ? 'active' : '' }}">
+                    <a href="{{ route('notes.index') }}">
+                        <i class="fas fa-sticky-note"></i> <span>Class Notes</span>
+                    </a>
+                </li>
+                <li class="{{ request()->routeIs('fines.*') ? 'active' : '' }}">
+                    <a href="{{ route('fines.list') }}">
+                        <i class="zmdi zmdi-money-off"></i> <span>Fines</span>
+                    </a>
+                </li>
+                @endif
+                <li class="{{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+                    <a href="{{ route('complaints.index') }}">
+                        <i class="zmdi zmdi-comment-alert"></i> <span>Complaints</span>
+                    </a>
+                </li>
 
+                @if(auth()->user()->role != 2)
                 <li
                     class="{{ request()->routeIs('fees.*') || request()->is('dash/fees*') || request()->is('dash/fines*') || request()->is('dash/student-fees*') || request()->is('dash/public-report*') ? 'active' : '' }}">
                     <a href="{{ url('/dash/fees') }}">
@@ -463,17 +489,17 @@
                         <i class="zmdi zmdi-trending-up"></i> <span>Activity Log</span>
                     </a>
                 </li>
+                @endif
 
                 <li class="sidebar-header">SETTINGS</li>
-                <li class="{{ request()->routeIs('profile') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('profile.index') ? 'active' : '' }}">
                     <a href="{{ url('/dash/profile') }}">
                         <i class="zmdi zmdi-face"></i> <span>Profile</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ url('/dash/logout') }}"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a href="{{ url('/dash/logout') }}">
                         <i class="zmdi zmdi-power"></i> <span>Logout</span>
                     </a>
                 </li>
@@ -490,75 +516,34 @@
                             <i class="icon-menu menu-icon"></i>
                         </a>
                     </li>
-
                 </ul>
 
                 <ul class="navbar-nav align-items-center right-nav-link">
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleDropdown(event, 'messages-dropdown')">
-                            <i class="fa fa-envelope-open-o"></i>
+                            <i class="fas fa-envelope"></i>
                             @php
                             $user = Auth::user();
                             $userType = '';
                             switch ($user->role) {
-                            case 1:
-                            $userType = 'admin';
-                            break;
-                            case 2:
-                            $userType = 'teacher';
-                            break;
-                            case 3:
-                            $userType = 'parent';
-                            break;
-                            case 4:
-                            $userType = 'student';
-                            break;
-                            default:
-                            $userType = 'unknown';
+                            case 1: $userType = 'admin'; break;
+                            case 2: $userType = 'teacher'; break;
+                            case 3: $userType = 'parent'; break;
+                            case 4: $userType = 'student'; break;
+                            default: $userType = 'unknown';
                             }
 
-                            $userKey = $user->id . '_' . $userType;
-
-                            $unreadMessages = App\Models\Message::where(function ($query) use ($user, $userType,
-                            $userKey) {
-                            $query->where(function ($q) use ($user, $userType) {
-                            $q->where('recipient_id', $user->id)
+                            $unreadMessages = App\Models\Message::where(function ($query) use ($user, $userType) {
+                            $query->where('recipient_id', $user->id)
                             ->where('recipient_type', $userType)
-                            ->where('deleted_by_recipient', false);
-                            })->orWhere(function ($q) use ($userType, $userKey) {
-                            $q->where('is_broadcast', true)
-                            ->where(function ($sq) use ($userType) {
-                            $sq->where('recipient_type', $userType)
-                            ->orWhere('recipient_type', 'all');
-                            })
-                            ->where(function($sq) use ($userKey) {
-                            $sq->whereNull('deleted_by_users')
-                            ->orWhereRaw("NOT JSON_CONTAINS(deleted_by_users, '\"$userKey\"')");
-                            });
-                            });
-                            })
                             ->where('is_read', false)
-                            ->count();
+                            ->where('deleted_by_recipient', false);
+                            })->count();
 
-                            $recentUnreadMessages = App\Models\Message::with('sender')
-                            ->where(function ($query) use ($user, $userType, $userKey) {
-                            $query->where(function ($q) use ($user, $userType) {
-                            $q->where('recipient_id', $user->id)
+                            $recentMessages = App\Models\Message::with('sender')
+                            ->where('recipient_id', $user->id)
                             ->where('recipient_type', $userType)
-                            ->where('deleted_by_recipient', false);
-                            })->orWhere(function ($q) use ($userType, $userKey) {
-                            $q->where('is_broadcast', true)
-                            ->where(function ($sq) use ($userType) {
-                            $sq->where('recipient_type', $userType)
-                            ->orWhere('recipient_type', 'all');
-                            })
-                            ->where(function($sq) use ($userKey) {
-                            $sq->whereNull('deleted_by_users')
-                            ->orWhereRaw("NOT JSON_CONTAINS(deleted_by_users, '\"$userKey\"')");
-                            });
-                            });
-                            })
-                            ->where('is_read', false)
+                            ->where('deleted_by_recipient', false)
                             ->orderBy('created_at', 'desc')
                             ->take(5)
                             ->get();
@@ -570,8 +555,8 @@
                         <div id="messages-dropdown" class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-header">Messages ({{ $unreadMessages }} unread)</div>
                             <div class="dropdown-divider"></div>
-                            @if($recentUnreadMessages->count() > 0)
-                            @foreach($recentUnreadMessages as $message)
+                            @if($recentMessages->count() > 0)
+                            @foreach($recentMessages as $message)
                             <a class="dropdown-item" href="{{ route('messages.show', $message->id) }}">
                                 <div class="d-flex align-items-center">
                                     <div class="user-img">
@@ -603,19 +588,67 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleDropdown(event, 'notifications-dropdown')">
-                            <i class="fa fa-bell-o"></i>
+                            <i class="fas fa-bell"></i>
+                            @php
+                            $pendingComplaints = App\Models\Complaint::where(function($query) use ($user) {
+                            if ($user->role == 1) { // Admin sees all pending complaints
+                            $query->where('status', 'pending');
+                            } elseif ($user->role == 2) { // Teacher sees complaints against them
+                            $query->where('against_user_id', $user->id)
+                            ->where('status', 'pending');
+                            }
+                            })->count();
+
+                            $recentComplaints = App\Models\Complaint::with(['complainant', 'againstUser'])
+                            ->where(function($query) use ($user) {
+                            if ($user->role == 1) {
+                            $query->where('status', 'pending');
+                            } elseif ($user->role == 2) {
+                            $query->where('against_user_id', $user->id)
+                            ->where('status', 'pending');
+                            }
+                            })
+                            ->orderBy('created_at', 'desc')
+                            ->take(5)
+                            ->get();
+                            @endphp
+                            @if($pendingComplaints > 0)
+                            <span class="badge badge-warning">{{ $pendingComplaints }}</span>
+                            @endif
                         </a>
                         <div id="notifications-dropdown" class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Notifications</div>
+                            <div class="dropdown-header">Notifications ({{ $pendingComplaints }} pending)</div>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">No new notifications</a>
+                            @if($recentComplaints->count() > 0)
+                            @foreach($recentComplaints as $complaint)
+                            <a class="dropdown-item" href="{{ route('complaints.show', $complaint->id) }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="ml-2">
+                                        <h6 class="mb-0">{{ $complaint->subject }}</h6>
+                                        <small class="text-muted">From: {{ $complaint->complainant->name }}</small>
+                                        @if($complaint->againstUser)
+                                        <small class="text-muted d-block">Against: {{ $complaint->againstUser->name
+                                            }}</small>
+                                        @endif
+                                        <small class="text-muted d-block">{{ $complaint->created_at->diffForHumans()
+                                            }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                            @endforeach
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-center" href="{{ route('complaints.index') }}">View All
+                                Complaints</a>
+                            @else
+                            <a class="dropdown-item" href="#">No pending complaints</a>
+                            @endif
                         </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleDropdown(event, 'profile-dropdown')">
                             <span class="user-profile">
                                 @if(auth()->user()->image)
-                                <img src="{{ Storage::url('profile-images/'.auth()->user()->image) }}"
+                                <img src="{{ asset('storage/profile-images/'.auth()->user()->image) }}"
                                     class="img-circle" alt="user avatar">
                                 @else
                                 <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'Guest User' }}&background=random"
@@ -629,7 +662,7 @@
                                     <div class="avatar">
                                         @if(auth()->user()->image)
                                         <img class="align-self-start mr-3"
-                                            src="{{ Storage::url('profile-images/'.auth()->user()->image) }}"
+                                            src="{{ asset('storage/profile-images/'.auth()->user()->image) }}"
                                             alt="user avatar">
                                         @else
                                         <img class="align-self-start mr-3"
@@ -645,14 +678,13 @@
                             </div>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ route('messages.inbox') }}"><i
-                                    class="icon-envelope mr-2"></i> Inbox</a>
+                                    class="fas fa-envelope mr-2"></i> Inbox</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url('/dash/profile') }}"><i
-                                    class="icon-settings mr-2"></i> Setting</a>
+                            <a class="dropdown-item" href="{{ url('/dash/profile') }}"><i class="fas fa-cog mr-2"></i>
+                                Setting</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url('/dash/logout') }}"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="icon-power mr-2"></i> Logout
+                            <a class="dropdown-item" href="{{ url('/dash/logout') }}">
+                                <i class="fas fa-power-off mr-2"></i> Logout
                             </a>
                         </div>
                     </li>
@@ -675,7 +707,7 @@
         <!--End content-wrapper-->
 
         <!--Start Back To Top Button-->
-        <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
+        <a href="javaScript:void();" class="back-to-top"><i class="fas fa-angle-double-up"></i> </a>
         <!--End Back To Top Button-->
 
         <!--Start footer-->

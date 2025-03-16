@@ -9,6 +9,7 @@ use App\Models\ClassRoom;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Services\ActivityService;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -19,9 +20,33 @@ class AttendanceController extends Controller
      */
     public function studentsIndex(Request $request)
     {
-        $classes = ClassRoom::where('is_active', true)->get();
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // Get classes based on user role
+        if ($user->role == 2) { // Teacher role
+            // Get classes where the teacher has timetable entries
+            $classes = ClassRoom::where('is_active', true)
+                ->whereIn('id', function ($query) use ($user) {
+                    $query->select('class_id')
+                        ->from('timetables')
+                        ->where('teacher_id', $user->id)
+                        ->distinct();
+                })
+                ->get();
+        } else {
+            // Admin sees all active classes
+            $classes = ClassRoom::where('is_active', true)->get();
+        }
+
         $selectedClass = $request->class_id ? ClassRoom::findOrFail($request->class_id) : null;
         $selectedDate = $request->date ? Carbon::parse($request->date) : Carbon::today();
+
+        // If teacher is trying to access a class they don't teach
+        if ($user->role == 2 && $selectedClass && !$classes->contains('id', $selectedClass->id)) {
+            return redirect()->route('attendance.students.index')
+                ->with('error', 'You do not have permission to view attendance for this class.');
+        }
 
         $students = [];
         if ($selectedClass) {
@@ -172,6 +197,9 @@ class AttendanceController extends Controller
      */
     public function reports(Request $request)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
         $type = $request->type ?? 'student';
         $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now()->endOfMonth();
@@ -184,15 +212,53 @@ class AttendanceController extends Controller
             ->where('attendee_type', $type)
             ->with('user');
 
+        // If user is a teacher
+        if ($user->role == 2) {
+            if ($type === 'teacher') {
+                // Teachers can only see their own attendance
+                $query->where('user_id', $user->id);
+                $userId = $user->id; // Force user filter to logged-in teacher
+            } else {
+                // For student attendance, get the teacher's assigned classes from timetable
+                $teacherClassIds = DB::table('timetables')
+                    ->where('teacher_id', $user->id)
+                    ->distinct()
+                    ->pluck('class_id');
+
+                // Get students from these classes
+                $studentIds = DB::table('class_student')
+                    ->whereIn('class_id', $teacherClassIds)
+                    ->pluck('student_id');
+
+                $query->whereIn('user_id', $studentIds);
+
+                if ($classId && !$teacherClassIds->contains($classId)) {
+                    // If teacher tries to access unauthorized class
+                    return redirect()->route('attendance.reports')
+                        ->with('error', 'You do not have permission to view this class attendance.');
+                }
+            }
+        }
+
         if ($userId) {
             $query->where('user_id', $userId);
+        }
+
+        if ($classId) {
+            // For student attendance, filter by class
+            if ($type === 'student') {
+                $studentIds = DB::table('class_student')
+                    ->where('class_id', $classId)
+                    ->pluck('student_id');
+                $query->whereIn('user_id', $studentIds);
+            }
         }
 
         if ($status) {
             $query->where('status', $status);
         }
 
-        // Get paginated results directly from the query builder
+        // Get paginated results
         $attendances = $query->orderBy('date', 'desc')->paginate(15)->withQueryString();
 
         // Get all records for summary statistics
@@ -206,19 +272,51 @@ class AttendanceController extends Controller
             'leave' => $allRecords->where('status', 'leave')->count(),
         ];
 
-        // Get users for filter
+        // Get users for filter based on role
         if ($type === 'student') {
-            $users = User::where('role', 4)->where('status', 'active')->orderBy('name')->get();
-            $classes = ClassRoom::where('is_active', true)->get();
+            if ($user->role == 2) {
+                // For teachers, only show students from their assigned classes
+                $teacherClassIds = DB::table('timetables')
+                    ->where('teacher_id', $user->id)
+                    ->distinct()
+                    ->pluck('class_id');
+
+                $users = User::where('role', 4)
+                    ->where('status', 'active')
+                    ->whereHas('classes', function ($query) use ($teacherClassIds) {
+                        $query->whereIn('class_rooms.id', $teacherClassIds);
+                    })
+                    ->orderBy('name')
+                    ->get();
+
+                $classes = ClassRoom::whereIn('id', $teacherClassIds)
+                    ->where('is_active', true)
+                    ->get();
+            } else {
+                // Admin sees all
+                $users = User::where('role', 4)
+                    ->where('status', 'active')
+                    ->orderBy('name')
+                    ->get();
+                $classes = ClassRoom::where('is_active', true)->get();
+            }
         } else {
-            $users = User::where('role', 2)->where('status', 'active')->orderBy('name')->get();
+            if ($user->role == 2) {
+                // Teachers only see themselves in teacher list
+                $users = User::where('id', $user->id)->get();
+            } else {
+                // Admin sees all teachers
+                $users = User::where('role', 2)
+                    ->where('status', 'active')
+                    ->orderBy('name')
+                    ->get();
+            }
             $classes = collect(); // Empty collection for teachers
         }
 
         // Log the report generation activity
         $logMessage = 'Generated ' . $type . ' attendance report';
 
-        // Add filter details to log message
         if ($startDate && $endDate) {
             $logMessage .= ' for period ' . $startDate->format('d M, Y') . ' to ' . $endDate->format('d M, Y');
         }
@@ -244,6 +342,8 @@ class AttendanceController extends Controller
             'startDate',
             'endDate',
             'userId',
+            'classId',
+            'status',
             'attendances',
             'summary',
             'users',

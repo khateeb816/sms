@@ -13,9 +13,10 @@ class ActivityService
      *
      * @param string $description The activity description
      * @param int|null $userId The user ID (defaults to authenticated user)
+     * @param string $action The action type (defaults to system)
      * @return Activity
      */
-    public static function log($description, $userId = null)
+    public static function log($description, $userId = null, $action = 'system')
     {
         $userId = $userId ?? (Auth::check() ? Auth::id() : null);
 
@@ -23,6 +24,8 @@ class ActivityService
             'user_id' => $userId,
             'description' => $description,
             'ip_address' => Request::ip(),
+            'user_agent' => Request::userAgent() ?? 'Unknown',
+            'action' => $action
         ]);
     }
 
@@ -52,7 +55,7 @@ class ActivityService
      */
     public static function logFineActivity($action, $fineType, $amount, $studentId)
     {
-        $description = "{$action} {$fineType} fine of PKR " . number_format($amount) . " for student #{$studentId}";
+        $description = "{$action} fine of type {$fineType} with amount PKR {$amount} for student ID {$studentId}";
         return self::log($description);
     }
 
@@ -201,5 +204,13 @@ class ActivityService
     {
         $description = "$action attendance for $type: $userName";
         return self::log($description);
+    }
+
+    /**
+     * Log a general activity
+     */
+    public function logActivity($action, $description)
+    {
+        return self::log($description, Auth::id(), $action);
     }
 }

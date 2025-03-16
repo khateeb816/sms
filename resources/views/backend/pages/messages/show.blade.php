@@ -34,6 +34,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-right">
+                                @if(Auth::user()->id == $message->sender_id)
                                 <form action="{{ route('messages.destroy', $message->id) }}" method="POST"
                                     class="d-inline">
                                     @csrf
@@ -41,6 +42,7 @@
                                     <button type="submit" class="btn btn-danger btn-sm"
                                         onclick="return confirm('Are you sure you want to delete this message?')">Delete</button>
                                 </form>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -106,12 +108,6 @@
                             {!! nl2br(e($message->message)) !!}
                         </div>
                     </div>
-
-                    @if(Auth::user()->id != $message->sender_id)
-                    <div class="message-reply mt-4">
-                        <a href="{{ route('messages.compose') }}" class="btn btn-primary">Reply</a>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>

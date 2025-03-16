@@ -98,6 +98,7 @@
 
 @section('content')
 <!--Start Dashboard Content-->
+@if(Auth::user()->role == 1)
 <div class="card mt-3">
     <div class="card-content">
         <div class="row row-group m-0">
@@ -152,8 +153,7 @@
 <div class="row">
     <div class="col-12 col-lg-8 col-xl-8">
         <div class="card">
-            <div class="card-header">Attendance Overview
-            </div>
+            <div class="card-header">Attendance Overview</div>
             <div class="card-body">
                 <!-- Student Attendance -->
                 <div class="traffic-summary mb-4">
@@ -168,17 +168,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
                                 <p class="mb-0">{{ $attendanceData['student_present'] ?? $attendanceData['present'] }}%
-                                    @if(isset($attendanceData['student_present_trend']) &&
-                                    $attendanceData['student_present_trend'] > 0)
-                                    <span class="text-success"><i class="fa fa-arrow-up"></i> {{
-                                        $attendanceData['student_present_trend'] }}%</span>
-                                    @elseif(isset($attendanceData['student_present_trend']) &&
-                                    $attendanceData['student_present_trend'] < 0) <span class="text-danger"><i
-                                            class="fa fa-arrow-down"></i> {{
-                                        abs($attendanceData['student_present_trend']) }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-up"></i> 3%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-up"></i> 3%</span>
                                 </p>
                             </div>
                         </div>
@@ -186,17 +176,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
                                 <p class="mb-0">{{ $attendanceData['student_absent'] ?? $attendanceData['absent'] }}%
-                                    @if(isset($attendanceData['student_absent_trend']) &&
-                                    $attendanceData['student_absent_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{
-                                        abs($attendanceData['student_absent_trend']) }}%</span>
-                                        @elseif(isset($attendanceData['student_absent_trend']) &&
-                                        $attendanceData['student_absent_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['student_absent_trend'] }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 1%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 1%</span>
                                 </p>
                             </div>
                         </div>
@@ -204,17 +184,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
                                 <p class="mb-0">{{ $attendanceData['student_late'] ?? ($attendanceData['late'] ?? 0) }}%
-                                    @if(isset($attendanceData['student_late_trend']) &&
-                                    $attendanceData['student_late_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['student_late_trend'])
-                                        }}%</span>
-                                        @elseif(isset($attendanceData['student_late_trend']) &&
-                                        $attendanceData['student_late_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['student_late_trend'] }}%</span>
-                                        @else
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
-                                        @endif
+                                    <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
                                 </p>
                             </div>
                         </div>
@@ -222,17 +192,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
                                 <p class="mb-0">{{ $attendanceData['student_leave'] ?? $attendanceData['leave'] }}%
-                                    @if(isset($attendanceData['student_leave_trend']) &&
-                                    $attendanceData['student_leave_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['student_leave_trend'])
-                                        }}%</span>
-                                        @elseif(isset($attendanceData['student_leave_trend']) &&
-                                        $attendanceData['student_leave_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['student_leave_trend'] }}%</span>
-                                        @else
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
-                                        @endif
+                                    <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
                                 </p>
                             </div>
                         </div>
@@ -253,17 +213,7 @@
                                 <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
                                 <p class="mb-0">{{ $attendanceData['teacher_present'] ?? ($attendanceData['teacher'] ??
                                     95) }}%
-                                    @if(isset($attendanceData['teacher_present_trend']) &&
-                                    $attendanceData['teacher_present_trend'] > 0)
-                                    <span class="text-success"><i class="fa fa-arrow-up"></i> {{
-                                        $attendanceData['teacher_present_trend'] }}%</span>
-                                    @elseif(isset($attendanceData['teacher_present_trend']) &&
-                                    $attendanceData['teacher_present_trend'] < 0) <span class="text-danger"><i
-                                            class="fa fa-arrow-down"></i> {{
-                                        abs($attendanceData['teacher_present_trend']) }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-up"></i> 1.5%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-up"></i> 1.5%</span>
                                 </p>
                             </div>
                         </div>
@@ -271,17 +221,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
                                 <p class="mb-0">{{ $attendanceData['teacher_absent'] ?? 2 }}%
-                                    @if(isset($attendanceData['teacher_absent_trend']) &&
-                                    $attendanceData['teacher_absent_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{
-                                        abs($attendanceData['teacher_absent_trend']) }}%</span>
-                                        @elseif(isset($attendanceData['teacher_absent_trend']) &&
-                                        $attendanceData['teacher_absent_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['teacher_absent_trend'] }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.5%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.5%</span>
                                 </p>
                             </div>
                         </div>
@@ -289,17 +229,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
                                 <p class="mb-0">{{ $attendanceData['teacher_late'] ?? 1 }}%
-                                    @if(isset($attendanceData['teacher_late_trend']) &&
-                                    $attendanceData['teacher_late_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['teacher_late_trend'])
-                                        }}%</span>
-                                        @elseif(isset($attendanceData['teacher_late_trend']) &&
-                                        $attendanceData['teacher_late_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['teacher_late_trend'] }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.2%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.2%</span>
                                 </p>
                             </div>
                         </div>
@@ -307,17 +237,7 @@
                             <div class="traffic-source">
                                 <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
                                 <p class="mb-0">{{ $attendanceData['teacher_leave'] ?? 2 }}%
-                                    @if(isset($attendanceData['teacher_leave_trend']) &&
-                                    $attendanceData['teacher_leave_trend'] < 0) <span class="text-success"><i
-                                            class="fa fa-arrow-down"></i> {{ abs($attendanceData['teacher_leave_trend'])
-                                        }}%</span>
-                                        @elseif(isset($attendanceData['teacher_leave_trend']) &&
-                                        $attendanceData['teacher_leave_trend'] > 0)
-                                        <span class="text-danger"><i class="fa fa-arrow-up"></i> {{
-                                            $attendanceData['teacher_leave_trend'] }}%</span>
-                                        @else
-                                        <span class="text-success"><i class="fa fa-arrow-down"></i> 0.3%</span>
-                                        @endif
+                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.3%</span>
                                 </p>
                             </div>
                         </div>
@@ -349,8 +269,7 @@
 
         <!-- Recent Activity -->
         <div class="card mt-3">
-            <div class="card-header">Recent Activities
-            </div>
+            <div class="card-header">Recent Activities</div>
             <div class="card-body">
                 <div class="recent-activity">
                     @foreach($recentActivities as $activity)
@@ -379,8 +298,7 @@
 
     <div class="col-12 col-lg-4 col-xl-4">
         <div class="card">
-            <div class="card-header">Fee Collection Summary
-            </div>
+            <div class="card-header">Fee Collection Summary</div>
             <div class="card-body">
                 <div class="sales-summary">
                     <div class="row mb-4">
@@ -491,13 +409,11 @@
         </div>
     </div>
 </div>
-<!--End Row-->
 
 <div class="row">
     <div class="col-12 col-lg-12">
         <div class="card">
-            <div class="card-header">Recent Fee Payments
-            </div>
+            <div class="card-header">Recent Fee Payments</div>
             <div class="table-responsive">
                 <table class="table align-items-center table-flush table-borderless">
                     <thead>
@@ -539,8 +455,176 @@
         </div>
     </div>
 </div>
-<!--End Row-->
 
+@else
+<!-- Teacher Dashboard -->
+<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $assignedClasses }} <span class="float-right"><i
+                                class="zmdi zmdi-city"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:75%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Assigned Classes</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $totalStudentsAssigned }} <span class="float-right"><i
+                                class="zmdi zmdi-accounts"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:85%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Total Students</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $averageStudentsPerClass }} <span class="float-right"><i
+                                class="zmdi zmdi-chart"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:65%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Avg. Students/Class</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <!-- Teacher's Timetable -->
+        <div class="card mt-3">
+            <div class="card-header">My Timetable</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($teacherTimetable as $time => $slots)
+                            <tr>
+                                <td>{{ $time }}</td>
+                                <td>{{ $slots['monday'] }}</td>
+                                <td>{{ $slots['tuesday'] }}</td>
+                                <td>{{ $slots['wednesday'] }}</td>
+                                <td>{{ $slots['thursday'] }}</td>
+                                <td>{{ $slots['friday'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Overview -->
+        <div class="card mt-3">
+            <div class="card-header">Class Overview</div>
+            <div class="card-body">
+                <div class="traffic-summary">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="traffic-source">
+                                <h5><i class="zmdi zmdi-accounts text-info mr-2"></i>Total Students</h5>
+                                <p class="mb-0">{{ $totalStudentsAssigned }} Students</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="traffic-source">
+                                <h5><i class="zmdi zmdi-graduation-cap text-success mr-2"></i>Average Attendance</h5>
+                                <p class="mb-0">{{ $attendanceData['student'] ?? '95' }}%</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="traffic-source">
+                                <h5><i class="zmdi zmdi-calendar text-warning mr-2"></i>Classes Today</h5>
+                                <p class="mb-0">{{ count($teacherTimetable ?? []) }} Classes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <!-- Quick Links -->
+        <div class="card mt-3">
+            <div class="card-header">Quick Links</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="{{ url('/dash/attendance/students') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-calendar-check d-block"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/messages') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-email d-block"></i>
+                            <span>Messages</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/notes') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-file-text d-block"></i>
+                            <span>Notes</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/fines') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-money-off d-block"></i>
+                            <span>Fines</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <div class="card mt-3">
+            <div class="card-header">Today's Schedule</div>
+            <div class="card-body">
+                <div class="traffic-summary">
+                    @php
+                    $today = strtolower(date('l'));
+                    $todayClasses = collect($teacherTimetable)->map(function($slots) use ($today) {
+                    return $slots[$today] ?? '-';
+                    })->filter(function($class) {
+                    return $class != '-';
+                    });
+                    @endphp
+                    @if($todayClasses->count() > 0)
+                    @foreach($todayClasses as $time => $class)
+                    <div class="traffic-source">
+                        <h5><i class="zmdi zmdi-time text-info mr-2"></i>{{ $time }}</h5>
+                        <p class="mb-0">{{ $class }}</p>
+                    </div>
+                    @endforeach
+                    @else
+                    <div class="text-center">
+                        <p class="mb-0">No classes scheduled for today</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 <!--End Dashboard Content-->
 @endsection
 

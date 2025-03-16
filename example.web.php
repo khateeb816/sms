@@ -16,7 +16,12 @@ use App\Http\Controllers\Backend\TeacherController;
 use App\Http\Controllers\Backend\TimetableController;
 use App\Http\Controllers\Backend\ActivityController;
 use App\Http\Controllers\Backend\AttendanceController;
+use App\Http\Controllers\Backend\NotesController;
+use App\Http\Controllers\Backend\FineController;
+use App\Http\Controllers\Backend\ComplaintController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 
 
@@ -44,6 +49,7 @@ Route::prefix('dash')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Registration Routes  
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -124,6 +130,10 @@ Route::prefix('dash')->group(function () {
         Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
+        // Notes Routes
+        Route::resource('notes', NotesController::class);
+        Route::get('notes/{note}/download', [NotesController::class, 'download'])->name('notes.download');
+
         // Fees Routes
         Route::get('/fees', [FeeController::class, 'index'])->name('fees.index');
         Route::get('/fees-list', [FeeController::class, 'feesList'])->name('fees.list');
@@ -139,14 +149,15 @@ Route::prefix('dash')->group(function () {
         Route::post('/fees/{fee}/mark-paid', [FeeController::class, 'markFeePaid'])->name('fees.mark-paid');
 
         // Fine Management
-        Route::get('/fines/create', [FeeController::class, 'createFine'])->name('fines.create');
-        Route::post('/fines', [FeeController::class, 'storeFine'])->name('fines.store');
-        Route::get('/fines/{fine}', [FeeController::class, 'showFine'])->name('fines.show');
-        Route::get('/fines/{fine}/edit', [FeeController::class, 'editFine'])->name('fines.edit');
-        Route::put('/fines/{fine}', [FeeController::class, 'updateFine'])->name('fines.update');
-        Route::delete('/fines/{fine}', [FeeController::class, 'destroyFine'])->name('fines.destroy');
-        Route::post('/fines/{fine}/mark-paid', [FeeController::class, 'markFinePaid'])->name('fines.mark-paid');
-        Route::post('/fines/{fine}/mark-waived', [FeeController::class, 'markFineWaived'])->name('fines.mark-waived');
+        Route::get('/dash/fines', [FineController::class, 'index'])->name('fines.list');
+        Route::get('/fines/create', [FineController::class, 'create'])->name('fines.create');
+        Route::post('/fines', [FineController::class, 'store'])->name('fines.store');
+        Route::get('/fines/{fine}', [FineController::class, 'show'])->name('fines.show');
+        Route::get('/fines/{fine}/edit', [FineController::class, 'edit'])->name('fines.edit');
+        Route::put('/fines/{fine}', [FineController::class, 'update'])->name('fines.update');
+        Route::delete('/fines/{fine}', [FineController::class, 'destroy'])->name('fines.destroy');
+        Route::post('/fines/{fine}/mark-paid', [FineController::class, 'markPaid'])->name('fines.mark-paid');
+        Route::post('/fines/{fine}/mark-waived', [FineController::class, 'markWaived'])->name('fines.mark-waived');
 
         // Student Fees
         Route::get('/student-fees/{student}', [FeeController::class, 'studentFees'])->name('student.fees');
@@ -172,20 +183,77 @@ Route::prefix('dash')->group(function () {
         Route::get('/activities/data', [ActivityController::class, 'getData'])->name('activities.data');
         Route::get('/activities/clear', [ActivityController::class, 'clearAll'])->name('activities.clear');
         Route::get('/activities/{id}', [ActivityController::class, 'show'])->name('activities.show');
+
+        // Complaints Routes
+        Route::resource('complaints', ComplaintController::class);
+
+        // Attendance routes
+        Route::prefix('attendance')->group(function () {
+            Route::get('/students', [AttendanceController::class, 'studentsIndex'])->name('attendance.students.index');
+            Route::post('/students/mark', [AttendanceController::class, 'markStudentAttendance'])->name('attendance.students.mark');
+            Route::get('/teachers', [AttendanceController::class, 'teachersIndex'])->name('attendance.teachers.index');
+            Route::post('/teachers/mark', [AttendanceController::class, 'markTeacherAttendance'])->name('attendance.teachers.mark');
+            Route::get('/reports', [AttendanceController::class, 'reports'])->name('attendance.reports');
+            Route::post('/log-print', [AttendanceController::class, 'logPrintActivity'])->name('attendance.log-print');
+
+            // New routes for editing and deleting attendance
+            Route::get('/edit/{id}', [AttendanceController::class, 'edit'])->name('attendance.edit');
+            Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
+            Route::delete('/delete/{id}', [AttendanceController::class, 'destroy'])->name('attendance.delete');
+        });
+
+        // Get users by role type for complaints
+        Route::get('/users/by-role/{type}', function ($type) {
+            $roleMap = [
+                'against_teacher' => 2,  // Teacher role
+                'against_student' => 4,  // Student role
+                'against_parent' => 3    // Parent role
+            ];
+
+            $role = $roleMap[$type] ?? null;
+
+            if (!$role) {
+                return response()->json([]);
+            }
+
+            $query = User::where('role', $role)
+                ->where('status', 'active');
+
+            // If the logged-in user is a teacher
+            if (auth()->user()->role === 2) {
+                if ($type === 'against_student') {
+                    // For students, get only those in the teacher's classes
+                    $teacherClasses = DB::table('timetables')
+                        ->where('teacher_id', auth()->id())
+                        ->pluck('class_id');
+
+                    $query->whereIn('id', function ($subquery) use ($teacherClasses) {
+                        $subquery->select('student_id')
+                            ->from('class_student')
+                            ->whereIn('class_id', $teacherClasses);
+                    });
+                } elseif ($type === 'against_teacher') {
+                    // For teachers, exclude self from list
+                    $query->where('id', '!=', auth()->id());
+                } elseif ($type === 'against_parent') {
+                    // For parents, get only those whose children are in teacher's classes
+                    $teacherClasses = DB::table('timetables')
+                        ->where('teacher_id', auth()->id())
+                        ->pluck('class_id');
+
+                    $studentIds = DB::table('class_student')
+                        ->whereIn('class_id', $teacherClasses)
+                        ->pluck('student_id');
+
+                    $query->whereIn('id', function ($subquery) use ($studentIds) {
+                        $subquery->select('parent_id')
+                            ->from('parent_student')
+                            ->whereIn('student_id', $studentIds);
+                    });
+                }
+            }
+
+            return response()->json($query->select('id', 'name')->get());
+        })->name('users.by.role');
     });
-});
-
-// Attendance routes
-Route::prefix('dash/attendance')->middleware(['auth'])->group(function () {
-    Route::get('/students', [AttendanceController::class, 'studentsIndex'])->name('attendance.students.index');
-    Route::post('/students/mark', [AttendanceController::class, 'markStudentAttendance'])->name('attendance.students.mark');
-    Route::get('/teachers', [AttendanceController::class, 'teachersIndex'])->name('attendance.teachers.index');
-    Route::post('/teachers/mark', [AttendanceController::class, 'markTeacherAttendance'])->name('attendance.teachers.mark');
-    Route::get('/reports', [AttendanceController::class, 'reports'])->name('attendance.reports');
-    Route::post('/log-print', [AttendanceController::class, 'logPrintActivity'])->name('attendance.log-print');
-
-    // New routes for editing and deleting attendance
-    Route::get('/edit/{id}', [AttendanceController::class, 'edit'])->name('attendance.edit');
-    Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
-    Route::delete('/delete/{id}', [AttendanceController::class, 'destroy'])->name('attendance.delete');
 });

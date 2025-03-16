@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Activity;
+use App\Services\ActivityService;
+use Illuminate\Database\Eloquent\Model;
 
 class ProfileController extends Controller
 {
@@ -35,25 +37,21 @@ class ProfileController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Update basic information
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->phone = $validated['phone'];
-        $user->address = $validated['address'];
-
         // Update password if provided
         if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
+            $validated['password'] = Hash::make($validated['password']);
         }
 
-        $user->save();
+        User::where('id', $user->id)->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'password' => $validated['password'] ?? $user->password
+        ]);
 
         // Log the activity
-        Activity::create([
-            'user_id' => $user->id,
-            'description' => 'Updated profile information',
-            'ip_address' => $request->ip(),
-        ]);
+        ActivityService::log('Updated profile information', $user->id, 'update');
 
         return redirect()->back()->with('success', 'Profile updated successfully');
     }
@@ -89,15 +87,12 @@ class ProfileController extends Controller
             }
 
             // Update user's image
-            $user->image = $filename;
-            $user->save();
+            User::where('id', $user->id)->update([
+                'image' => $filename
+            ]);
 
             // Log the activity
-            Activity::create([
-                'user_id' => $user->id,
-                'description' => 'Updated profile photo',
-                'ip_address' => $request->ip(),
-            ]);
+            ActivityService::log('Updated profile photo', $user->id, 'update');
 
             return redirect()->back()->with('success', 'Profile photo updated successfully');
         } catch (\Exception $e) {

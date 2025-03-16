@@ -79,13 +79,6 @@
                                 <td>
                                     <a href="{{ route('messages.show', $message->id) }}"
                                         class="btn btn-info btn-sm">View</a>
-                                    <form action="{{ route('messages.destroy', $message->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Are you sure you want to delete this message?')">Delete</button>
-                                    </form>
                                 </td>
                             </tr>
                             @endforeach

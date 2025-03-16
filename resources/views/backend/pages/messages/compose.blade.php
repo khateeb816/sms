@@ -27,6 +27,14 @@
                         <select class="form-control @error('recipient_type') is-invalid @enderror" id="recipient_type"
                             name="recipient_type" required>
                             <option value="">Select Recipient Type</option>
+                            @if(auth()->user()->role == 2)
+                            <option value="class_students" {{ old('recipient_type')=='class_students' ? 'selected' : ''
+                                }}>All Students in My Class</option>
+                            <option value="single_student" {{ old('recipient_type')=='single_student' ? 'selected' : ''
+                                }}>Single Student</option>
+                            <option value="class_parents" {{ old('recipient_type')=='class_parents' ? 'selected' : ''
+                                }}>All Parents of My Class</option>
+                            @else
                             <option value="admin" {{ old('recipient_type')=='admin' ? 'selected' : '' }}>Admin</option>
                             <option value="teacher" {{ old('recipient_type')=='teacher' ? 'selected' : '' }}>Teacher
                             </option>
@@ -35,26 +43,29 @@
                             <option value="student" {{ old('recipient_type')=='student' ? 'selected' : '' }}>Student
                             </option>
                             <option value="all" {{ old('recipient_type')=='all' ? 'selected' : '' }}>All Users</option>
+                            @endif
                         </select>
                         @error('recipient_type')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="form-group" id="bulk_options_group">
-                        <label>Bulk Message Options</label>
-                        <div class="bulk-options">
-                            <button type="button" class="btn btn-outline-primary bulk-option" data-type="teacher">All
-                                Teachers</button>
-                            <button type="button" class="btn btn-outline-primary bulk-option" data-type="parent">All
-                                Parents</button>
-                            <button type="button" class="btn btn-outline-primary bulk-option" data-type="student">All
-                                Students</button>
-                            <button type="button" class="btn btn-outline-primary bulk-option"
-                                data-type="all">Everyone</button>
-                        </div>
-                        <small class="form-text text-muted">Click to quickly select a bulk recipient group</small>
+                    @if(auth()->user()->role == 2)
+                    <div class="form-group" id="class_select_group" style="display: none;">
+                        <label for="class_id">Select Class <span class="text-danger">*</span></label>
+                        <select class="form-control @error('class_id') is-invalid @enderror" id="class_id"
+                            name="class_id">
+                            <option value="">Select Class</option>
+                            @foreach($teacher_classes as $class)
+                            <option value="{{ $class->id }}" {{ old('class_id')==$class->id ? 'selected' : '' }}>{{
+                                $class->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('class_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
+                    @endif
 
                     <div class="form-group" id="recipient_id_group" style="display: none;">
                         <label for="recipient_id">Recipient <span class="text-danger">*</span></label>
@@ -104,15 +115,6 @@
                         @enderror
                     </div>
 
-                    <div class="form-group" id="broadcast_group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="is_broadcast" name="is_broadcast"
-                                value="1" {{ old('is_broadcast') ? 'checked' : '' }}>
-                            <label class="custom-control-label" for="is_broadcast">Send as broadcast to all selected
-                                recipient type</label>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Send Message</button>
                         <a href="{{ route('messages.inbox') }}" class="btn btn-secondary">Cancel</a>
@@ -123,28 +125,19 @@
     </div>
 </div>
 
-<style>
-    .bulk-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .bulk-option {
-        transition: all 0.3s ease;
-    }
-
-    .bulk-option.active {
-        background-color: #4e73df;
-        color: white;
-    }
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const recipientTypeSelect = document.getElementById('recipient_type');
+        const recipientIdGroup = document.getElementById('recipient_id_group');
+        const recipientIdSelect = document.getElementById('recipient_id');
+        @if(auth()->user()->role == 2)
+        const classSelectGroup = document.getElementById('class_select_group');
+        const classIdSelect = document.getElementById('class_id');
+        @endif
+
         // Store all recipients by type
         const recipients = {
+            @if(auth()->user()->role != 2)
             admin: [
                 @foreach($admins as $admin)
                 { id: {{ $admin->id }}, name: "{{ $admin->name }}" },
@@ -165,115 +158,78 @@
                 { id: {{ $student->id }}, name: "{{ $student->name }}" },
                 @endforeach
             ]
+            @endif
         };
 
-        const recipientTypeSelect = document.getElementById('recipient_type');
-        const recipientIdGroup = document.getElementById('recipient_id_group');
-        const recipientIdSelect = document.getElementById('recipient_id');
-        const isBroadcastCheckbox = document.getElementById('is_broadcast');
-        const bulkOptions = document.querySelectorAll('.bulk-option');
-        const broadcastGroup = document.getElementById('broadcast_group');
-
-        // Function to update recipient options based on selected type
-        function updateRecipientOptions() {
-            const selectedType = recipientTypeSelect.value;
-            
-            // Clear existing options
-            recipientIdSelect.innerHTML = '<option value="">Select Recipient</option>';
-            
-            // Check if any bulk option is active
-            const isAnyBulkOptionActive = Array.from(bulkOptions).some(btn => btn.classList.contains('active'));
-            
-            // Show/hide recipient selection based on type and bulk option status
-            if (selectedType && selectedType !== 'all' && !isAnyBulkOptionActive && !isBroadcastCheckbox.checked) {
-                recipientIdGroup.style.display = 'block';
-                
-                // Populate options
-                if (recipients[selectedType]) {
-                    recipients[selectedType].forEach(recipient => {
-                        const option = document.createElement('option');
-                        option.value = recipient.id;
-                        option.textContent = recipient.name;
-                        recipientIdSelect.appendChild(option);
-                    });
-                }
-                
-                broadcastGroup.style.display = 'block';
-            } else {
-                if (selectedType === 'all') {
-                    broadcastGroup.style.display = 'none';
-                } else {
-                    broadcastGroup.style.display = 'block';
-                }
-                
-                if (isAnyBulkOptionActive || isBroadcastCheckbox.checked) {
-                    recipientIdGroup.style.display = 'none';
-                }
-            }
-            
-            // Don't reset bulk option buttons here
-        }
-
-        // Update recipient options when type changes
         recipientTypeSelect.addEventListener('change', function() {
-            // Reset bulk options when manually changing the dropdown
-            if (!event.isTrusted) {
-                // This is a programmatic change (from bulk option buttons), don't reset
-            } else {
-                // This is a user-initiated change, reset bulk options
-                bulkOptions.forEach(btn => btn.classList.remove('active'));
-            }
+            const selectedType = this.value;
             
-            updateRecipientOptions();
-        });
-        
-        // Toggle recipient selection based on broadcast checkbox
-        isBroadcastCheckbox.addEventListener('change', function() {
-            if (this.checked) {
+            @if(auth()->user()->role == 2)
+                // Reset required attributes and clear values
+                classIdSelect.removeAttribute('required');
+                recipientIdSelect.removeAttribute('required');
+                recipientIdSelect.value = '';
+                
+                // Hide both groups initially
+                classSelectGroup.style.display = 'none';
                 recipientIdGroup.style.display = 'none';
-            } else {
-                const selectedType = recipientTypeSelect.value;
+                
+                if (selectedType === 'class_students' || selectedType === 'class_parents') {
+                    classSelectGroup.style.display = 'block';
+                    classIdSelect.setAttribute('required', 'required');
+                    // Clear and hide recipient selection for broadcast messages
+                    recipientIdSelect.value = '';
+                    recipientIdGroup.style.display = 'none';
+                } else if (selectedType === 'single_student') {
+                    classSelectGroup.style.display = 'block';
+                    recipientIdGroup.style.display = 'block';
+                    classIdSelect.setAttribute('required', 'required');
+                    recipientIdSelect.setAttribute('required', 'required');
+                }
+            @else
                 if (selectedType && selectedType !== 'all') {
                     recipientIdGroup.style.display = 'block';
+                    recipientIdSelect.setAttribute('required', 'required');
+                    populateRecipients(selectedType);
+                } else {
+                    recipientIdGroup.style.display = 'none';
+                    recipientIdSelect.removeAttribute('required');
+                    recipientIdSelect.value = '';
                 }
+            @endif
+        });
+
+        @if(auth()->user()->role == 2)
+        classIdSelect.addEventListener('change', function() {
+            const selectedClass = this.value;
+            const selectedType = recipientTypeSelect.value;
+            
+            if (selectedType === 'single_student' && selectedClass) {
+                fetch(`dash/api/class/${selectedClass}/students`)
+                    .then(response => response.json())
+                    .then(data => {
+                        recipientIdSelect.innerHTML = '<option value="">Select Student</option>';
+                        data.forEach(student => {
+                            recipientIdSelect.innerHTML += `<option value="${student.id}">${student.name}</option>`;
+                        });
+                        recipientIdGroup.style.display = 'block';
+                    });
             }
         });
-        
-        // Handle bulk option buttons
-        bulkOptions.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const type = this.getAttribute('data-type');
-                
-                // Update UI
-                bulkOptions.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Set recipient type
-                recipientTypeSelect.value = type;
-                
-                // For all bulk options, hide the recipient dropdown
-                recipientIdGroup.style.display = 'none';
-                
-                // If it's a bulk message, check the broadcast checkbox
-                if (type !== 'all') {
-                    isBroadcastCheckbox.checked = true;
-                    broadcastGroup.style.display = 'block';
-                } else {
-                    // For "Everyone" option, no need for broadcast checkbox
-                    broadcastGroup.style.display = 'none';
-                }
-                
-                // Trigger change event
-                recipientTypeSelect.dispatchEvent(new Event('change'));
-            });
-        });
-        
-        // Initial update
-        updateRecipientOptions();
-        
+        @else
+        function populateRecipients(type) {
+            recipientIdSelect.innerHTML = '<option value="">Select Recipient</option>';
+            if (recipients[type]) {
+                recipients[type].forEach(recipient => {
+                    recipientIdSelect.innerHTML += `<option value="${recipient.id}">${recipient.name}</option>`;
+                });
+            }
+        }
+        @endif
+
         // Set initial state based on old input
-        if (isBroadcastCheckbox.checked) {
-            recipientIdGroup.style.display = 'none';
+        if (recipientTypeSelect.value) {
+            recipientTypeSelect.dispatchEvent(new Event('change'));
         }
     });
 </script>

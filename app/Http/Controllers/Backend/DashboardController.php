@@ -32,10 +32,45 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Get counts for dashboard
+        // Get the authenticated user
+        $user = auth()->user();
+
+        if ($user->role == 2) { // Teacher Role
+            // Get teacher's assigned classes
+            $teacherClasses = ClassRoom::where('teacher_id', $user->id)
+                ->where('is_active', true)
+                ->get();
+
+            $assignedClasses = $teacherClasses->count();
+
+            // Get total students in teacher's classes
+            $totalStudentsAssigned = DB::table('users')
+                ->join('class_student', 'users.id', '=', 'class_student.student_id')
+                ->whereIn('class_student.class_id', $teacherClasses->pluck('id'))
+                ->where('users.role', 4) // Student role
+                ->where('users.status', 'active')
+                ->distinct()
+                ->count('users.id');
+
+            // Calculate average students per class
+            $averageStudentsPerClass = $assignedClasses > 0 ? round($totalStudentsAssigned / $assignedClasses) : 0;
+
+            // Get teacher's timetable
+            $teacherTimetable = $this->getTeacherTimetable($user->id);
+
+            return view('backend.pages.dashboard.index', compact(
+                'assignedClasses',
+                'totalStudentsAssigned',
+                'averageStudentsPerClass',
+                'teacherTimetable'
+            ));
+        }
+
+        // Get counts for dashboard (for admin)
         $totalStudents = User::where('role', 4)->where('status', 'active')->count();
         $totalTeachers = User::where('role', 2)->where('status', 'active')->count();
         $totalClasses = ClassRoom::where('is_active', true)->count();
+        $totalParents = User::where('role', 3)->where('status', 'active')->count();
 
         // Get fee data
         $fees = Fee::all();
@@ -51,11 +86,12 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Get attendance data using our new method
+        // Get attendance data
         $attendanceData = AttendanceController::getDashboardAttendanceData();
 
         // Get recent activities
-        $recentActivities = Activity::orderBy('created_at', 'desc')
+        $recentActivities = Activity::with('user')
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->map(function ($activity) {
@@ -80,10 +116,19 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Get recent messages
+        $recentMessages = DB::table('messages')
+            ->join('users as sender', 'messages.sender_id', '=', 'sender.id')
+            ->select('messages.*', 'sender.name as sender_name')
+            ->orderBy('messages.created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('backend.pages.dashboard.index', compact(
             'totalStudents',
             'totalTeachers',
             'totalClasses',
+            'totalParents',
             'totalFees',
             'tuitionFees',
             'examFees',
@@ -91,8 +136,60 @@ class DashboardController extends Controller
             'otherFees',
             'recentPayments',
             'attendanceData',
-            'recentActivities'
+            'recentActivities',
+            'recentMessages'
         ));
+    }
+
+    /**
+     * Get the teacher's timetable
+     *
+     * @param int $teacherId
+     * @return array
+     */
+    private function getTeacherTimetable($teacherId)
+    {
+        $timetable = [];
+
+        // Get all periods first
+        $periods = DB::table('periods')
+            ->orderBy('start_time')
+            ->get();
+
+        // Initialize timetable with all periods and empty slots
+        foreach ($periods as $period) {
+            $timeSlot = Carbon::parse($period->start_time)->format('H:i') . ' - ' .
+                Carbon::parse($period->end_time)->format('H:i');
+
+            $timetable[$timeSlot] = [
+                'monday' => '-',
+                'tuesday' => '-',
+                'wednesday' => '-',
+                'thursday' => '-',
+                'friday' => '-'
+            ];
+        }
+
+        // Get all timetable entries for this teacher
+        $entries = DB::table('timetables')
+            ->join('class_rooms', 'timetables.class_id', '=', 'class_rooms.id')
+            ->where('timetables.teacher_id', $teacherId)
+            ->select('timetables.*', 'class_rooms.name as class_name')
+            ->get();
+
+        // Fill in the booked slots
+        foreach ($entries as $entry) {
+            $timeSlot = Carbon::parse($entry->start_time)->format('H:i') . ' - ' .
+                Carbon::parse($entry->end_time)->format('H:i');
+
+            $day = strtolower($entry->day_of_week);
+            $timetable[$timeSlot][$day] = $entry->class_name . ' (' . $entry->subject . ')';
+        }
+
+        // Sort by time
+        ksort($timetable);
+
+        return $timetable;
     }
 
     /**

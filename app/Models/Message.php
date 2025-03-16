@@ -29,6 +29,7 @@ class Message extends Model
         'deleted_by_recipient',
         'deleted_at',
         'deleted_by_users',
+        'class_id'
     ];
 
     /**
@@ -228,5 +229,10 @@ class Message extends Model
     public function shouldBeDeleted()
     {
         return $this->deleted_by_sender && $this->deleted_by_recipient;
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(ClassRoom::class);
     }
 }

@@ -15,7 +15,12 @@
                     </a>
                     @else
                     <a href="{{ route('attendance.teachers.index') }}" class="btn btn-primary btn-sm">
-                        <i class="fa fa-arrow-left mr-1"></i> Back to Teacher Attendance
+                        <i class="fa fa-arrow-left mr-1"></i>
+                        @if(auth()->user()->role == 2)
+                        Back to My Attendance
+                        @else
+                        Back to Teacher Attendance
+                        @endif
                     </a>
                     @endif
                     <button onclick="printAttendanceReport()" class="btn btn-info btn-sm ml-2">
@@ -41,10 +46,21 @@
                                                 <label for="type">Attendance Type</label>
                                                 <select class="form-control" id="type" name="type"
                                                     onchange="toggleFilters()">
-                                                    <option value="student" {{ $type=='student' ? 'selected' : '' }}>
-                                                        Student Attendance</option>
+                                                    @if(auth()->user()->role == 2)
                                                     <option value="teacher" {{ $type=='teacher' ? 'selected' : '' }}>
-                                                        Teacher Attendance</option>
+                                                        My Attendance
+                                                    </option>
+                                                    <option value="student" {{ $type=='student' ? 'selected' : '' }}>
+                                                        Student Attendance
+                                                    </option>
+                                                    @else
+                                                    <option value="student" {{ $type=='student' ? 'selected' : '' }}>
+                                                        Student Attendance
+                                                    </option>
+                                                    <option value="teacher" {{ $type=='teacher' ? 'selected' : '' }}>
+                                                        Teacher Attendance
+                                                    </option>
+                                                    @endif
                                                 </select>
                                             </div>
                                         </div>
@@ -67,11 +83,31 @@
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="user_id" id="userLabel">{{ $type == 'student' ? 'Student' :
-                                                    'Teacher' }}</label>
-                                                <select class="form-control" id="user_id" name="user_id">
-                                                    <option value="">All {{ $type == 'student' ? 'Students' : 'Teachers'
-                                                        }}</option>
+                                                <label for="user_id" id="userLabel">
+                                                    @if($type == 'student')
+                                                    Student
+                                                    @else
+                                                    @if(auth()->user()->role == 2)
+                                                    My Record
+                                                    @else
+                                                    Teacher
+                                                    @endif
+                                                    @endif
+                                                </label>
+                                                <select class="form-control" id="user_id" name="user_id" {{
+                                                    auth()->user()->role == 2 && $type == 'teacher' ? 'disabled' : ''
+                                                    }}>
+                                                    <option value="">
+                                                        @if($type == 'student')
+                                                        All Students
+                                                        @else
+                                                        @if(auth()->user()->role == 2)
+                                                        My Records
+                                                        @else
+                                                        All Teachers
+                                                        @endif
+                                                        @endif
+                                                    </option>
                                                     @foreach($users as $user)
                                                     <option value="{{ $user->id }}" {{ request('user_id')==$user->id ?
                                                         'selected' : '' }}>
@@ -131,7 +167,17 @@
                 <div class="d-none d-print-block mb-4">
                     <div class="text-center">
                         <h2>{{ config('app.name') }}</h2>
-                        <h3>{{ $type == 'student' ? 'Student' : 'Teacher' }} Attendance Report</h3>
+                        <h3>
+                            @if($type == 'student')
+                            Student Attendance Report
+                            @else
+                            @if(auth()->user()->role == 2)
+                            My Attendance Report
+                            @else
+                            Teacher Attendance Report
+                            @endif
+                            @endif
+                        </h3>
                         <p>
                             Period: {{ $startDate->format('d M, Y') }} to
                             {{ $endDate->format('d M, Y') }}
@@ -214,7 +260,17 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Date</th>
-                                        <th>{{ $type == 'student' ? 'Student' : 'Teacher' }} Name</th>
+                                        <th>
+                                            @if($type == 'student')
+                                            Student Name
+                                            @else
+                                            @if(auth()->user()->role == 2)
+                                            My Name
+                                            @else
+                                            Teacher Name
+                                            @endif
+                                            @endif
+                                        </th>
                                         @if($type == 'student')
                                         <th>Class</th>
                                         @endif
@@ -481,15 +537,29 @@
         var attendanceType = document.getElementById('type').value;
         var classFilterDiv = document.getElementById('classFilterDiv');
         var userLabel = document.getElementById('userLabel');
+        var userSelect = document.getElementById('user_id');
+        var isTeacher = {{ auth()->user()->role == 2 ? 'true' : 'false' }};
         
         if (attendanceType === 'student') {
             classFilterDiv.style.display = 'block';
             userLabel.textContent = 'Student';
-            document.getElementById('user_id').options[0].text = 'All Students';
+            userSelect.options[0].text = 'All Students';
+            userSelect.disabled = false;
         } else {
             classFilterDiv.style.display = 'none';
-            userLabel.textContent = 'Teacher';
-            document.getElementById('user_id').options[0].text = 'All Teachers';
+            if (isTeacher) {
+                userLabel.textContent = 'My Record';
+                userSelect.options[0].text = 'My Records';
+                userSelect.disabled = true;
+                // Force select the teacher's own record
+                @if(auth()->user()->role == 2)
+                userSelect.value = "{{ auth()->id() }}";
+                @endif
+            } else {
+                userLabel.textContent = 'Teacher';
+                userSelect.options[0].text = 'All Teachers';
+                userSelect.disabled = false;
+            }
         }
     }
 
@@ -765,15 +835,29 @@
         var attendanceType = document.getElementById('type').value;
         var classFilterDiv = document.getElementById('classFilterDiv');
         var userLabel = document.getElementById('userLabel');
+        var userSelect = document.getElementById('user_id');
+        var isTeacher = {{ auth()->user()->role == 2 ? 'true' : 'false' }};
         
         if (attendanceType === 'student') {
             classFilterDiv.style.display = 'block';
             userLabel.textContent = 'Student';
-            document.getElementById('user_id').options[0].text = 'All Students';
+            userSelect.options[0].text = 'All Students';
+            userSelect.disabled = false;
         } else {
             classFilterDiv.style.display = 'none';
-            userLabel.textContent = 'Teacher';
-            document.getElementById('user_id').options[0].text = 'All Teachers';
+            if (isTeacher) {
+                userLabel.textContent = 'My Record';
+                userSelect.options[0].text = 'My Records';
+                userSelect.disabled = true;
+                // Force select the teacher's own record
+                @if(auth()->user()->role == 2)
+                userSelect.value = "{{ auth()->id() }}";
+                @endif
+            } else {
+                userLabel.textContent = 'Teacher';
+                userSelect.options[0].text = 'All Teachers';
+                userSelect.disabled = false;
+            }
         }
     }
 

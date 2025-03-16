@@ -45,7 +45,7 @@ class ActivityController extends Controller
     public function getData(Request $request)
     {
         try {
-            $query = Activity::with('user');
+            $query = Activity::with('user')->orderBy('created_at', 'desc');
 
             // Apply filters
             if ($request->has('user_id') && $request->user_id) {

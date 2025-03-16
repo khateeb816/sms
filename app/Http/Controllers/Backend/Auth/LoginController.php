@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Services\ActivityService;
 
 class LoginController extends Controller
 {
@@ -55,7 +56,10 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->role == 1 && $user->status == 'active') {
+            if ($user->status == 'active') {
+                // Log the login activity
+                ActivityService::log("User logged in", $user->id);
+
                 return redirect()->intended('dash/dashboard');
             }
 
@@ -64,7 +68,7 @@ class LoginController extends Controller
             $request->session()->regenerateToken();
 
             return redirect()->back()->withErrors([
-                'email' => 'You are not admin.',
+                'email' => 'Account is not active.',
             ]);
         }
 
@@ -75,6 +79,12 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            // Log the logout activity
+            ActivityService::log("User logged out", $user->id);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

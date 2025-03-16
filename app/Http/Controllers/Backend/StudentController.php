@@ -20,8 +20,26 @@ class StudentController extends Controller
      */
     public function index()
     {
-        // Get all students (users with role=4)
-        $students = User::where('role', 4)->get();
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // Query builder for students
+        $studentsQuery = User::where('role', 4);
+
+        if ($user->role == 2) { // Teacher role
+            // Get classes where the teacher has timetable entries
+            $teacherClassIds = DB::table('timetables')
+                ->where('teacher_id', $user->id)
+                ->distinct()
+                ->pluck('class_id');
+
+            // Get students from these classes
+            $studentsQuery->whereHas('classes', function ($query) use ($teacherClassIds) {
+                $query->whereIn('class_rooms.id', $teacherClassIds);
+            });
+        }
+
+        $students = $studentsQuery->get();
         return view('backend.pages.students.index', compact('students'));
     }
 
@@ -32,6 +50,15 @@ class StudentController extends Controller
      */
     public function create()
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // If user is a teacher, prevent access
+        if ($user->role == 2) {
+            return redirect()->route('students.index')
+                ->with('error', 'Teachers are not allowed to create new students.');
+        }
+
         // Get all parents for the dropdown
         $parents = User::where('role', 3)->where('status', 'active')->get();
 
@@ -46,6 +73,15 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // If user is a teacher, prevent creation
+        if ($user->role == 2) {
+            return redirect()->route('students.index')
+                ->with('error', 'Teachers are not allowed to create new students.');
+        }
+
         // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
@@ -86,8 +122,28 @@ class StudentController extends Controller
      */
     public function show($id)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
         // Find the student user
         $student = User::where('role', 4)->findOrFail($id);
+
+        // If user is a teacher, verify they have access to this student
+        if ($user->role == 2) {
+            $teacherClassIds = DB::table('timetables')
+                ->where('teacher_id', $user->id)
+                ->distinct()
+                ->pluck('class_id');
+
+            $hasAccess = $student->classes()
+                ->whereIn('class_rooms.id', $teacherClassIds)
+                ->exists();
+
+            if (!$hasAccess) {
+                return redirect()->route('students.index')
+                    ->with('error', 'You do not have permission to view this student.');
+            }
+        }
 
         // Get parent information if available
         $parent = null;
@@ -106,8 +162,17 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
         // Find the student user
         $student = User::where('role', 4)->findOrFail($id);
+
+        // If user is a teacher, verify they have access to this student
+        if ($user->role == 2) {
+            return redirect()->route('students.index')
+                ->with('error', 'Teachers are not allowed to edit student information.');
+        }
 
         // Get all parents for the dropdown
         $parents = User::where('role', 3)->where('status', 'active')->get();
@@ -124,6 +189,15 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // If user is a teacher, prevent update
+        if ($user->role == 2) {
+            return redirect()->route('students.index')
+                ->with('error', 'Teachers are not allowed to modify student information.');
+        }
+
         // Find the student user
         $student = User::where('role', 4)->findOrFail($id);
 
@@ -165,6 +239,15 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // If user is a teacher, prevent deletion
+        if ($user->role == 2) {
+            return redirect()->route('students.index')
+                ->with('error', 'Teachers are not allowed to delete students.');
+        }
+
         // Find the student user
         $student = User::where('role', 4)->findOrFail($id);
 

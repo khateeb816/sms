@@ -87,6 +87,23 @@ class TimetableController extends Controller
                 ->withInput();
         }
 
+        // Check if teacher is already booked for this period and day in any class
+        if (!$isBreak && $request->teacher_id) {
+            $teacherBooked = Timetable::where('teacher_id', $request->teacher_id)
+                ->where('day_of_week', $request->day_of_week)
+                ->where('period_id', $request->period_id)
+                ->first();
+
+            if ($teacherBooked) {
+                $period = Period::findOrFail($request->period_id);
+                $timeSlot = $period->start_time->format('H:i') . ' - ' . $period->end_time->format('H:i');
+                $bookedClass = ClassRoom::find($teacherBooked->class_id)->name;
+                return redirect()->back()
+                    ->with('error', "Teacher is already booked for {$request->day_of_week} during {$timeSlot} in class {$bookedClass}.")
+                    ->withInput();
+            }
+        }
+
         // Get the period to extract start_time and end_time
         $period = Period::findOrFail($request->period_id);
 
@@ -197,6 +214,24 @@ class TimetableController extends Controller
             return redirect()->back()
                 ->with('error', 'A timetable entry already exists for this class, day, and period.')
                 ->withInput();
+        }
+
+        // Check if teacher is already booked for this period and day in any class (excluding this entry)
+        if (!$isBreak && $request->teacher_id) {
+            $teacherBooked = Timetable::where('teacher_id', $request->teacher_id)
+                ->where('day_of_week', $request->day_of_week)
+                ->where('period_id', $request->period_id)
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($teacherBooked) {
+                $period = Period::findOrFail($request->period_id);
+                $timeSlot = $period->start_time->format('H:i') . ' - ' . $period->end_time->format('H:i');
+                $bookedClass = ClassRoom::find($teacherBooked->class_id)->name;
+                return redirect()->back()
+                    ->with('error', "Teacher is already booked for {$request->day_of_week} during {$timeSlot} in class {$bookedClass}.")
+                    ->withInput();
+            }
         }
 
         // Get the period to extract start_time and end_time

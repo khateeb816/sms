@@ -8,9 +8,11 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Students List</h3>
+                @if(auth()->user()->role != 2)
                 <div class="card-action">
                     <a href="{{ route('students.create') }}" class="btn btn-primary">Add New Student</a>
                 </div>
+                @endif
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -21,7 +23,9 @@
                                 <th>Class</th>
                                 <th>Roll Number</th>
                                 <th>Status</th>
+                                @if(auth()->user()->role != 2)
                                 <th width="200">Actions</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -37,6 +41,7 @@
                                     <span class="badge badge-warning">Inactive</span>
                                     @endif
                                 </td>
+                                @if(auth()->user()->role != 2)
                                 <td>
                                     <div class="btn-group">
                                         <a href="{{ route('students.show', $student->id) }}"
@@ -59,10 +64,12 @@
                                         </form>
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center">No students found</td>
+                                <td colspan="{{ auth()->user()->role == 2 ? '4' : '5' }}" class="text-center">No
+                                    students found</td>
                             </tr>
                             @endforelse
                         </tbody>
