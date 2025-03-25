@@ -25,12 +25,16 @@ class DatesheetController extends Controller
                 ->latest()
                 ->get();
         } elseif ($user->role === 2) { // Teacher
-            $datesheets = Datesheet::whereHas('class', function ($query) use ($user) {
-                $query->where('teacher_id', $user->id);
-            })
-            ->with(['class'])
-            ->latest()
-            ->get();
+            // Get classes assigned to teacher in timetable
+            $teacherClassIds = DB::table('timetables')
+                ->where('teacher_id', $user->id)
+                ->distinct()
+                ->pluck('class_id');
+
+            $datesheets = Datesheet::whereIn('class_id', $teacherClassIds)
+                ->with(['class'])
+                ->latest()
+                ->get();
         } elseif (in_array($user->role, [3, 4])) { // Parent or Student
             $datesheets = Datesheet::whereHas('class.students', function ($query) use ($user) {
                 $query->where('users.id', $user->role === 3 ? $user->parent_id : $user->id);
