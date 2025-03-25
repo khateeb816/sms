@@ -191,10 +191,20 @@ Route::prefix('dash')->group(function () {
         Route::resource('complaints', ComplaintController::class);
 
         // Exams Routes
-        Route::resource('exams', ExamController::class);
-        Route::get('exams/{exam}/results', [ExamController::class, 'results'])->name('exams.results');
-        Route::post('exams/{exam}/results', [ExamController::class, 'storeResults'])->name('exams.store-results');
-        Route::get('exams/reports', [ExamController::class, 'reports'])->name('exams.reports');
+        Route::prefix('exams')->name('exams.')->group(function () {
+            Route::get('/', [ExamController::class, 'index'])->name('index');
+            Route::get('/create', [ExamController::class, 'create'])->name('create');
+            Route::get('/reports/print', [ExamController::class, 'printReports'])->name('reports.print');
+            Route::post('/', [ExamController::class, 'store'])->name('store');
+            Route::get('/{exam}', [ExamController::class, 'show'])->name('show');
+            Route::get('/{exam}/edit', [ExamController::class, 'edit'])->name('edit');
+            Route::put('/{exam}', [ExamController::class, 'update'])->name('update');
+            Route::delete('/{exam}', [ExamController::class, 'destroy'])->name('destroy');
+            Route::get('/{exam}/results', [ExamController::class, 'results'])->name('results');
+            Route::post('/{exam}/results', [ExamController::class, 'storeResults'])->name('results.store');
+            Route::get('/{exam}/print', [ExamController::class, 'printResults'])->name('results.print');
+        });
+        Route::get('exam/reports', [ExamController::class, 'reports'])->name('exams.reports');
 
         // Tests Routes
         Route::resource('tests', TestController::class);
