@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
 use App\Models\Exam;
-use App\Models\ExamResult;
 use App\Models\ClassRoom;
+use App\Models\ExamResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Services\ActivityService;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class TestController extends Controller
 {
@@ -89,6 +92,8 @@ class TestController extends Controller
             ...$request->all()
         ]);
 
+        ActivityService::log('Created a new test' , Auth::id() , 'test');
+
         return redirect()->route('tests.index')
             ->with('success', 'Test created successfully.');
     }
@@ -145,14 +150,14 @@ class TestController extends Controller
             ],
             'total_marks' => 'required|integer|min:1',
             'passing_marks' => 'required|integer|min:1|lte:total_marks',
-            'type' => 'required|in:normal,weekly,monthly,yearly',
+            'type' => 'required|in:' . implode(',', array_keys(Exam::getTypes())),
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
             'status' => 'required|in:scheduled,in_progress,completed,cancelled'
         ]);
 
         $test->update($request->all());
-
+        ActivityService::log('Updated a test' , Auth::id() , 'test');
         return redirect()->route('tests.index')
             ->with('success', 'Test updated successfully.');
     }
@@ -168,7 +173,7 @@ class TestController extends Controller
         }
 
         $test->delete();
-
+        ActivityService::log('Deleted a test' , Auth::id() , 'test');
         return redirect()->route('tests.index')
             ->with('success', 'Test deleted successfully.');
     }
@@ -225,6 +230,7 @@ class TestController extends Controller
             $test->update(['status' => 'completed']);
         });
 
+        ActivityService::log('Recorded test results' , Auth::id() , 'test');
         return redirect()->route('tests.show', $test)
             ->with('success', 'Test results have been recorded successfully.');
     }
@@ -317,5 +323,27 @@ class TestController extends Controller
         if ($percentage >= 60) return 'C';
         if ($percentage >= 50) return 'D';
         return 'F';
+    }
+
+    public function printReport(Request $request)
+    {
+        $user = Auth::user();
+        $classId = $request->input('class_id');
+        $subject = $request->input('subject');
+        $month = $request->input('month', now()->format('Y-m'));
+
+        $class = ClassRoom::findOrFail($classId);
+        $tests = Exam::where('class_id', $classId)
+                    ->where('subject', $subject)
+                    ->whereMonth('date', Carbon::parse($month)->month)
+                    ->whereYear('date', Carbon::parse($month)->year)
+                    ->with(['results.student'])
+                    ->get();
+
+        $pdf = PDF::loadView('backend.pages.tests.print-report', compact('class', 'tests', 'subject', 'month'));
+
+        ActivityService::log("Printed test report for class: {$class->name}, subject: {$subject} ({$month})", $user->id, 'test');
+
+        return $pdf->download("test-report-{$class->name}-{$subject}-{$month}.pdf");
     }
 }

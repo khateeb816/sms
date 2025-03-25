@@ -36,8 +36,13 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         if ($user->role == 2) { // Teacher Role
-            // Get teacher's assigned classes
-            $teacherClasses = ClassRoom::where('teacher_id', $user->id)
+            // Get teacher's assigned classes from timetable
+            $teacherClassIds = DB::table('timetables')
+                ->where('teacher_id', $user->id)
+                ->distinct()
+                ->pluck('class_id');
+
+            $teacherClasses = ClassRoom::whereIn('id', $teacherClassIds)
                 ->where('is_active', true)
                 ->get();
 
@@ -46,7 +51,7 @@ class DashboardController extends Controller
             // Get total students in teacher's classes
             $totalStudentsAssigned = DB::table('users')
                 ->join('class_student', 'users.id', '=', 'class_student.student_id')
-                ->whereIn('class_student.class_id', $teacherClasses->pluck('id'))
+                ->whereIn('class_student.class_id', $teacherClassIds)
                 ->where('users.role', 4) // Student role
                 ->where('users.status', 'active')
                 ->distinct()
@@ -58,11 +63,71 @@ class DashboardController extends Controller
             // Get teacher's timetable
             $teacherTimetable = $this->getTeacherTimetable($user->id);
 
+            // Get attendance data for teacher's classes
+            $startDate = Carbon::now()->subDays(30);
+            $endDate = Carbon::now();
+
+            // Get student attendance records for teacher's classes
+            $studentAttendanceRecords = DB::table('attendances')
+                ->join('users', 'attendances.user_id', '=', 'users.id')
+                ->join('class_student', 'users.id', '=', 'class_student.student_id')
+                ->whereIn('class_student.class_id', $teacherClassIds)
+                ->where('attendances.attendee_type', 'student')
+                ->whereBetween('attendances.date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->get();
+
+            // Calculate total possible attendance records (students * days)
+            $totalPossibleRecords = $totalStudentsAssigned * 30; // 30 days
+            $totalActualRecords = $studentAttendanceRecords->count();
+
+            // Calculate student attendance percentages based on total possible records
+            $studentPresent = $totalPossibleRecords > 0 ? round(($studentAttendanceRecords->where('status', 'present')->count() / $totalPossibleRecords) * 100) : 0;
+            $studentAbsent = $totalPossibleRecords > 0 ? round(($studentAttendanceRecords->where('status', 'absent')->count() / $totalPossibleRecords) * 100) : 0;
+            $studentLate = $totalPossibleRecords > 0 ? round(($studentAttendanceRecords->where('status', 'late')->count() / $totalPossibleRecords) * 100) : 0;
+            $studentLeave = $totalPossibleRecords > 0 ? round(($studentAttendanceRecords->where('status', 'leave')->count() / $totalPossibleRecords) * 100) : 0;
+
+            // Calculate average attendance for the class overview
+            $presentCount = $studentAttendanceRecords->where('status', 'present')->count();
+            $averageAttendance = $totalPossibleRecords > 0 ? round(($presentCount / $totalPossibleRecords) * 100) : 0;
+
+            // Get teacher's own attendance records
+            $teacherAttendanceRecords = DB::table('attendances')
+                ->where('user_id', $user->id)
+                ->where('attendee_type', 'teacher')
+                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->get();
+
+            $totalTeacherRecords = $teacherAttendanceRecords->count();
+
+            // Calculate teacher attendance percentages
+            $teacherPresent = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'present')->count() / $totalTeacherRecords) * 100) : 0;
+            $teacherAbsent = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'absent')->count() / $totalTeacherRecords) * 100) : 0;
+            $teacherLate = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'late')->count() / $totalTeacherRecords) * 100) : 0;
+            $teacherLeave = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'leave')->count() / $totalTeacherRecords) * 100) : 0;
+
+            // Get today's classes count
+            $today = strtolower(Carbon::now()->format('l'));
+            $todayClasses = collect($teacherTimetable)->map(function($slots) use ($today) {
+                return $slots[$today] ?? '-';
+            })->filter(function($class) {
+                return $class != '-';
+            })->count();
+
             return view('backend.pages.dashboard.index', compact(
                 'assignedClasses',
                 'totalStudentsAssigned',
                 'averageStudentsPerClass',
-                'teacherTimetable'
+                'teacherTimetable',
+                'studentPresent',
+                'studentAbsent',
+                'studentLate',
+                'studentLeave',
+                'teacherPresent',
+                'teacherAbsent',
+                'teacherLate',
+                'teacherLeave',
+                'todayClasses',
+                'averageAttendance'
             ));
         }
 
@@ -71,6 +136,40 @@ class DashboardController extends Controller
         $totalTeachers = User::where('role', 2)->where('status', 'active')->count();
         $totalClasses = ClassRoom::where('is_active', true)->count();
         $totalParents = User::where('role', 3)->where('status', 'active')->count();
+
+        // Get attendance data for the last 30 days
+        $startDate = Carbon::now()->subDays(30);
+        $endDate = Carbon::now();
+
+        // Get student attendance records
+        $studentAttendanceRecords = DB::table('attendances')
+            ->where('attendee_type', 'student')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
+
+        // Calculate total possible attendance records
+        $totalPossibleRecords = $totalStudents * 30; // 30 days
+        $totalActualRecords = $studentAttendanceRecords->count();
+
+        // Calculate student attendance percentages
+        $studentPresent = $totalActualRecords > 0 ? round(($studentAttendanceRecords->where('status', 'present')->count() / $totalActualRecords) * 100) : 0;
+        $studentAbsent = $totalActualRecords > 0 ? round(($studentAttendanceRecords->where('status', 'absent')->count() / $totalActualRecords) * 100) : 0;
+        $studentLate = $totalActualRecords > 0 ? round(($studentAttendanceRecords->where('status', 'late')->count() / $totalActualRecords) * 100) : 0;
+        $studentLeave = $totalActualRecords > 0 ? round(($studentAttendanceRecords->where('status', 'leave')->count() / $totalActualRecords) * 100) : 0;
+
+        // Get teacher attendance records
+        $teacherAttendanceRecords = DB::table('attendances')
+            ->where('attendee_type', 'teacher')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
+
+        $totalTeacherRecords = $teacherAttendanceRecords->count();
+
+        // Calculate teacher attendance percentages
+        $teacherPresent = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'present')->count() / $totalTeacherRecords) * 100) : 0;
+        $teacherAbsent = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'absent')->count() / $totalTeacherRecords) * 100) : 0;
+        $teacherLate = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'late')->count() / $totalTeacherRecords) * 100) : 0;
+        $teacherLeave = $totalTeacherRecords > 0 ? round(($teacherAttendanceRecords->where('status', 'leave')->count() / $totalTeacherRecords) * 100) : 0;
 
         // Get fee data
         $fees = Fee::all();
@@ -137,7 +236,15 @@ class DashboardController extends Controller
             'recentPayments',
             'attendanceData',
             'recentActivities',
-            'recentMessages'
+            'recentMessages',
+            'studentPresent',
+            'studentAbsent',
+            'studentLate',
+            'studentLeave',
+            'teacherPresent',
+            'teacherAbsent',
+            'teacherLate',
+            'teacherLeave'
         ));
     }
 

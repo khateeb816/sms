@@ -134,11 +134,11 @@
                                 <div class="col-sm-10">
                                     <select class="form-control @error('type') is-invalid @enderror" id="type"
                                         name="type" required>
-                                        @foreach(App\Models\Exam::getTypes() as $value => $label)
-                                        <option value="{{ $value }}" {{ old('type', $exam->type) == $value ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
-                                        @endforeach
+                                        <option value="">Select Type</option>
+                                        <option value="first_term" {{ old('type', $exam->type) == 'first_term' ? 'selected' : '' }}>First Term</option>
+                                        <option value="second_term" {{ old('type', $exam->type) == 'second_term' ? 'selected' : '' }}>Second Term</option>
+                                        <option value="third_term" {{ old('type', $exam->type) == 'third_term' ? 'selected' : '' }}>Third Term</option>
+                                        <option value="final_term" {{ old('type', $exam->type) == 'final_term' ? 'selected' : '' }}>Final Term</option>
                                     </select>
                                     @error('type')
                                     <span class="invalid-feedback">{{ $message }}</span>

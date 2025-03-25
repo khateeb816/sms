@@ -10,6 +10,8 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Services\ActivityService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AttendanceController extends Controller
 {
@@ -573,5 +575,24 @@ class AttendanceController extends Controller
             'teacher_late_trend' => $teacherLate - $prevTeacherLate,
             'teacher_leave_trend' => $teacherLeave - $prevTeacherLeave,
         ];
+    }
+
+    public function printReport(Request $request)
+    {
+        $user = Auth::user();
+        $classId = $request->input('class_id');
+        $month = $request->input('month', now()->format('Y-m'));
+
+        $class = ClassRoom::findOrFail($classId);
+        $students = $class->students()->with(['attendances' => function($query) use ($month) {
+            $query->whereMonth('date', Carbon::parse($month)->month)
+                  ->whereYear('date', Carbon::parse($month)->year);
+        }])->get();
+
+        $pdf = PDF::loadView('backend.pages.attendance.print-report', compact('class', 'students', 'month'));
+
+        ActivityService::log("Printed attendance report for class: {$class->name} ({$month})", $user->id, 'attendance');
+
+        return $pdf->download("attendance-report-{$class->name}-{$month}.pdf");
     }
 }

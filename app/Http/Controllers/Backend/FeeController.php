@@ -9,6 +9,10 @@ use App\Models\User;
 use App\Services\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ClassRoom;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class FeeController extends Controller
 {
@@ -627,5 +631,24 @@ class FeeController extends Controller
             'fineStatus',
             'studentSearch'
         ));
+    }
+
+    public function printReport(Request $request)
+    {
+        $user = Auth::user();
+        $classId = $request->input('class_id');
+        $month = $request->input('month', now()->format('Y-m'));
+
+        $class = ClassRoom::findOrFail($classId);
+        $students = $class->students()->with(['fees' => function($query) use ($month) {
+            $query->whereMonth('date', Carbon::parse($month)->month)
+                  ->whereYear('date', Carbon::parse($month)->year);
+        }])->get();
+
+        $pdf = Pdf::loadView('backend.pages.fees.print-report', compact('class', 'students', 'month'));
+
+        ActivityService::log("Printed fee report for class: {$class->name} ({$month})", $user->id, 'fee');
+
+        return $pdf->download("fee-report-{$class->name}-{$month}.pdf");
     }
 }

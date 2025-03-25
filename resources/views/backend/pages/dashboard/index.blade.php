@@ -150,122 +150,159 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12 col-lg-8 col-xl-8">
-        <div class="card">
-            <div class="card-header">Attendance Overview</div>
-            <div class="card-body">
-                <!-- Student Attendance -->
-                <div class="traffic-summary mb-4">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h4 class="mb-0">Student Attendance</h4>
-                            <p class="text-muted">Last 30 days statistics</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
-                                <p class="mb-0">{{ $attendanceData['student_present'] ?? $attendanceData['present'] }}%
-                                    <span class="text-success"><i class="fa fa-arrow-up"></i> 3%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
-                                <p class="mb-0">{{ $attendanceData['student_absent'] ?? $attendanceData['absent'] }}%
-                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 1%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
-                                <p class="mb-0">{{ $attendanceData['student_late'] ?? ($attendanceData['late'] ?? 0) }}%
-                                    <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
-                                <p class="mb-0">{{ $attendanceData['student_leave'] ?? $attendanceData['leave'] }}%
-                                    <span class="text-danger"><i class="fa fa-arrow-up"></i> 0.5%</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Teacher Attendance -->
-                <div class="traffic-summary">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h4 class="mb-0">Teacher Attendance</h4>
-                            <p class="text-muted">Last 30 days statistics</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
-                                <p class="mb-0">{{ $attendanceData['teacher_present'] ?? ($attendanceData['teacher'] ??
-                                    95) }}%
-                                    <span class="text-success"><i class="fa fa-arrow-up"></i> 1.5%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
-                                <p class="mb-0">{{ $attendanceData['teacher_absent'] ?? 2 }}%
-                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.5%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
-                                <p class="mb-0">{{ $attendanceData['teacher_late'] ?? 1 }}%
-                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.2%</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="traffic-source">
-                                <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
-                                <p class="mb-0">{{ $attendanceData['teacher_leave'] ?? 2 }}%
-                                    <span class="text-success"><i class="fa fa-arrow-down"></i> 0.3%</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+<!-- Attendance Overview -->
+<div class="card mt-3">
+    <div class="card-header">Attendance Overview</div>
+    <div class="card-body">
+        <!-- Student Attendance -->
+        <div class="traffic-summary mb-4">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h4 class="mb-0">Student Attendance</h4>
+                    <p class="text-muted">Last 30 days statistics</p>
                 </div>
             </div>
-
-            <div class="row m-0 row-group text-center border-top border-light-3">
-                <div class="col-12 col-lg-4">
-                    <div class="p-3">
-                        <h5 class="mb-0">{{ $attendanceData['overall'] }}%</h5>
-                        <small class="mb-0">Overall Attendance <span> <i class="fa fa-arrow-up"></i> 2.5%</span></small>
+            <div class="row">
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
+                        <p class="mb-0">{{ $studentPresent }}%
+                            <span class="text-success"><i class="fa fa-arrow-up"></i> {{ $studentPresent > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
                     </div>
                 </div>
-                <div class="col-12 col-lg-4">
-                    <div class="p-3">
-                        <h5 class="mb-0">{{ $attendanceData['teacher'] }}%</h5>
-                        <small class="mb-0">Teacher Attendance <span> <i class="fa fa-arrow-up"></i> 1.2%</span></small>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
+                        <p class="mb-0">{{ $studentAbsent }}%
+                            <span class="text-danger"><i class="fa fa-arrow-down"></i> {{ $studentAbsent > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
                     </div>
                 </div>
-                <div class="col-12 col-lg-4">
-                    <div class="p-3">
-                        <h5 class="mb-0">{{ $attendanceData['student'] }}%</h5>
-                        <small class="mb-0">Student Attendance <span> <i class="fa fa-arrow-up"></i> 3.1%</span></small>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
+                        <p class="mb-0">{{ $studentLate }}%
+                            <span class="text-warning"><i class="fa fa-clock"></i> {{ $studentLate > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
+                        <p class="mb-0">{{ $studentLeave }}%
+                            <span class="text-info"><i class="fa fa-calendar"></i> {{ $studentLeave > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Teacher Attendance -->
+        <div class="traffic-summary">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h4 class="mb-0">Teacher Attendance</h4>
+                    <p class="text-muted">Last 30 days statistics</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-check-circle text-success mr-2"></i>Present</h5>
+                        <p class="mb-0">{{ $teacherPresent }}%
+                            <span class="text-success"><i class="fa fa-arrow-up"></i> {{ $teacherPresent > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-times-circle text-danger mr-2"></i>Absent</h5>
+                        <p class="mb-0">{{ $teacherAbsent }}%
+                            <span class="text-danger"><i class="fa fa-arrow-down"></i> {{ $teacherAbsent > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-clock text-warning mr-2"></i>Late</h5>
+                        <p class="mb-0">{{ $teacherLate }}%
+                            <span class="text-warning"><i class="fa fa-clock"></i> {{ $teacherLate > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="traffic-source">
+                        <h5><i class="fa fa-calendar-minus text-info mr-2"></i>Leave</h5>
+                        <p class="mb-0">{{ $teacherLeave }}%
+                            <span class="text-info"><i class="fa fa-calendar"></i> {{ $teacherLeave > 0 ? 'Active' : 'No Data' }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-8">
+        @if(Auth::user()->role == 2)
+        <!-- Teacher's Timetable -->
+        <div class="card mt-3">
+            <div class="card-header">My Timetable</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($teacherTimetable as $time => $slots)
+                            <tr>
+                                <td>{{ $time }}</td>
+                                <td>{{ $slots['monday'] }}</td>
+                                <td>{{ $slots['tuesday'] }}</td>
+                                <td>{{ $slots['wednesday'] }}</td>
+                                <td>{{ $slots['thursday'] }}</td>
+                                <td>{{ $slots['friday'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Overview -->
+        <div class="card mt-3">
+            <div class="card-header">Class Overview</div>
+            <div class="card-body">
+                <div class="traffic-summary">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="traffic-source">
+                                <h5><i class="zmdi zmdi-accounts text-info mr-2"></i>Total Students</h5>
+                                <p class="mb-0">{{ $totalStudentsAssigned }} Students</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="traffic-source">
+                                <h5><i class="zmdi zmdi-calendar text-warning mr-2"></i>Classes Today</h5>
+                                <p class="mb-0">{{ $todayClasses }} Classes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Recent Activity -->
         <div class="card mt-3">
@@ -536,22 +573,16 @@
             <div class="card-body">
                 <div class="traffic-summary">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="traffic-source">
                                 <h5><i class="zmdi zmdi-accounts text-info mr-2"></i>Total Students</h5>
                                 <p class="mb-0">{{ $totalStudentsAssigned }} Students</p>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="traffic-source">
-                                <h5><i class="zmdi zmdi-graduation-cap text-success mr-2"></i>Average Attendance</h5>
-                                <p class="mb-0">{{ $attendanceData['student'] ?? '95' }}%</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="traffic-source">
                                 <h5><i class="zmdi zmdi-calendar text-warning mr-2"></i>Classes Today</h5>
-                                <p class="mb-0">{{ count($teacherTimetable ?? []) }} Classes</p>
+                                <p class="mb-0">{{ $todayClasses }} Classes</p>
                             </div>
                         </div>
                     </div>

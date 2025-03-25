@@ -65,10 +65,10 @@
                                     <select class="form-control @error('type') is-invalid @enderror" id="type"
                                         name="type" required>
                                         <option value="">Select Type</option>
-                                        <option value="first_term" {{ old('type')=='first_term' ? 'selected' : '' }}>First Term</option>
-                                        <option value="second_term" {{ old('type')=='second_term' ? 'selected' : '' }}>Second Term</option>
-                                        <option value="third_term" {{ old('type')=='third_term' ? 'selected' : '' }}>Third Term</option>
-                                        <option value="final_term" {{ old('type')=='final_term' ? 'selected' : '' }}>Final Term</option>
+                                        <option value="first_term" {{ old('type') == 'first_term' ? 'selected' : '' }}>First Term</option>
+                                        <option value="second_term" {{ old('type') == 'second_term' ? 'selected' : '' }}>Second Term</option>
+                                        <option value="third_term" {{ old('type') == 'third_term' ? 'selected' : '' }}>Third Term</option>
+                                        <option value="final_term" {{ old('type') == 'final_term' ? 'selected' : '' }}>Final Term</option>
                                     </select>
                                     @error('type')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="exam_date">Exam Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control @error('exam_date') is-invalid @enderror"
                                         id="exam_date" name="exam_date" value="{{ old('exam_date') }}" required>
@@ -85,6 +85,9 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                            </div>
+
+                            <div class="form-group row">
                                 <div class="col-md-4">
                                     <label for="start_time">Start Time <span class="text-danger">*</span></label>
                                     <input type="time" class="form-control @error('start_time') is-invalid @enderror"
@@ -101,10 +104,7 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="total_marks">Total Marks <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control @error('total_marks') is-invalid @enderror"
                                         id="total_marks" name="total_marks" value="{{ old('total_marks') }}" min="1"
@@ -113,6 +113,9 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                            </div>
+
+                            <div class="form-group row">
                                 <div class="col-md-6">
                                     <label for="passing_marks">Passing Marks <span class="text-danger">*</span></label>
                                     <input type="number"

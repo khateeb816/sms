@@ -37,6 +37,19 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ $exam->title }}</h5>
+                        <div class="btn-group float-sm-right">
+                            @if($exam->status === 'completed')
+                            <a href="{{ route('exams.results.print', $exam) }}" class="btn btn-primary">
+                                <i class="fa fa-print"></i> Print Results
+                            </a>
+                            @endif
+                            <a href="{{ route('exams.edit', $exam) }}" class="btn btn-info">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ route('exams.index') }}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </a>
+                        </div>
                         <div class="row mt-3">
                             <div class="col-md-4">
                                 <strong>Class:</strong> {{ $exam->class->name }}
@@ -45,10 +58,8 @@
                                 <strong>Subject:</strong> {{ $exam->subject }}
                             </div>
                             <div class="col-md-4">
-                                <strong>Type:</strong>
-                                <span class="badge badge-pill badge-info text-uppercase">
-                                    {{ App\Models\Exam::getTypes()[$exam->type] ?? $exam->type }}
-                                </span>
+                                <p class="mb-1"><strong>Type:</strong></p>
+                                <p>{{ ucwords(str_replace('_', ' ', $exam->type)) }}</p>
                             </div>
                         </div>
                         <div class="row mt-2">

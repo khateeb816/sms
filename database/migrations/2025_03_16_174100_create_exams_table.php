@@ -24,7 +24,7 @@ class CreateExamsTable extends Migration
             $table->time('end_time');
             $table->integer('total_marks');
             $table->integer('passing_marks');
-            $table->enum('type', ['first_term', 'second_term', 'third_term', 'final_term'])->default('first_term');
+            $table->enum('type', ['first_term', 'second_term', 'third_term', 'final_term' , 'normal' , 'weekly' , 'monthly' , 'yearly'])->default('first_term');
             $table->text('description')->nullable();
             $table->text('instructions')->nullable();
             $table->enum('status', ['scheduled', 'in_progress', 'completed', 'cancelled'])->default('scheduled');

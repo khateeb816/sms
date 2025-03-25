@@ -15,6 +15,13 @@
                     <li class="breadcrumb-item active">Reports</li>
                 </ol>
             </div>
+            <div class="col-sm-3">
+                <div class="btn-group float-sm-right">
+                    <a href="{{ route('exams.reports.print') }}" class="btn btn-primary">
+                        <i class="fa fa-print"></i> Print All Reports
+                    </a>
+                </div>
+            </div>
         </div>
         <!-- End Breadcrumb-->
 

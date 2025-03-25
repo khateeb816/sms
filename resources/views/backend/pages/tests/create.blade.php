@@ -65,14 +65,10 @@
                                     <select class="form-control @error('type') is-invalid @enderror" id="type"
                                         name="type" required>
                                         <option value="">Select Type</option>
-                                        <option value="normal" {{ old('type')=='normal' ? 'selected' : '' }}>Normal
-                                        </option>
-                                        <option value="weekly" {{ old('type')=='weekly' ? 'selected' : '' }}>Weekly
-                                        </option>
-                                        <option value="monthly" {{ old('type')=='monthly' ? 'selected' : '' }}>Monthly
-                                        </option>
-                                        <option value="yearly" {{ old('type')=='yearly' ? 'selected' : '' }}>Yearly
-                                        </option>
+                                        <option value="normal" {{ old('type') == 'normal' ? 'selected' : '' }}>Normal</option>
+                                        <option value="weekly" {{ old('type') == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                        <option value="monthly" {{ old('type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                        <option value="yearly" {{ old('type') == 'yearly' ? 'selected' : '' }}>Yearly</option>
                                     </select>
                                     @error('type')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -167,7 +163,7 @@
         $('#passing_marks, #total_marks').on('input', function() {
             var total = parseInt($('#total_marks').val()) || 0;
             var passing = parseInt($('#passing_marks').val()) || 0;
-            
+
             if (passing > total) {
                 $('#passing_marks').val(total);
             }
@@ -177,7 +173,7 @@
         $('#start_time, #end_time').on('change', function() {
             var start = $('#start_time').val();
             var end = $('#end_time').val();
-            
+
             if (start && end && start >= end) {
                 alert('End time must be after start time');
                 $('#end_time').val('');

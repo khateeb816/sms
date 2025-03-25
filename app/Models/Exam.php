@@ -10,11 +10,23 @@ class Exam extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Exam Terms
+    const TERM_FIRST = 'first_term';
+    const TERM_SECOND = 'second_term';
+    const TERM_THIRD = 'third_term';
+    const TERM_FINAL = 'final_term';
+
     // Exam Types
     const TYPE_FIRST_TERM = 'first_term';
     const TYPE_SECOND_TERM = 'second_term';
     const TYPE_THIRD_TERM = 'third_term';
     const TYPE_FINAL_TERM = 'final_term';
+
+    // Test Types
+    const TYPE_NORMAL = 'normal';
+    const TYPE_WEEKLY = 'weekly';
+    const TYPE_MONTHLY = 'monthly';
+    const TYPE_YEARLY = 'yearly';
 
     // Exam Status
     const STATUS_SCHEDULED = 'scheduled';
@@ -32,6 +44,7 @@ class Exam extends Model
         'end_time',
         'total_marks',
         'passing_marks',
+        'term',
         'type',
         'description',
         'instructions',
@@ -47,15 +60,41 @@ class Exam extends Model
     ];
 
     /**
+     * Get all available exam terms
+     */
+    public static function getTerms()
+    {
+        return [
+            self::TERM_FIRST => 'First Term',
+            self::TERM_SECOND => 'Second Term',
+            self::TERM_THIRD => 'Third Term',
+            self::TERM_FINAL => 'Final Term',
+        ];
+    }
+
+    /**
      * Get all available exam types
      */
-    public static function getTypes()
+    public static function getExamTypes()
     {
         return [
             self::TYPE_FIRST_TERM => 'First Term',
             self::TYPE_SECOND_TERM => 'Second Term',
             self::TYPE_THIRD_TERM => 'Third Term',
             self::TYPE_FINAL_TERM => 'Final Term',
+        ];
+    }
+
+    /**
+     * Get all available test types
+     */
+    public static function getTestTypes()
+    {
+        return [
+            self::TYPE_NORMAL => 'Normal',
+            self::TYPE_WEEKLY => 'Weekly',
+            self::TYPE_MONTHLY => 'Monthly',
+            self::TYPE_YEARLY => 'Yearly',
         ];
     }
 

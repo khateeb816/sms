@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
 use App\Models\Exam;
-use App\Models\ExamResult;
 use App\Models\ClassRoom;
+use App\Models\ExamResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Services\ActivityService;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExamController extends Controller
 {
@@ -48,6 +50,7 @@ class ExamController extends Controller
     {
         $user = Auth::user();
         $classes = $user->role === 1 ? ClassRoom::all() : ClassRoom::where('teacher_id', $user->id)->get();
+
         return view('backend.pages.exams.create', compact('classes'));
     }
 
@@ -75,7 +78,7 @@ class ExamController extends Controller
             ],
             'total_marks' => 'required|integer|min:1',
             'passing_marks' => 'required|integer|min:1|lte:total_marks',
-            'type' => 'required|in:' . implode(',', array_keys(Exam::getTypes())),
+            'type' => 'required|in:first_term,second_term,third_term,final_term',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string'
         ]);
@@ -85,6 +88,8 @@ class ExamController extends Controller
             'status' => Exam::STATUS_SCHEDULED,
             ...$request->all()
         ]);
+
+        ActivityService::log('Created a new exam' , Auth::id() , 'exam');
 
         return redirect()->route('exams.index')
             ->with('success', 'Exam created successfully.');
@@ -142,13 +147,14 @@ class ExamController extends Controller
             ],
             'total_marks' => 'required|integer|min:1',
             'passing_marks' => 'required|integer|min:1|lte:total_marks',
-            'type' => 'required|in:' . implode(',', array_keys(Exam::getTypes())),
+            'type' => 'required|in:first_term,second_term,third_term,final_term',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
             'status' => 'required|in:' . implode(',', array_keys(Exam::getStatuses()))
         ]);
 
         $exam->update($request->all());
+        ActivityService::log('Updated an exam' , Auth::id() , 'exam');
 
         return redirect()->route('exams.index')
             ->with('success', 'Exam updated successfully.');
@@ -165,22 +171,17 @@ class ExamController extends Controller
         }
 
         $exam->delete();
-
+        ActivityService::log('Deleted an exam' , Auth::id() , 'exam');
         return redirect()->route('exams.index')
             ->with('success', 'Quiz deleted successfully.');
     }
 
     /**
-     * Show exam results form.
+     * Show the form for managing exam results.
      */
     public function results(Exam $exam)
     {
-        if (Auth::id() !== $exam->teacher_id && Auth::user()->role !== 1) {
-            return redirect()->route('exams.index')
-                ->with('error', 'You are not authorized to manage results for this quiz.');
-        }
-
-        $exam->load(['class.students', 'results.student']);
+        $exam->load(['class.students', 'results']);
         return view('backend.pages.exams.results', compact('exam'));
     }
 
@@ -189,41 +190,55 @@ class ExamController extends Controller
      */
     public function storeResults(Request $request, Exam $exam)
     {
-        if (Auth::id() !== $exam->teacher_id && Auth::user()->role !== 1) {
-            return redirect()->route('exams.index')
-                ->with('error', 'You are not authorized to manage results for this quiz.');
-        }
-
         $request->validate([
+            'results' => 'required|array',
             'results.*.student_id' => 'required|exists:users,id',
             'results.*.marks_obtained' => 'required|integer|min:0|max:' . $exam->total_marks,
-            'results.*.remarks' => 'nullable|string'
+            'results.*.remarks' => 'nullable|string|max:255',
         ]);
 
-        DB::transaction(function () use ($request, $exam) {
-            foreach ($request->results as $result) {
-                $percentage = ($result['marks_obtained'] / $exam->total_marks) * 100;
+        foreach ($request->results as $result) {
+            $marksObtained = $result['marks_obtained'];
+            $percentage = ($marksObtained / $exam->total_marks) * 100;
+            $isPassed = $marksObtained >= $exam->passing_marks;
 
-                ExamResult::updateOrCreate(
-                    [
-                        'exam_id' => $exam->id,
-                        'student_id' => $result['student_id']
-                    ],
-                    [
-                        'marks_obtained' => $result['marks_obtained'],
-                        'percentage' => $percentage,
-                        'grade' => $this->calculateGrade($percentage),
-                        'remarks' => $result['remarks'] ?? null,
-                        'is_passed' => $result['marks_obtained'] >= $exam->passing_marks
-                    ]
-                );
+            // Calculate grade based on percentage
+            $grade = 'F';
+            if ($percentage >= 90) {
+                $grade = 'A+';
+            } elseif ($percentage >= 80) {
+                $grade = 'A';
+            } elseif ($percentage >= 70) {
+                $grade = 'B+';
+            } elseif ($percentage >= 60) {
+                $grade = 'B';
+            } elseif ($percentage >= 50) {
+                $grade = 'C+';
+            } elseif ($percentage >= 40) {
+                $grade = 'C';
+            } elseif ($percentage >= 33) {
+                $grade = 'D';
             }
 
-            $exam->update(['status' => 'completed']);
-        });
+            $exam->results()->updateOrCreate(
+                ['student_id' => $result['student_id']],
+                [
+                    'marks_obtained' => $marksObtained,
+                    'percentage' => $percentage,
+                    'grade' => $grade,
+                    'is_passed' => $isPassed,
+                    'remarks' => $result['remarks'] ?? null,
+                ]
+            );
+        }
+
+        // Update exam status to completed
+        $exam->update(['status' => 'completed']);
+
+        ActivityService::log('Updated exam results', Auth::id(), 'exam');
 
         return redirect()->route('exams.show', $exam)
-            ->with('success', 'Quiz results have been recorded successfully.');
+            ->with('success', 'Exam results have been saved successfully.');
     }
 
     /**
@@ -232,8 +247,8 @@ class ExamController extends Controller
     public function reports()
     {
         $user = Auth::user();
+        $exams = [];
 
-        // Get completed exams with their relationships
         if ($user->role === 1) { // Admin
             $exams = Exam::with(['teacher', 'class', 'results.student'])
                 ->where('status', Exam::STATUS_COMPLETED)
@@ -258,7 +273,22 @@ class ExamController extends Controller
             'average_score' => $exams->flatMap->results->avg('percentage') ?? 0,
         ];
 
+
         return view('backend.pages.exams.reports', compact('exams', 'statistics'));
+    }
+
+    public function printReports()
+    {
+        $exams = Exam::with(['class', 'results'])->get();
+        $pdf = PDF::loadView('backend.pages.exams.print-reports', compact('exams'));
+        return $pdf->download('exam-reports.pdf');
+    }
+
+    public function printResults(Exam $exam)
+    {
+        $exam->load(['class', 'results.student']);
+        $pdf = PDF::loadView('backend.pages.exams.print-results', compact('exam'));
+        return $pdf->download("exam-results-{$exam->title}.pdf");
     }
 
     /**

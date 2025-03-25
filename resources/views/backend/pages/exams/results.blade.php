@@ -33,7 +33,7 @@
                             <div class="col-md-4">
                                 <strong>Type:</strong>
                                 <span class="badge badge-pill badge-info text-uppercase">
-                                    {{ App\Models\Exam::getTypes()[$exam->type] ?? $exam->type }}
+                                    {{ ucwords(str_replace('_', ' ', $exam->type)) }}
                                 </span>
                             </div>
                         </div>
