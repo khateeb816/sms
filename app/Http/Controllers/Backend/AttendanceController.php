@@ -123,7 +123,6 @@ class AttendanceController extends Controller
         $class = ClassRoom::findOrFail($request->class_id);
 
         foreach ($request->attendance as $data) {
-            $student = User::findOrFail($data['user_id']);
             Attendance::updateOrCreate(
                 [
                     'user_id' => $data['user_id'],
@@ -135,9 +134,6 @@ class AttendanceController extends Controller
                     'remarks' => $data['remarks'] ?? null,
                 ]
             );
-
-            // Log for each student
-            ActivityService::logAttendanceActivity('Marked', $student->name, $student->id, 'student');
         }
 
         // Log the activity

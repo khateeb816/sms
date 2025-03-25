@@ -35,7 +35,7 @@
                                 @foreach($periods as $period)
                                 <th>
                                     {{ $period->name }}<br>
-                                    <small class="text-dark">{{ $period->start_time->format('H:i') }} - {{
+                                    <small class="text-white">{{ $period->start_time->format('H:i') }} - {{
                                         $period->end_time->format('H:i') }}</small>
                                 </th>
                                 @endforeach
@@ -95,7 +95,7 @@
                                 @endif
                                 @else
                                 <td class="text-center">
-                                    <span class="text-dark">Not Scheduled</span>
+                                    <span class="text-white">Not Scheduled</span>
                                     <div class="mt-2">
                                         <a href="{{ route('timetable.create') }}?class_id={{ $class->id }}&day_of_week={{ $day }}&period_id={{ $period->id }}"
                                             class="btn btn-success btn-sm">
@@ -129,7 +129,7 @@
 
     .teacher-name {
         font-size: 12px;
-        color: #495057;
+        color: #ffffff;
     }
 </style>
 @endsection

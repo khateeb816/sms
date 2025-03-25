@@ -19,6 +19,9 @@ use App\Http\Controllers\Backend\AttendanceController;
 use App\Http\Controllers\Backend\NotesController;
 use App\Http\Controllers\Backend\FineController;
 use App\Http\Controllers\Backend\ComplaintController;
+use App\Http\Controllers\Backend\ExamController;
+use App\Http\Controllers\Backend\TestController;
+use App\Http\Controllers\Backend\DatesheetController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -49,9 +52,9 @@ Route::prefix('dash')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 
-    // Registration Routes  
+    // Registration Routes
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 
@@ -149,7 +152,7 @@ Route::prefix('dash')->group(function () {
         Route::post('/fees/{fee}/mark-paid', [FeeController::class, 'markFeePaid'])->name('fees.mark-paid');
 
         // Fine Management
-        Route::get('/dash/fines', [FineController::class, 'index'])->name('fines.list');
+        Route::get('/fines', [FineController::class, 'index'])->name('fines.list.fines');
         Route::get('/fines/create', [FineController::class, 'create'])->name('fines.create');
         Route::post('/fines', [FineController::class, 'store'])->name('fines.store');
         Route::get('/fines/{fine}', [FineController::class, 'show'])->name('fines.show');
@@ -186,6 +189,25 @@ Route::prefix('dash')->group(function () {
 
         // Complaints Routes
         Route::resource('complaints', ComplaintController::class);
+
+        // Exams Routes
+        Route::resource('exams', ExamController::class);
+        Route::get('exams/{exam}/results', [ExamController::class, 'results'])->name('exams.results');
+        Route::post('exams/{exam}/results', [ExamController::class, 'storeResults'])->name('exams.store-results');
+        Route::get('exams/reports', [ExamController::class, 'reports'])->name('exams.reports');
+
+        // Tests Routes
+        Route::resource('tests', TestController::class);
+        Route::get('tests/{test}/results', [TestController::class, 'results'])->name('tests.results');
+        Route::post('tests/{test}/results', [TestController::class, 'storeResults'])->name('tests.store-results');
+        Route::get('test/reports', [TestController::class, 'reports'])->name('test.reports');
+
+        // Datesheet routes
+        Route::resource('datesheets', DatesheetController::class);
+        Route::get('datesheets/{datesheet}/manage-exams', [DatesheetController::class, 'manageExams'])->name('datesheets.manage-exams');
+        Route::put('datesheets/{datesheet}/update-exams', [DatesheetController::class, 'updateExams'])->name('datesheets.update-exams');
+        Route::put('datesheets/{datesheet}/publish', [DatesheetController::class, 'publish'])->name('datesheets.publish');
+        Route::get('datesheets/{datesheet}/print', [DatesheetController::class, 'print'])->name('datesheets.print');
 
         // Attendance routes
         Route::prefix('attendance')->group(function () {

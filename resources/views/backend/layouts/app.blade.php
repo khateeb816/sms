@@ -249,9 +249,34 @@
         .dataTables_wrapper .dataTables_length,
         .dataTables_wrapper .dataTables_filter,
         .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_processing,
         .dataTables_wrapper .dataTables_paginate {
+            margin-bottom: 1rem;
+        }
+
+        /* Sidebar submenu styling */
+        .sidebar-menu .submenu {
+            padding-left: 35px !important;
+            background: rgba(0, 0, 0, 0.1) !important;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .sidebar-menu .submenu li a {
+            padding-left: 35px !important;
             color: rgba(255, 255, 255, 0.8) !important;
+            font-size: 13px;
+            padding: 8px 15px;
+        }
+        .sidebar-menu .submenu li a:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+        .sidebar-menu .submenu li.active a {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+        .sidebar-menu .submenu li a i {
+            margin-left: 10px;
+            font-size: 12px;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -292,15 +317,15 @@
         @if(session('success'))
             sessionAlerts.push({message: "{{ session('success') }}", type: 'success'});
         @endif
-        
+
         @if(session('error'))
             sessionAlerts.push({message: "{{ session('error') }}", type: 'error'});
         @endif
-        
+
         @if(session('warning'))
             sessionAlerts.push({message: "{{ session('warning') }}", type: 'warning'});
         @endif
-        
+
         @if(session('info'))
             sessionAlerts.push({message: "{{ session('info') }}", type: 'info'});
         @endif
@@ -317,7 +342,7 @@
             event.stopPropagation();
 
             const dropdown = document.getElementById(dropdownId);
-            
+
             // If clicking the same dropdown that's already open, close it
             if (currentDropdown === dropdown) {
                 dropdown.classList.remove('show');
@@ -458,18 +483,74 @@
                         <i class="zmdi zmdi-email"></i> <span>Messages</span>
                     </a>
                 </li>
+
                 @if(auth()->user()->role == 2)
                 <li class="{{ request()->routeIs('notes.*') ? 'active' : '' }}">
                     <a href="{{ route('notes.index') }}">
                         <i class="fas fa-sticky-note"></i> <span>Class Notes</span>
                     </a>
                 </li>
+                @endif
+
+                <li class="{{ request()->routeIs('exams.*') || request()->routeIs('tests.*') ? 'active' : '' }}">
+                    <a href="javaScript:void();" class="waves-effect">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Exams & Tests</span>
+                        <i class="fas fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        @if(auth()->user()->role == 1 || auth()->user()->role == 2)
+                        <li class="{{ request()->routeIs('tests.create') ? 'active' : '' }}">
+                            <a href="{{ route('tests.create') }}">
+                                <i class="fas fa-plus-circle"></i> Create New Test
+                            </a>
+                        </li>
+                        @endif
+                        <li class="{{ request()->routeIs('tests.index') ? 'active' : '' }}">
+                            <a href="{{ route('tests.index') }}">
+                                <i class="fas fa-list"></i> All Tests
+                            </a>
+                        </li>
+                        @if(auth()->user()->role == 1 || auth()->user()->role == 2)
+                        <li class="{{ request()->routeIs('test.reports') ? 'active' : '' }}">
+                            <a href="{{ route('test.reports') }}">
+                                <i class="fas fa-chart-bar"></i> Test Reports
+                            </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->role == 1)
+                        <li class="{{ request()->routeIs('exams.create') ? 'active' : '' }}">
+                            <a href="{{ route('exams.create') }}">
+                                <i class="fas fa-plus-circle"></i> Create New Exam
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('exams.index') ? 'active' : '' }}">
+                            <a href="{{ route('exams.index') }}">
+                                <i class="fas fa-list"></i> All Exams
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('exams.reports') ? 'active' : '' }}">
+                            <a href="{{ route('exams.reports') }}">
+                                <i class="fas fa-chart-bar"></i> Exam Reports
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
+                </li>
+                <li class="{{ request()->routeIs('datesheets.*') ? 'active' : '' }}">
+                    <a href="{{ route('datesheets.index') }}">
+                        <i class="fa fa-calendar"></i> <span>Exam Datesheets</span>
+                    </a>
+                </li>
+
+                @if(auth()->user()->role == 2)
                 <li class="{{ request()->routeIs('fines.*') ? 'active' : '' }}">
                     <a href="{{ route('fines.list') }}">
                         <i class="zmdi zmdi-money-off"></i> <span>Fines</span>
                     </a>
                 </li>
                 @endif
+
                 <li class="{{ request()->routeIs('complaints.*') ? 'active' : '' }}">
                     <a href="{{ route('complaints.index') }}">
                         <i class="zmdi zmdi-comment-alert"></i> <span>Complaints</span>
@@ -776,26 +857,26 @@
         function initializeDataTables() {
             $('.datatable').each(function() {
                 var table = $(this);
-                
+
                 // Check if DataTable is already initialized
                 if ($.fn.DataTable.isDataTable(table)) {
                     return; // Skip if already initialized
                 }
-                
+
                 // Ensure table has proper structure
                 if (!table.find('thead').length || !table.find('tbody').length) {
                     console.warn('Table missing required thead or tbody elements');
                     return;
                 }
-                
+
                 var hasData = table.find('tbody tr').length > 0;
-                
+
                 // Add basic wrapper and styling for all tables
                 if (!table.parent().hasClass('dataTables_wrapper')) {
                     var wrapper = $('<div class="dataTables_wrapper"></div>');
                     table.wrap(wrapper);
                 }
-                
+
                 // Only initialize DataTables if there is data
                 if (hasData) {
                     try {
@@ -803,7 +884,7 @@
                         table.addClass('dataTable no-footer');
                         table.find('thead').addClass('dataTables-header');
                         table.find('tbody').addClass('dataTables-body');
-                        
+
                         // Initialize DataTable with default settings
                         var dataTable = table.DataTable({
                             "responsive": true,
@@ -829,7 +910,7 @@
                     // For empty tables, add empty state message
                     var info = $('<div class="dataTables_info">No records available</div>');
                     table.after(info);
-                    
+
                     // Add empty state styling
                     table.addClass('table table-striped');
                     table.find('thead').addClass('thead-dark');
@@ -930,7 +1011,7 @@
 
         function showAlert(message, type) {
             // Clear any existing timeout
-            if (alertTimeout) { 
+            if (alertTimeout) {
                 clearTimeout(alertTimeout);
             }
 
@@ -963,7 +1044,7 @@
                     </button>
                 </div>
             `;
-            
+
             // Add new alert
             $('.alert-container').html(alertHtml);
 
@@ -992,15 +1073,15 @@
             @if(session('success'))
                 showAlert("{{ session('success') }}", 'success');
             @endif
-            
+
             @if(session('error'))
                 showAlert("{{ session('error') }}", 'danger');
             @endif
-            
+
             @if(session('warning'))
                 showAlert("{{ session('warning') }}", 'warning');
             @endif
-            
+
             @if(session('info'))
                 showAlert("{{ session('info') }}", 'info');
             @endif

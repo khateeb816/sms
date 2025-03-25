@@ -71,4 +71,12 @@ class ClassRoom extends Model
     {
         return $this->students()->count();
     }
+
+    /**
+     * Get the timetables for this class.
+     */
+    public function timetables()
+    {
+        return $this->hasMany(Timetable::class, 'class_id');
+    }
 }
