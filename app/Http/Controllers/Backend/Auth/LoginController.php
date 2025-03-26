@@ -56,11 +56,21 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->status == 'active') {
-                // Log the login activity
-                ActivityService::log("User logged in", $user->id);
+            if ($user->status == 'active' ) {
+                if ($user->role != 4) {
+                    // Log the login activity
+                    ActivityService::log("User logged in", $user->id);
 
-                return redirect()->intended('dash/dashboard');
+                    return redirect()->intended('dashboard');
+                } else {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return redirect()->back()->withErrors([
+                        'email' => 'Cannot login student account.',
+                    ]);
+                }
             }
 
             Auth::logout();
