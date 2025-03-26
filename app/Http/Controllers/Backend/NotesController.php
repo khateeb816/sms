@@ -20,12 +20,34 @@ class NotesController extends Controller
     public function index()
     {
         $user = auth()->user();
+
         if ($user->role == 2) { // Teacher
             $notes = Note::where('teacher_id', $user->id)
                 ->with(['class'])
                 ->latest()
                 ->paginate(10);
-        } else {
+        }
+        elseif ($user->role == 3) { // Parent
+            // Get all children of the parent
+            $childrenIds = \Illuminate\Support\Facades\DB::table('users')
+                ->where('parent_id', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            // Get class IDs of all children
+            $classIds = \Illuminate\Support\Facades\DB::table('class_student')
+                ->whereIn('student_id', $childrenIds)
+                ->pluck('class_id')
+                ->unique()
+                ->toArray();
+
+            // Get notes for these classes
+            $notes = Note::whereIn('class_id', $classIds)
+                ->with(['teacher', 'class'])
+                ->latest()
+                ->paginate(10);
+        }
+        else {
             $notes = Note::with(['teacher', 'class'])
                 ->latest()
                 ->paginate(10);
@@ -48,7 +70,7 @@ class NotesController extends Controller
         }
 
         // Get classes where the teacher has timetable entries
-        $teacher_classes = \DB::table('timetables')
+        $teacher_classes = \Illuminate\Support\Facades\DB::table('timetables')
             ->where('timetables.teacher_id', $user->id)
             ->join('class_rooms', 'timetables.class_id', '=', 'class_rooms.id')
             ->select('class_rooms.id', 'class_rooms.name')
@@ -80,7 +102,7 @@ class NotesController extends Controller
         }
 
         // Verify teacher has access to the class
-        $hasAccess = \DB::table('timetables')
+        $hasAccess = \Illuminate\Support\Facades\DB::table('timetables')
             ->where('teacher_id', $user->id)
             ->where('class_id', $request->class_id)
             ->exists();
@@ -135,6 +157,28 @@ class NotesController extends Controller
                 ->with('error', 'You do not have permission to view this note.');
         }
 
+        // For parent role, check if note is for their children's classes
+        if ($user->role == 3) {
+            // Get children IDs
+            $childrenIds = \Illuminate\Support\Facades\DB::table('users')
+                ->where('parent_id', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            // Get class IDs of all children
+            $classIds = \Illuminate\Support\Facades\DB::table('class_student')
+                ->whereIn('student_id', $childrenIds)
+                ->pluck('class_id')
+                ->unique()
+                ->toArray();
+
+            // Check if note's class is in children's classes
+            if (!in_array($note->class_id, $classIds)) {
+                return redirect()->route('notes.index')
+                    ->with('error', 'You do not have permission to view this note.');
+            }
+        }
+
         return view('backend.pages.notes.show', compact('note'));
     }
 
@@ -153,7 +197,7 @@ class NotesController extends Controller
                 ->with('error', 'You do not have permission to edit this note.');
         }
 
-        $teacher_classes = \DB::table('timetables')
+        $teacher_classes = \Illuminate\Support\Facades\DB::table('timetables')
             ->where('timetables.teacher_id', $user->id)
             ->join('class_rooms', 'timetables.class_id', '=', 'class_rooms.id')
             ->select('class_rooms.id', 'class_rooms.name')
@@ -251,6 +295,28 @@ class NotesController extends Controller
         if ($user->role == 2 && $note->teacher_id != $user->id) {
             return redirect()->route('notes.index')
                 ->with('error', 'You do not have permission to download this file.');
+        }
+
+        // For parent role, check if note is for their children's classes
+        if ($user->role == 3) {
+            // Get children IDs
+            $childrenIds = \Illuminate\Support\Facades\DB::table('users')
+                ->where('parent_id', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            // Get class IDs of all children
+            $classIds = \Illuminate\Support\Facades\DB::table('class_student')
+                ->whereIn('student_id', $childrenIds)
+                ->pluck('class_id')
+                ->unique()
+                ->toArray();
+
+            // Check if note's class is in children's classes
+            if (!in_array($note->class_id, $classIds)) {
+                return redirect()->route('notes.index')
+                    ->with('error', 'You do not have permission to download this file.');
+            }
         }
 
         if (!$note->file_path || !Storage::exists($note->file_path)) {

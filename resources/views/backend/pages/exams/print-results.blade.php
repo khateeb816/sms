@@ -73,7 +73,7 @@
         </div>
         <div>
             <div class="info-item"><strong>Type:</strong> {{ ucwords(str_replace('_', ' ', $exam->type)) }}</div>
-            <div class="info-item"><strong>Date:</strong> {{ $exam->exam_date->format('M d, Y') }}</div>
+            <div class="info-item"><strong>Date:</strong> {{ $exam->exam_date->format('jS M Y g:ia') }}</div>
             <div class="info-item"><strong>Total Marks:</strong> {{ $exam->total_marks }}</div>
         </div>
     </div>
@@ -108,7 +108,7 @@
     </table>
 
     <div class="footer">
-        Generated on: {{ now()->format('M d, Y H:i:s') }}
+        Generated on: {{ now()->format('jS F Y g:i A') }}
     </div>
 </body>
 </html>

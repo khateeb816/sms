@@ -510,8 +510,14 @@
                     </a>
                 </li>
 
-                <!-- Parent Results Link -->
+                <!-- Parent Class Notes Link -->
+                <li class="{{ request()->routeIs('notes.*') ? 'active' : '' }}">
+                    <a href="{{ route('notes.index') }}">
+                        <i class="fas fa-sticky-note"></i> <span>Children's Class Notes</span>
+                    </a>
+                </li>
 
+                <!-- Parent Results Link -->
                 @else
                 <li class="{{ request()->routeIs('exams.*') || request()->routeIs('tests.*') ? 'active' : '' }}">
                     <a href="javaScript:void();" class="waves-effect">

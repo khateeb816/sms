@@ -106,7 +106,7 @@
             <span class="info-label">Term:</span> {{ $termName }}
         </div>
         <div class="info-row">
-            <span class="info-label">Date:</span> {{ $datesheet->start_date }} - {{ $datesheet->end_date }}
+            <span class="info-label">Date:</span> {{ date('jS F Y', strtotime($datesheet->start_date)) }} - {{ date('jS F Y', strtotime($datesheet->end_date)) }}
         </div>
         @if($datesheet->description)
             <div class="info-row">
@@ -181,7 +181,7 @@
 
     <div class="footer">
         <p>This is a computer generated report and does not require signature.</p>
-        <p>Generated on: {{ date('Y-m-d H:i:s') }}</p>
+        <p>Generated on: {{ \Carbon\Carbon::now()->format('jS F Y g:i A') }}</p>
     </div>
 </body>
 </html>
