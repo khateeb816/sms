@@ -302,9 +302,17 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Get class IDs for all children
+        $childrenClassIds = DB::table('class_student')
+            ->whereIn('student_id', $children->pluck('id'))
+            ->pluck('class_id')
+            ->unique()
+            ->toArray();
+
         // Get upcoming exams for all children's classes
-        $upcomingExams = Exam::whereIn('class_id', $children->pluck('id'))
+        $upcomingExams = Exam::whereIn('class_id', $childrenClassIds)
             ->where('exam_date', '>=', Carbon::now())
+            ->where('status', Exam::STATUS_SCHEDULED)
             ->orderBy('exam_date')
             ->limit(5)
             ->get();
@@ -315,6 +323,73 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
+
+        // Get timetables for each child's class
+        $childrenTimetables = [];
+
+        foreach ($children as $child) {
+            // Get the child's classes
+            $childClasses = DB::table('class_student')
+                ->join('class_rooms', 'class_student.class_id', '=', 'class_rooms.id')
+                ->where('class_student.student_id', $child->id)
+                ->select('class_rooms.id', 'class_rooms.name')
+                ->get();
+
+            $classTimetables = [];
+
+            foreach ($childClasses as $class) {
+                // Get timetable entries for this class
+                $timetableEntries = DB::table('timetables')
+                    ->join('class_rooms', 'timetables.class_id', '=', 'class_rooms.id')
+                    ->join('users', 'timetables.teacher_id', '=', 'users.id')
+                    ->where('timetables.class_id', $class->id)
+                    ->select(
+                        'timetables.day_of_week',
+                        'timetables.start_time',
+                        'timetables.end_time',
+                        'timetables.subject',
+                        'users.name as teacher_name',
+                        'class_rooms.name as class_name'
+                    )
+                    ->orderBy('timetables.day_of_week')
+                    ->orderBy('timetables.start_time')
+                    ->get();
+
+                // Create a structured timetable by day
+                $classTimetable = [
+                    'class_name' => $class->name,
+                    'timetable' => [
+                        'monday' => [],
+                        'tuesday' => [],
+                        'wednesday' => [],
+                        'thursday' => [],
+                        'friday' => []
+                    ]
+                ];
+
+                foreach ($timetableEntries as $entry) {
+                    $timeSlot = Carbon::parse($entry->start_time)->format('H:i') . ' - ' .
+                        Carbon::parse($entry->end_time)->format('H:i');
+
+                    $day = strtolower($entry->day_of_week);
+
+                    if (isset($classTimetable['timetable'][$day])) {
+                        $classTimetable['timetable'][$day][] = [
+                            'time' => $timeSlot,
+                            'subject' => $entry->subject,
+                            'teacher' => $entry->teacher_name
+                        ];
+                    }
+                }
+
+                $classTimetables[] = $classTimetable;
+            }
+
+            $childrenTimetables[$child->id] = [
+                'child_name' => $child->name,
+                'class_timetables' => $classTimetables
+            ];
+        }
 
         // Initialize teacher-related variables with default values
         $assignedClasses = 0;
@@ -383,7 +458,8 @@ class DashboardController extends Controller
             'teacherPresent' => $teacherPresent,
             'teacherAbsent' => $teacherAbsent,
             'teacherLate' => $teacherLate,
-            'teacherLeave' => $teacherLeave
+            'teacherLeave' => $teacherLeave,
+            'childrenTimetables' => $childrenTimetables
         ];
     }
 
