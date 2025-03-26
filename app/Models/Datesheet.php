@@ -18,12 +18,14 @@ class Datesheet extends Model
         'end_date',
         'status',
         'description',
-        'instructions'
+        'instructions',
+        'is_result_published'
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date'
+        'end_date' => 'date',
+        'is_result_published' => 'boolean'
     ];
 
     /**
@@ -76,5 +78,21 @@ class Datesheet extends Model
     public function isCompleted(): bool
     {
         return $this->status === 'completed';
+    }
+
+    /**
+     * Check if results are published for this datesheet.
+     */
+    public function isResultPublished(): bool
+    {
+        return $this->is_result_published;
+    }
+
+    /**
+     * Scope a query to only include datesheets with published results.
+     */
+    public function scopeWithPublishedResults($query)
+    {
+        return $query->where('is_result_published', true);
     }
 }

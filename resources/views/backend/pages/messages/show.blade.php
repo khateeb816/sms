@@ -8,11 +8,13 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">View Message</h3>
+                @if(auth()->user()->role != 3)
                 <div class="card-action">
                     <a href="{{ route('messages.inbox') }}" class="btn btn-info">Inbox</a>
                     <a href="{{ route('messages.sent') }}" class="btn btn-info">Sent</a>
                     <a href="{{ route('messages.compose') }}" class="btn btn-primary">Compose New Message</a>
                 </div>
+                @endif
             </div>
             <div class="card-body">
                 <div class="message-container">
@@ -33,10 +35,10 @@
                                     @endif
                                 </div>
                             </div>
+                            @if(auth()->user()->role != 3)
                             <div class="col-md-4 text-right">
                                 @if(Auth::user()->id == $message->sender_id)
-                                <form action="{{ route('messages.destroy', $message->id) }}" method="POST"
-                                    class="d-inline">
+                                <form action="{{ route('messages.destroy', $message->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm"
@@ -44,6 +46,7 @@
                                 </form>
                                 @endif
                             </div>
+                            @endif
                         </div>
                     </div>
 
@@ -74,8 +77,7 @@
                                 @elseif($message->recipient_type == 'admin')
                                 <span class="badge badge-danger">All Administrators</span>
                                 @else
-                                <span class="badge badge-info">Broadcast to {{ ucfirst($message->recipient_type)
-                                    }}</span>
+                                <span class="badge badge-info">Broadcast to {{ ucfirst($message->recipient_type) }}</span>
                                 @endif
                                 @else
                                 {{ $message->recipient->name ?? 'Unknown' }}

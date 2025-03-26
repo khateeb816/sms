@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Datesheet;
 use App\Models\Exam;
 use App\Models\ClassRoom;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,13 +36,44 @@ class DatesheetController extends Controller
                 ->with(['class'])
                 ->latest()
                 ->get();
-        } elseif (in_array($user->role, [3, 4])) { // Parent or Student
-            $datesheets = Datesheet::whereHas('class.students', function ($query) use ($user) {
-                $query->where('users.id', $user->role === 3 ? $user->parent_id : $user->id);
-            })
-            ->with(['class'])
-            ->latest()
-            ->get();
+        } elseif ($user->role === 3) { // Parent
+            // Get all children of the parent
+            $children = User::where('parent_id', $user->id)
+                ->where('role', 4) // Student role
+                ->get();
+
+            // Get class IDs for each child from class_student table
+            $classIds = [];
+            foreach ($children as $child) {
+                $childClassIds = DB::table('class_student')
+                    ->where('student_id', $child->id)
+                    ->pluck('class_id');
+                $classIds = array_merge($classIds, $childClassIds->toArray());
+            }
+            $classIds = array_unique($classIds);
+
+            // Get only published datesheets for these specific classes
+            $datesheets = Datesheet::whereIn('class_id', $classIds)
+                ->where('status', 'published')
+                ->with(['class'])
+                ->latest()
+                ->get();
+
+            // Add child information to each datesheet
+            $datesheets->each(function($datesheet) use ($children) {
+                $datesheet->children = $children->filter(function($child) use ($datesheet) {
+                    return DB::table('class_student')
+                        ->where('student_id', $child->id)
+                        ->where('class_id', $datesheet->class_id)
+                        ->exists();
+                })->map(function($child) {
+                    return [
+                        'id' => $child->id,
+                        'name' => $child->name,
+                        'roll_number' => $child->roll_number
+                    ];
+                });
+            });
         }
 
         return view('backend.pages.datesheets.index', compact('datesheets'));
@@ -234,5 +266,40 @@ class DatesheetController extends Controller
     {
         $datesheet->load(['class', 'exams.teacher']);
         return view('backend.pages.datesheets.print', compact('datesheet'));
+    }
+
+    /**
+     * Publish exam results for the datesheet.
+     */
+    public function publishResults(Datesheet $datesheet)
+    {
+        // Check if the datesheet has any exam
+        if ($datesheet->exams->isEmpty()) {
+            return back()->with('error', 'Cannot publish results without any exams.');
+        }
+
+        // Check if all exams have completed status
+        $incompleteExams = $datesheet->exams->where('status', '!=', 'completed')->count();
+        if ($incompleteExams > 0) {
+            return back()->with('error', 'Cannot publish results. Some exams are not completed yet.');
+        }
+
+        // Update the datesheet to publish results
+        $datesheet->update(['is_result_published' => true]);
+
+        return redirect()->route('datesheets.show', $datesheet)
+            ->with('success', 'Exam results published successfully.');
+    }
+
+    /**
+     * Unpublish exam results for the datesheet.
+     */
+    public function unpublishResults(Datesheet $datesheet)
+    {
+        // Update the datesheet to unpublish results
+        $datesheet->update(['is_result_published' => false]);
+
+        return redirect()->route('datesheets.show', $datesheet)
+            ->with('success', 'Exam results unpublished successfully.');
     }
 }

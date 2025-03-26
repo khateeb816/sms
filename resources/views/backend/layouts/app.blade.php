@@ -409,6 +409,15 @@
                     </a>
                 </li>
 
+                @if(auth()->user()->role == 3)
+                <!-- Parent Attendance Link -->
+                <li class="{{ request()->routeIs('attendance.parent.*') ? 'active' : '' }}">
+                    <a href="{{ route('attendance.parent.index') }}">
+                        <i class="fas fa-calendar-check"></i> <span>Children's Attendance</span>
+                    </a>
+                </li>
+                @else
+                <!-- Admin/Teacher Attendance Dropdown -->
                 <li class="{{ request()->routeIs('attendance.*') ? 'active' : '' }}">
                     <a href="javaScript:void();" class="waves-effect">
                         <i class="fas fa-calendar-check"></i>
@@ -416,15 +425,13 @@
                         <i class="fas fa-angle-left pull-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li
-                            class="{{ request()->routeIs('attendance.students.*') || request()->is('dash/attendance/students*') ? 'active' : '' }}">
+                        <li class="{{ request()->routeIs('attendance.students.*') || request()->is('dash/attendance/students*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.students.index') }}">
                                 <i class="fas fa-circle"></i> Student Attendance
                             </a>
                         </li>
                         @if(auth()->user()->role != 2)
-                        <li
-                            class="{{ request()->routeIs('attendance.teachers.*') || request()->is('dash/attendance/teachers*') ? 'active' : '' }}">
+                        <li class="{{ request()->routeIs('attendance.teachers.*') || request()->is('dash/attendance/teachers*') ? 'active' : '' }}">
                             <a href="{{ route('attendance.teachers.index') }}">
                                 <i class="fas fa-circle"></i> Teacher Attendance
                             </a>
@@ -437,8 +444,9 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
-                @if(auth()->user()->role != 2)
+                @if(auth()->user()->role != 2 && auth()->user()->role != 3)
                 <li class="{{ request()->routeIs('parents.*') ? 'active' : '' }}">
                     <a href="{{ route('parents.index') }}">
                         <i class="zmdi zmdi-accounts-list"></i> <span>Parents</span>
@@ -446,6 +454,7 @@
                 </li>
                 @endif
 
+                @if(auth()->user()->role != 3)
                 <li class="{{ request()->routeIs('students.*') ? 'active' : '' }}">
                     <a href="{{ route('students.index') }}">
                         <i class="zmdi zmdi-face"></i> <span>Students</span>
@@ -477,6 +486,7 @@
                     </a>
                 </li>
                 @endif
+                @endif
 
                 <li class="{{ request()->routeIs('messages.*') ? 'active' : '' }}">
                     <a href="{{ url('/dash/messages') }}">
@@ -492,6 +502,17 @@
                 </li>
                 @endif
 
+                @if(auth()->user()->role == 3)
+                <!-- Parent Tests Link -->
+                <li class="{{ request()->routeIs('tests.*') ? 'active' : '' }}">
+                    <a href="{{ route('tests.index') }}">
+                        <i class="fas fa-file-alt"></i> <span>Children's Tests</span>
+                    </a>
+                </li>
+
+                <!-- Parent Results Link -->
+
+                @else
                 <li class="{{ request()->routeIs('exams.*') || request()->routeIs('tests.*') ? 'active' : '' }}">
                     <a href="javaScript:void();" class="waves-effect">
                         <i class="fas fa-file-alt"></i>
@@ -537,11 +558,24 @@
                         @endif
                     </ul>
                 </li>
+                @endif
                 <li class="{{ request()->routeIs('datesheets.*') ? 'active' : '' }}">
                     <a href="{{ route('datesheets.index') }}">
                         <i class="fa fa-calendar"></i> <span>Exam Datesheets</span>
                     </a>
                 </li>
+                <li class="{{ request()->routeIs('exams.results.*') ? 'active' : '' }}">
+                    <a href="{{ route('exams.results.index') }}">
+                        <i class="fas fa-graduation-cap"></i> <span>Exams Results</span>
+                    </a>
+                </li>
+                @if (auth()->user()->role == 3)
+                <li class="{{ request()->routeIs('fees.parent') ? 'active' : '' }}">
+                    <a href="{{ route('fees.parent') }}">
+                        <i class="zmdi zmdi-money"></i> <span>Fees & Fines</span>
+                    </a>
+                </li>
+                @endif
 
                 @if(auth()->user()->role == 2)
                 <li class="{{ request()->routeIs('fines.*') ? 'active' : '' }}">
@@ -557,7 +591,8 @@
                     </a>
                 </li>
 
-                @if(auth()->user()->role != 2)
+
+                @if(auth()->user()->role == 1)
                 <li
                     class="{{ request()->routeIs('fees.*') || request()->is('dash/fees*') || request()->is('dash/fines*') || request()->is('dash/student-fees*') || request()->is('dash/public-report*') ? 'active' : '' }}">
                     <a href="{{ url('/dash/fees') }}">
@@ -672,56 +707,61 @@
                             <i class="fas fa-bell"></i>
                             @php
                             $pendingComplaints = App\Models\Complaint::where(function($query) use ($user) {
-                            if ($user->role == 1) { // Admin sees all pending complaints
-                            $query->where('status', 'pending');
-                            } elseif ($user->role == 2) { // Teacher sees complaints against them
-                            $query->where('against_user_id', $user->id)
-                            ->where('status', 'pending');
-                            }
+                                if ($user->role == 1) { // Admin sees all pending complaints
+                                    $query->where('status', 'pending');
+                                } elseif ($user->role == 2) { // Teacher sees complaints against them
+                                    $query->where('against_user_id', $user->id)
+                                        ->where('status', 'pending');
+                                } elseif ($user->role == 3) { // Parent sees their own pending complaints
+                                    $query->where('complainant_id', $user->id)
+                                        ->where('complainant_type', 'App\Models\User')
+                                        ->where('status', 'pending');
+                                }
                             })->count();
 
                             $recentComplaints = App\Models\Complaint::with(['complainant', 'againstUser'])
-                            ->where(function($query) use ($user) {
-                            if ($user->role == 1) {
-                            $query->where('status', 'pending');
-                            } elseif ($user->role == 2) {
-                            $query->where('against_user_id', $user->id)
-                            ->where('status', 'pending');
-                            }
-                            })
-                            ->orderBy('created_at', 'desc')
-                            ->take(5)
-                            ->get();
+                                ->where(function($query) use ($user) {
+                                    if ($user->role == 1) {
+                                        $query->where('status', 'pending');
+                                    } elseif ($user->role == 2) {
+                                        $query->where('against_user_id', $user->id)
+                                            ->where('status', 'pending');
+                                    } elseif ($user->role == 3) {
+                                        $query->where('complainant_id', $user->id)
+                                            ->where('complainant_type', 'App\Models\User')
+                                            ->where('status', 'pending');
+                                    }
+                                })
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
                             @endphp
                             @if($pendingComplaints > 0)
                             <span class="badge badge-warning">{{ $pendingComplaints }}</span>
                             @endif
                         </a>
                         <div id="notifications-dropdown" class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Notifications ({{ $pendingComplaints }} pending)</div>
+                            <div class="dropdown-header">Pending Complaints ({{ $pendingComplaints }})</div>
                             <div class="dropdown-divider"></div>
                             @if($recentComplaints->count() > 0)
-                            @foreach($recentComplaints as $complaint)
-                            <a class="dropdown-item" href="{{ route('complaints.show', $complaint->id) }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="ml-2">
-                                        <h6 class="mb-0">{{ $complaint->subject }}</h6>
-                                        <small class="text-muted">From: {{ $complaint->complainant->name }}</small>
-                                        @if($complaint->againstUser)
-                                        <small class="text-muted d-block">Against: {{ $complaint->againstUser->name
-                                            }}</small>
-                                        @endif
-                                        <small class="text-muted d-block">{{ $complaint->created_at->diffForHumans()
-                                            }}</small>
+                                @foreach($recentComplaints as $complaint)
+                                <a class="dropdown-item" href="{{ route('complaints.show', $complaint->id) }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="ml-2">
+                                            <h6 class="mb-0">{{ $complaint->subject }}</h6>
+                                            <small class="text-muted">From: {{ $complaint->complainant->name }}</small>
+                                            @if($complaint->againstUser)
+                                            <small class="text-muted d-block">Against: {{ $complaint->againstUser->name }}</small>
+                                            @endif
+                                            <small class="text-muted d-block">{{ $complaint->created_at->diffForHumans() }}</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                            @endforeach
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-center" href="{{ route('complaints.index') }}">View All
-                                Complaints</a>
+                                </a>
+                                @endforeach
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="{{ route('complaints.index') }}">View All Complaints</a>
                             @else
-                            <a class="dropdown-item" href="#">No pending complaints</a>
+                                <a class="dropdown-item" href="#">No pending complaints</a>
                             @endif
                         </div>
                     </li>

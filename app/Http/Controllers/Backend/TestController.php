@@ -35,13 +35,36 @@ class TestController extends Controller
                 ->latest()
                 ->get();
         } elseif (in_array($user->role, [3, 4])) { // Parent or Student
-            $tests = Exam::whereHas('class.students', function ($query) use ($user) {
-                $query->where('users.id', $user->role === 3 ? $user->parent_id : $user->id);
-            })
-                ->whereIn('type', ['normal', 'weekly', 'monthly', 'yearly'])
-                ->with(['teacher', 'class'])
-                ->latest()
-                ->get();
+            if ($user->role === 3) { // Parent
+                // Get all children IDs for the parent
+                $childrenIds = DB::table('users')
+                    ->where('parent_id', $user->id)
+                    ->pluck('id');
+
+                // Get all class IDs where the children are enrolled
+                $classIds = DB::table('class_student')
+                    ->whereIn('student_id', $childrenIds)
+                    ->pluck('class_id');
+
+                // Get tests for these classes
+                $tests = Exam::whereIn('class_id', $classIds)
+                    ->whereIn('type', ['normal', 'weekly', 'monthly', 'yearly'])
+                    ->with(['teacher', 'class'])
+                    ->latest()
+                    ->get();
+            } else { // Student
+                // Get class IDs where the student is enrolled
+                $classIds = DB::table('class_student')
+                    ->where('student_id', $user->id)
+                    ->pluck('class_id');
+
+                // Get tests for these classes
+                $tests = Exam::whereIn('class_id', $classIds)
+                    ->whereIn('type', ['normal', 'weekly', 'monthly', 'yearly'])
+                    ->with(['teacher', 'class'])
+                    ->latest()
+                    ->get();
+            }
         }
 
         return view('backend.pages.tests.index', compact('tests'));
@@ -103,7 +126,22 @@ class TestController extends Controller
      */
     public function show(Exam $test)
     {
+        $user = Auth::user();
+
+        // Load relationships
         $test->load(['teacher', 'class', 'results.student']);
+
+        // If user is a parent, filter results to only show their children's results
+        if ($user->role === 3) {
+            $childrenIds = DB::table('users')
+                ->where('parent_id', $user->id)
+                ->pluck('id');
+
+            $test->results = $test->results->filter(function ($result) use ($childrenIds) {
+                return $childrenIds->contains($result->student_id);
+            });
+        }
+
         return view('backend.pages.tests.show', compact('test'));
     }
 

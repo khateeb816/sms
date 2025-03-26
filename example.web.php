@@ -141,6 +141,7 @@ Route::prefix('dash')->group(function () {
         Route::get('/fees', [FeeController::class, 'index'])->name('fees.index');
         Route::get('/fees-list', [FeeController::class, 'feesList'])->name('fees.list');
         Route::get('/fines-list', [FeeController::class, 'finesList'])->name('fines.list');
+        Route::get('/parent-fees', [FeeController::class, 'parentFees'])->name('fees.parent');
 
         // Fee Management
         Route::get('/fees/create', [FeeController::class, 'createFee'])->name('fees.create');
@@ -205,6 +206,13 @@ Route::prefix('dash')->group(function () {
             Route::get('/{exam}/print', [ExamController::class, 'printResults'])->name('results.print');
         });
         Route::get('exam/reports', [ExamController::class, 'reports'])->name('exams.reports');
+        Route::get('exam/results', [ExamController::class, 'examResults'])->name('exams.results.index');
+        Route::get('exam/results/download-all', [ExamController::class, 'downloadAllResultsPdf'])->name('exams.results.download-all');
+        Route::get('exam/results/download/{datesheetId}', [ExamController::class, 'downloadResultPdf'])->name('exams.results.download');
+        Route::get('exam/result-pdf/{datesheetId}', [ExamController::class, 'downloadResultPdf'])->name('exams.result.pdf');
+
+        // Get students for a class - used in AJAX request
+        Route::get('class/students', [ClassController::class, 'getStudents'])->name('class.students');
 
         // Tests Routes
         Route::resource('tests', TestController::class);
@@ -217,6 +225,8 @@ Route::prefix('dash')->group(function () {
         Route::get('datesheets/{datesheet}/manage-exams', [DatesheetController::class, 'manageExams'])->name('datesheets.manage-exams');
         Route::put('datesheets/{datesheet}/update-exams', [DatesheetController::class, 'updateExams'])->name('datesheets.update-exams');
         Route::put('datesheets/{datesheet}/publish', [DatesheetController::class, 'publish'])->name('datesheets.publish');
+        Route::put('datesheets/{datesheet}/publish-results', [DatesheetController::class, 'publishResults'])->name('datesheets.publish-results');
+        Route::put('datesheets/{datesheet}/unpublish-results', [DatesheetController::class, 'unpublishResults'])->name('datesheets.unpublish-results');
         Route::get('datesheets/{datesheet}/print', [DatesheetController::class, 'print'])->name('datesheets.print');
 
         // Attendance routes
@@ -227,6 +237,9 @@ Route::prefix('dash')->group(function () {
             Route::post('/teachers/mark', [AttendanceController::class, 'markTeacherAttendance'])->name('attendance.teachers.mark');
             Route::get('/reports', [AttendanceController::class, 'reports'])->name('attendance.reports');
             Route::post('/log-print', [AttendanceController::class, 'logPrintActivity'])->name('attendance.log-print');
+
+            // Parent attendance routes
+            Route::get('/parent', [AttendanceController::class, 'parentIndex'])->name('attendance.parent.index');
 
             // New routes for editing and deleting attendance
             Route::get('/edit/{id}', [AttendanceController::class, 'edit'])->name('attendance.edit');

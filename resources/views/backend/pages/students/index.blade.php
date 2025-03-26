@@ -32,7 +32,7 @@
                             @forelse($students as $student)
                             <tr>
                                 <td>{{ $student->name }}</td>
-                                <td>{{ $student->class ?? 'Not assigned' }}</td>
+                                <td>{{ $student->class ? $student->class->name : 'Not assigned' }}</td>
                                 <td>{{ $student->roll_number ?? 'Not assigned' }}</td>
                                 <td>
                                     @if($student->status == 'active')

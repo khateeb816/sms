@@ -26,45 +26,63 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="form-group row">
-                                <label for="title" class="col-sm-2 col-form-label">Title</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control @error('title') is-invalid @enderror"
-                                        id="title" name="title" value="{{ old('title', $exam->title) }}" required>
-                                    @error('title')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                    @enderror
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="title">Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $exam->title) }}" required>
+                                        @error('title')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="class_id">Class <span class="text-danger">*</span></label>
+                                        <select class="form-control @error('class_id') is-invalid @enderror" id="class_id" name="class_id" required>
+                                            <option value="">Select Class</option>
+                                            @foreach($classes as $class)
+                                                <option value="{{ $class->id }}" {{ old('class_id', $exam->class_id) == $class->id ? 'selected' : '' }}>
+                                                    {{ $class->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('class_id')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <label for="class_id" class="col-sm-2 col-form-label">Class</label>
-                                <div class="col-sm-10">
-                                    <select class="form-control @error('class_id') is-invalid @enderror" id="class_id"
-                                        name="class_id" required>
-                                        <option value="">Select Class</option>
-                                        @foreach($classes as $class)
-                                        <option value="{{ $class->id }}" {{ old('class_id', $exam->class_id) ==
-                                            $class->id ? 'selected' : '' }}>
-                                            {{ $class->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    @error('class_id')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                    @enderror
+                            <div class="row">
+                                @if(Auth::user()->role === 1)
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="teacher_id">Teacher <span class="text-danger">*</span></label>
+                                        <select class="form-control @error('teacher_id') is-invalid @enderror" id="teacher_id" name="teacher_id" required>
+                                            <option value="">Select Teacher</option>
+                                            @foreach(App\Models\User::where('role', 2)->get() as $teacher)
+                                                <option value="{{ $teacher->id }}" {{ old('teacher_id', $exam->teacher_id) == $teacher->id ? 'selected' : '' }}>
+                                                    {{ $teacher->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('teacher_id')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
+                                @endif
 
-                            <div class="form-group row">
-                                <label for="subject" class="col-sm-2 col-form-label">Subject</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control @error('subject') is-invalid @enderror"
-                                        id="subject" name="subject" value="{{ old('subject', $exam->subject) }}"
-                                        required>
-                                    @error('subject')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                    @enderror
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="subject">Subject <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject', $exam->subject) }}" required>
+                                        @error('subject')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
@@ -85,7 +103,7 @@
                                 <div class="col-sm-10">
                                     <input type="time" class="form-control @error('start_time') is-invalid @enderror"
                                         id="start_time" name="start_time"
-                                        value="{{ old('start_time', $exam->start_time) }}" required>
+                                        value="{{ old('start_time', date('H:i', strtotime($exam->start_time))) }}" required>
                                     @error('start_time')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -96,7 +114,8 @@
                                 <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
                                 <div class="col-sm-10">
                                     <input type="time" class="form-control @error('end_time') is-invalid @enderror"
-                                        id="end_time" name="end_time" value="{{ old('end_time', $exam->end_time) }}"
+                                        id="end_time" name="end_time"
+                                        value="{{ old('end_time', date('H:i', strtotime($exam->end_time))) }}"
                                         required>
                                     @error('end_time')
                                     <span class="invalid-feedback">{{ $message }}</span>

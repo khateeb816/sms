@@ -8,21 +8,21 @@
         <!-- Breadcrumb-->
         <div class="row pt-2 pb-2">
             <div class="col-sm-9">
-                <h4 class="page-title">Tests</h4>
+                <h4 class="page-title">Children's Tests</h4>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Tests</li>
+                    <li class="breadcrumb-item active">Children's Tests</li>
                 </ol>
             </div>
+            @if(auth()->user()->role === 2)
             <div class="col-sm-3">
-                @if(auth()->user()->role === 2)
                 <div class="btn-group float-sm-right">
                     <a href="{{ route('tests.create') }}" class="btn btn-primary waves-effect waves-light">
                         <i class="fa fa-plus mr-1"></i> Create New Test
                     </a>
                 </div>
-                @endif
             </div>
+            @endif
         </div>
         <!-- End Breadcrumb-->
 
@@ -34,30 +34,32 @@
                             <table id="default-datatable" class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Title</th>
-                                        @if(auth()->user()->role !== 2)
-                                        <th>Teacher</th>
+                                        @if(auth()->user()->role == 3)
+                                        <th>Child's Name</th>
                                         @endif
                                         <th>Class</th>
-                                        <th>Subject</th>
                                         <th>Type</th>
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Status</th>
-                                        <th>Actions</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($tests as $test)
                                     <tr>
-                                        <td>{{ $test->id }}</td>
                                         <td>{{ $test->title }}</td>
-                                        @if(auth()->user()->role !== 2)
-                                        <td>{{ $test->teacher->name }}</td>
+                                        @if(auth()->user()->role == 3)
+                                        <td>
+                                            @foreach($test->class->students as $student)
+                                                @if($student->parent_id == auth()->id())
+                                                    {{ $student->name }}
+                                                @endif
+                                            @endforeach
+                                        </td>
                                         @endif
                                         <td>{{ $test->class->name }}</td>
-                                        <td>{{ $test->subject }}</td>
                                         <td>
                                             <span class="badge badge-pill badge-info text-uppercase">
                                                 {{ $test->type }}
@@ -82,36 +84,9 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group">
-                                                <a href="{{ route('tests.show', $test) }}"
-                                                    class="btn btn-info btn-sm waves-effect waves-light">
-                                                    <i class="fa fa-eye"></i>
-                                                </a>
-                                                @if(auth()->id() === $test->teacher_id || auth()->user()->role === 1)
-                                                <a href="{{ route('tests.edit', $test) }}"
-                                                    class="btn btn-warning btn-sm waves-effect waves-light">
-                                                    <i class="fa fa-edit"></i>
-                                                </a>
-                                                @if($test->status === 'scheduled')
-                                                <form action="{{ route('tests.destroy', $test) }}" method="POST"
-                                                    style="display: inline;"
-                                                    onsubmit="return confirm('Are you sure you want to delete this test?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="btn btn-danger btn-sm waves-effect waves-light">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                                @if(in_array($test->status, ['scheduled', 'in_progress']))
-                                                <a href="{{ route('tests.results', $test) }}"
-                                                    class="btn btn-success btn-sm waves-effect waves-light">
-                                                    <i class="fa fa-plus"></i> Results
-                                                </a>
-                                                @endif
-                                                @endif
-                                            </div>
+                                            <a href="{{ route('tests.show', $test) }}" class="btn btn-info btn-sm waves-effect waves-light">
+                                                <i class="fa fa-eye"></i> View
+                                            </a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -130,9 +105,9 @@
 <script>
     $(document).ready(function() {
         $('#default-datatable').DataTable({
-            "order": [[0, "desc"]],
+            "order": [[4, "desc"]], // Sort by date by default
             "columnDefs": [
-                { "orderable": false, "targets": -1 }
+                { "orderable": false, "targets": -1 } // Disable sorting on the last column (Action)
             ]
         });
     });

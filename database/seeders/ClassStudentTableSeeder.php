@@ -27,34 +27,22 @@ class ClassStudentTableSeeder extends Seeder
 
         // Distribute students across classes
         foreach ($students as $student) {
-            // Assign each student to 1-2 classes
-            $numClasses = rand(1, 2);
+            // Get a random class
+            $class = $classes->random();
 
-            // Get random classes
-            $randomClasses = $classes->random(min($numClasses, $classes->count()));
+            // Check if the class has reached capacity
+            $currentStudentCount = DB::table('class_student')
+                ->where('class_id', $class->id)
+                ->count();
 
-            foreach ($randomClasses as $class) {
-                // Check if the class has reached capacity
-                $currentStudentCount = DB::table('class_student')
-                    ->where('class_id', $class->id)
-                    ->count();
-
-                if ($currentStudentCount < $class->capacity) {
-                    // Add student to class if not already added
-                    $exists = DB::table('class_student')
-                        ->where('class_id', $class->id)
-                        ->where('student_id', $student->id)
-                        ->exists();
-
-                    if (!$exists) {
-                        DB::table('class_student')->insert([
-                            'class_id' => $class->id,
-                            'student_id' => $student->id,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
+            if ($currentStudentCount < $class->capacity) {
+                // Add student to class
+                DB::table('class_student')->insert([
+                    'class_id' => $class->id,
+                    'student_id' => $student->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
             }
         }
     }

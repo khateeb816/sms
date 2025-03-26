@@ -40,6 +40,16 @@ class StudentController extends Controller
         }
 
         $students = $studentsQuery->get();
+
+        // Get class information for each student from class_student table
+        foreach ($students as $student) {
+            $student->class = DB::table('class_student')
+                ->join('class_rooms', 'class_student.class_id', '=', 'class_rooms.id')
+                ->where('class_student.student_id', $student->id)
+                ->select('class_rooms.name')
+                ->first();
+        }
+
         return view('backend.pages.students.index', compact('students'));
     }
 

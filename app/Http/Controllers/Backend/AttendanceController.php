@@ -595,4 +595,61 @@ class AttendanceController extends Controller
 
         return $pdf->download("attendance-report-{$class->name}-{$month}.pdf");
     }
+
+    /**
+     * Display the parent attendance page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function parentIndex(Request $request)
+    {
+        // Get the authenticated parent
+        $parent = auth()->user();
+
+        // Get all children (students) of the parent
+        $children = User::where('parent_id', $parent->id)
+            ->where('role', 4) // Student role
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        $selectedDate = $request->date ? Carbon::parse($request->date) : Carbon::today();
+
+        // Get attendance records for all children
+        $attendanceRecords = Attendance::whereIn('user_id', $children->pluck('id'))
+            ->where('attendee_type', 'student')
+            ->where('date', $selectedDate->format('Y-m-d'))
+            ->get()
+            ->keyBy('user_id');
+
+        // Add attendance status to each child
+        foreach ($children as $child) {
+            $child->attendance = $attendanceRecords->get($child->id);
+        }
+
+        // Get attendance statistics for the last 30 days
+        $startDate = Carbon::now()->subDays(30);
+        $endDate = Carbon::now();
+
+        $monthlyAttendance = Attendance::whereIn('user_id', $children->pluck('id'))
+            ->where('attendee_type', 'student')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
+
+        // Calculate attendance percentages
+        $totalRecords = $monthlyAttendance->count() ?: 1; // Avoid division by zero
+        $presentCount = $monthlyAttendance->where('status', 'present')->count();
+        $absentCount = $monthlyAttendance->where('status', 'absent')->count();
+        $lateCount = $monthlyAttendance->where('status', 'late')->count();
+        $leaveCount = $monthlyAttendance->where('status', 'leave')->count();
+
+        $attendanceStats = [
+            'present' => round(($presentCount / $totalRecords) * 100),
+            'absent' => round(($absentCount / $totalRecords) * 100),
+            'late' => round(($lateCount / $totalRecords) * 100),
+            'leave' => round(($leaveCount / $totalRecords) * 100),
+        ];
+
+        return view('backend.pages.attendance.parent', compact('children', 'selectedDate', 'attendanceStats'));
+    }
 }

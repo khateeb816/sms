@@ -57,10 +57,22 @@ class ComplaintController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        // Validate complaint type based on user role
+        $validComplaintTypes = [];
+        if ($user->role === 2) { // Teacher
+            $validComplaintTypes = ['against_teacher', 'against_student', 'against_parent', 'against_admin', 'general'];
+        } elseif ($user->role === 3) { // Parent
+            $validComplaintTypes = ['against_teacher', 'general'];
+        } else { // Admin
+            $validComplaintTypes = ['against_teacher', 'against_student', 'against_parent', 'against_admin', 'general'];
+        }
+
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
             'description' => 'required|string',
-            'complaint_type' => 'required|in:against_teacher,against_admin,against_student,against_parent,general',
+            'complaint_type' => 'required|in:' . implode(',', $validComplaintTypes),
             'against_user_id' => 'required_if:complaint_type,against_teacher,against_student,against_parent|nullable|exists:users,id'
         ]);
 

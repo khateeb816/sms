@@ -44,14 +44,24 @@
                                             ? 'selected' : '' }}>Against Student</option>
                                         <option value="against_parent" {{ old('complaint_type')==='against_parent'
                                             ? 'selected' : '' }}>Against Parent</option>
+                                        <option value="against_admin" {{ old('complaint_type')==='against_admin'
+                                            ? 'selected' : '' }}>Against Admin</option>
+                                        <option value="general" {{ old('complaint_type')==='general' ? 'selected' : '' }}>General</option>
                                         @elseif(auth()->user()->role === 3)
                                         <option value="against_teacher" {{ old('complaint_type')==='against_teacher'
                                             ? 'selected' : '' }}>Against Teacher</option>
-                                        @endif
+                                        <option value="general" {{ old('complaint_type')==='general' ? 'selected' : '' }}>General</option>
+                                        @else
+                                        <option value="against_teacher" {{ old('complaint_type')==='against_teacher'
+                                            ? 'selected' : '' }}>Against Teacher</option>
+                                        <option value="against_student" {{ old('complaint_type')==='against_student'
+                                            ? 'selected' : '' }}>Against Student</option>
+                                        <option value="against_parent" {{ old('complaint_type')==='against_parent'
+                                            ? 'selected' : '' }}>Against Parent</option>
                                         <option value="against_admin" {{ old('complaint_type')==='against_admin'
                                             ? 'selected' : '' }}>Against Admin</option>
-                                        <option value="general" {{ old('complaint_type')==='general' ? 'selected' : ''
-                                            }}>General</option>
+                                        <option value="general" {{ old('complaint_type')==='general' ? 'selected' : '' }}>General</option>
+                                        @endif
                                     </select>
                                     @error('complaint_type')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -106,35 +116,35 @@
         var complaintTypeSelect = document.getElementById('complaint_type');
         var userSelectGroup = document.getElementById('user_select_group');
         var againstUserSelect = document.getElementById('against_user_id');
-        
+
         complaintTypeSelect.addEventListener('change', function() {
             // Clear previous options and error messages
             var errorMessages = userSelectGroup.querySelectorAll('.text-danger');
             errorMessages.forEach(function(element) {
                 element.remove();
             });
-            
+
             // Clear select options
             againstUserSelect.innerHTML = '<option value="">Select User</option>';
-            
+
             if (['against_teacher', 'against_student', 'against_parent'].includes(this.value)) {
                 console.log('Selected type:', this.value); // Debug log
-                
+
                 // Show the user select group
                 userSelectGroup.style.display = 'block';
                 againstUserSelect.required = true;
-                
+
                 // Fetch users based on complaint type
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '/dash/users/by-role/' + this.value, true);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.setRequestHeader('Accept', 'application/json');
-                
+
                 xhr.onload = function() {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         var users = JSON.parse(xhr.responseText);
                         console.log('Fetched users:', users);
-                        
+
                         if (users.length === 0) {
                             var errorDiv = document.createElement('div');
                             errorDiv.className = 'text-danger';
@@ -156,7 +166,7 @@
                         userSelectGroup.appendChild(errorDiv);
                     }
                 };
-                
+
                 xhr.onerror = function() {
                     console.error('Network error when fetching users');
                     var errorDiv = document.createElement('div');
@@ -164,7 +174,7 @@
                     errorDiv.textContent = 'Network error. Please try again.';
                     userSelectGroup.appendChild(errorDiv);
                 };
-                
+
                 xhr.send();
             } else {
                 userSelectGroup.style.display = 'none';

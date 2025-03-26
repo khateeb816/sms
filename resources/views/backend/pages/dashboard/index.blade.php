@@ -324,7 +324,7 @@
                         <div class="activity-time">
                             <span>{{ is_string($activity['time']) ?
                                 \Carbon\Carbon::parse($activity['time'])->diffForHumans() :
-                                $activity['time']->diffForHumans() }}</span>
+                                ($activity['time'] ? $activity['time']->diffForHumans() : 'N/A') }}</span>
                         </div>
                     </div>
                     @endforeach
@@ -493,7 +493,7 @@
     </div>
 </div>
 
-@else
+@elseif(Auth::user()->role == 2)
 <!-- Teacher Dashboard -->
 <div class="card mt-3">
     <div class="card-content">
@@ -650,6 +650,212 @@
                         <p class="mb-0">No classes scheduled for today</p>
                     </div>
                     @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@elseif(Auth::user()->role == 3)
+<!-- Parent Dashboard -->
+<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $totalChildren }} <span class="float-right"><i
+                                class="zmdi zmdi-accounts"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:75%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Total Children</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $totalUnpaidFees }} <span class="float-right"><i
+                                class="zmdi zmdi-money-off"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:85%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Unpaid Fees</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-4 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ $totalUnpaidFines }} <span class="float-right"><i
+                                class="zmdi zmdi-warning"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:65%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Unpaid Fines</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <!-- Children's Attendance Overview -->
+        <div class="card mt-3">
+            <div class="card-header">Children's Attendance Overview</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Child Name</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Late</th>
+                                <th>Leave</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($children as $child)
+                            <tr>
+                                <td>{{ $child->name }}</td>
+                                <td>{{ $attendanceOverview[$child->id]['present'] ?? 0 }}</td>
+                                <td>{{ $attendanceOverview[$child->id]['absent'] ?? 0 }}</td>
+                                <td>{{ $attendanceOverview[$child->id]['late'] ?? 0 }}</td>
+                                <td>{{ $attendanceOverview[$child->id]['leave'] ?? 0 }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Exams -->
+        <div class="card mt-3">
+            <div class="card-header">Upcoming Exams</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Exam Name</th>
+                                <th>Date</th>
+                                <th>Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($upcomingExams as $exam)
+                            <tr>
+                                <td>{{ $exam->name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}</td>
+                                <td>{{ $exam->class->name ?? 'N/A' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center">No upcoming exams</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <!-- Quick Links -->
+        <div class="card mt-3">
+            <div class="card-header">Quick Links</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="{{ url('/dash/fees') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-money d-block"></i>
+                            <span>Fees</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/attendance') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-calendar-check d-block"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/results') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-graduation-cap d-block"></i>
+                            <span>Results</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url('/dash/messages') }}" class="quick-link text-center">
+                            <i class="zmdi zmdi-email d-block"></i>
+                            <span>Messages</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="card mt-3">
+            <div class="card-header">Recent Results</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Child</th>
+                                <th>Exam</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentResults as $result)
+                            <tr>
+                                <td>{{ $result->student->name }}</td>
+                                <td>{{ $result->exam->name }}</td>
+                                <td>{{ $result->score }}%</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center">No recent results</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unpaid Fees -->
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Unpaid Fees</h5>
+                <a href="{{ route('fees.parent') }}" class="btn btn-primary btn-sm">View All Fees & Fines</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Child</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($unpaidFees as $fee)
+                            <tr>
+                                <td>{{ $fee->student->name }}</td>
+                                <td>{{ ucfirst($fee->fee_type) }}</td>
+                                <td>PKR {{ number_format($fee->amount) }}</td>
+                                <td>{{ \Carbon\Carbon::parse($fee->due_date)->format('d M Y') }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center">No unpaid fees</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

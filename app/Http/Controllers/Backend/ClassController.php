@@ -171,17 +171,33 @@ class ClassController extends Controller
      */
     public function updateStudents(Request $request, ClassRoom $class)
     {
-        $validated = $request->validate([
+        $request->validate([
             'student_ids' => 'nullable|array',
-            'student_ids.*' => 'exists:users,id',
+            'student_ids.*' => 'exists:users,id'
         ]);
 
-        try {
-            $class->students()->sync($request->student_ids ?? []);
-            return redirect()->route('classes.show', $class)->with('success', 'Students updated successfully.');
-        } catch (\Exception $e) {
-            Log::error('Failed to update students: ' . $e->getMessage());
-            return back()->with('error', 'Failed to update students. Please try again.');
-        }
+        $class->students()->sync($request->student_ids ?? []);
+
+        return redirect()->route('classes.manage-students', $class)
+            ->with('success', 'Students have been updated for ' . $class->name);
+    }
+
+    /**
+     * Get students for a class. Used for AJAX requests.
+     */
+    public function getStudents(Request $request)
+    {
+        $request->validate([
+            'class_id' => 'required|exists:class_rooms,id'
+        ]);
+
+        $students = User::where('role', 4) // Student role
+            ->whereHas('classes', function($query) use ($request) {
+                $query->where('class_rooms.id', $request->class_id);
+            })
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json($students);
     }
 }

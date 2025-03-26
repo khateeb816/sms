@@ -8,7 +8,7 @@
         <!-- Breadcrumb-->
         <div class="row pt-2 pb-2">
             <div class="col-sm-9">
-                <h4 class="page-title">Exam Datesheets</h4>
+                <h4 class="page-title">@if(auth()->user()->role === 3) Children's Exam Datesheets @else Exam Datesheets @endif</h4>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li class="breadcrumb-item active">Datesheets</li>
@@ -36,6 +36,9 @@
                                     <tr>
                                         <th>Title</th>
                                         <th>Class</th>
+                                        @if(auth()->user()->role === 3)
+                                        <th>Children</th>
+                                        @endif
                                         <th>Term</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
@@ -48,6 +51,13 @@
                                     <tr>
                                         <td>{{ $datesheet->title }}</td>
                                         <td>{{ $datesheet->class->name }}</td>
+                                        @if(auth()->user()->role === 3)
+                                        <td>
+                                            @foreach($datesheet->children as $child)
+                                                <span class="badge badge-info mr-1">{{ $child['name'] }}</span>
+                                            @endforeach
+                                        </td>
+                                        @endif
                                         <td>{{ ucfirst($datesheet->term) }}</td>
                                         <td>{{ $datesheet->start_date->format('M d, Y') }}</td>
                                         <td>{{ $datesheet->end_date->format('M d, Y') }}</td>
@@ -81,7 +91,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No datesheets found.</td>
+                                        <td colspan="{{ auth()->user()->role === 3 ? '8' : '7' }}" class="text-center">No datesheets found.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>

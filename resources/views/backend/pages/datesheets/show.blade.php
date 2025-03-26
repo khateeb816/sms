@@ -8,7 +8,7 @@
         <!-- Breadcrumb-->
         <div class="row pt-2 pb-2">
             <div class="col-sm-9">
-                <h4 class="page-title">Datesheet Details</h4>
+                <h4 class="page-title">@if(auth()->user()->role === 3) Children's Exam Datesheet Details @else Datesheet Details @endif</h4>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('datesheets.index') }}">Datesheets</a></li>
@@ -97,7 +97,9 @@
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Total Marks</th>
+                                        @if(auth()->user()->role !== 3)
                                         <th>Teacher</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -108,7 +110,9 @@
                                         <td>{{ $exam->exam_date->format('M d, Y') }}</td>
                                         <td>{{ $exam->start_time->format('h:i A') }} - {{ $exam->end_time->format('h:i A') }}</td>
                                         <td>{{ $exam->total_marks }}</td>
+                                        @if(auth()->user()->role !== 3)
                                         <td>{{ $exam->teacher->name }}</td>
+                                        @endif
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -128,6 +132,36 @@
                                 </button>
                             </form>
                         </div>
+                        @endif
+
+                        @if(auth()->user()->role === 1 && $datesheet->status === 'published')
+                            @if(!$datesheet->is_result_published)
+                                <div class="mt-4">
+                                    <form action="{{ route('datesheets.publish-results', $datesheet) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light">
+                                            <i class="fa fa-check-circle mr-1"></i> Publish Exam Results
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <div class="mt-4">
+                                    <form action="{{ route('datesheets.unpublish-results', $datesheet) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-warning waves-effect waves-light">
+                                            <i class="fa fa-times-circle mr-1"></i> Unpublish Exam Results
+                                        </button>
+                                    </form>
+                                    <div class="mt-2">
+                                        <span class="badge badge-success p-2">
+                                            <i class="fa fa-check-circle mr-1"></i> Exam Results Published
+                                        </span>
+                                        <small class="text-muted ml-2">Results are visible to parents and students</small>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>

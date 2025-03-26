@@ -23,21 +23,57 @@ class FeeController extends Controller
      */
     public function index()
     {
-        $fees = Fee::with('student')->latest()->get();
-        $fines = Fine::with('student')->latest()->get();
+        $user = Auth::user();
 
-        $pendingFees = Fee::where('status', 'pending')->count();
-        $paidFees = Fee::where('status', 'paid')->count();
-        $overdueFees = Fee::where('status', 'overdue')->count();
+        if ($user->role == 3) { // Parent
+            // Get all children of the parent
+            $children = User::where('parent_id', $user->id)
+                ->where('role', 4) // Student role
+                ->where('status', 'active')
+                ->get();
 
-        $pendingFines = Fine::where('status', 'pending')->count();
-        $paidFines = Fine::where('status', 'paid')->count();
-        $waivedFines = Fine::where('status', 'waived')->count();
+            // Get fees for children
+            $fees = Fee::whereIn('student_id', $children->pluck('id'))
+                ->with('student')
+                ->latest()
+                ->get();
 
-        $totalFeesAmount = Fee::sum('amount');
-        $totalFinesAmount = Fine::sum('amount');
+            // Get fines for children
+            $fines = Fine::whereIn('student_id', $children->pluck('id'))
+                ->with('student')
+                ->latest()
+                ->get();
 
-        $students = User::where('role', 4)->where('status', 'active')->get();
+            $pendingFees = $fees->where('status', 'pending')->count();
+            $paidFees = $fees->where('status', 'paid')->count();
+            $overdueFees = $fees->where('status', 'overdue')->count();
+
+            $pendingFines = $fines->where('status', 'pending')->count();
+            $paidFines = $fines->where('status', 'paid')->count();
+            $waivedFines = $fines->where('status', 'waived')->count();
+
+            $totalFeesAmount = $fees->sum('amount');
+            $totalFinesAmount = $fines->sum('amount');
+
+            $students = $children;
+        } else {
+            // For admin and other roles, show all fees
+            $fees = Fee::with('student')->latest()->get();
+            $fines = Fine::with('student')->latest()->get();
+
+            $pendingFees = Fee::where('status', 'pending')->count();
+            $paidFees = Fee::where('status', 'paid')->count();
+            $overdueFees = Fee::where('status', 'overdue')->count();
+
+            $pendingFines = Fine::where('status', 'pending')->count();
+            $paidFines = Fine::where('status', 'paid')->count();
+            $waivedFines = Fine::where('status', 'waived')->count();
+
+            $totalFeesAmount = Fee::sum('amount');
+            $totalFinesAmount = Fine::sum('amount');
+
+            $students = User::where('role', 4)->where('status', 'active')->get();
+        }
 
         return view('backend.pages.fees.index', compact(
             'fees',
@@ -61,13 +97,36 @@ class FeeController extends Controller
      */
     public function feesList()
     {
-        $fees = Fee::with('student')->latest()->get();
+        $user = Auth::user();
 
-        $pendingFees = Fee::where('status', 'pending')->count();
-        $paidFees = Fee::where('status', 'paid')->count();
-        $overdueFees = Fee::where('status', 'overdue')->count();
+        if ($user->role == 3) { // Parent
+            // Get all children of the parent
+            $children = User::where('parent_id', $user->id)
+                ->where('role', 4) // Student role
+                ->where('status', 'active')
+                ->get();
 
-        $totalFeesAmount = Fee::sum('amount');
+            // Get fees for children
+            $fees = Fee::whereIn('student_id', $children->pluck('id'))
+                ->with('student')
+                ->latest()
+                ->get();
+
+            $pendingFees = $fees->where('status', 'pending')->count();
+            $paidFees = $fees->where('status', 'paid')->count();
+            $overdueFees = $fees->where('status', 'overdue')->count();
+
+            $totalFeesAmount = $fees->sum('amount');
+        } else {
+            // For admin and other roles, show all fees
+            $fees = Fee::with('student')->latest()->get();
+
+            $pendingFees = Fee::where('status', 'pending')->count();
+            $paidFees = Fee::where('status', 'paid')->count();
+            $overdueFees = Fee::where('status', 'overdue')->count();
+
+            $totalFeesAmount = Fee::sum('amount');
+        }
 
         return view('backend.pages.fees.fees_list', compact(
             'fees',
@@ -85,13 +144,36 @@ class FeeController extends Controller
      */
     public function finesList()
     {
-        $fines = Fine::with('student')->latest()->get();
+        $user = Auth::user();
 
-        $pendingFines = Fine::where('status', 'pending')->count();
-        $paidFines = Fine::where('status', 'paid')->count();
-        $waivedFines = Fine::where('status', 'waived')->count();
+        if ($user->role == 3) { // Parent
+            // Get all children of the parent
+            $children = User::where('parent_id', $user->id)
+                ->where('role', 4) // Student role
+                ->where('status', 'active')
+                ->get();
 
-        $totalFinesAmount = Fine::sum('amount');
+            // Get fines for children
+            $fines = Fine::whereIn('student_id', $children->pluck('id'))
+                ->with('student')
+                ->latest()
+                ->get();
+
+            $pendingFines = $fines->where('status', 'pending')->count();
+            $paidFines = $fines->where('status', 'paid')->count();
+            $waivedFines = $fines->where('status', 'waived')->count();
+
+            $totalFinesAmount = $fines->sum('amount');
+        } else {
+            // For admin and other roles, show all fines
+            $fines = Fine::with('student')->latest()->get();
+
+            $pendingFines = Fine::where('status', 'pending')->count();
+            $paidFines = Fine::where('status', 'paid')->count();
+            $waivedFines = Fine::where('status', 'waived')->count();
+
+            $totalFinesAmount = Fine::sum('amount');
+        }
 
         return view('backend.pages.fees.fines_list', compact(
             'fines',
@@ -650,5 +732,39 @@ class FeeController extends Controller
         ActivityService::log("Printed fee report for class: {$class->name} ({$month})", $user->id, 'fee');
 
         return $pdf->download("fee-report-{$class->name}-{$month}.pdf");
+    }
+
+    /**
+     * Display fees and fines for parent's children.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function parentFees()
+    {
+        $user = Auth::user();
+
+        if ($user->role != 3) {
+            return redirect()->route('fees.index')->with('error', 'Unauthorized access.');
+        }
+
+        // Get all children of the parent
+        $children = User::where('parent_id', $user->id)
+            ->where('role', 4) // Student role
+            ->where('status', 'active')
+            ->get();
+
+        // Get fees for children
+        $fees = Fee::whereIn('student_id', $children->pluck('id'))
+            ->with('student')
+            ->latest()
+            ->get();
+
+        // Get fines for children
+        $fines = Fine::whereIn('student_id', $children->pluck('id'))
+            ->with('student')
+            ->latest()
+            ->get();
+
+        return view('backend.pages.fees.parent_fees', compact('children', 'fees', 'fines'));
     }
 }

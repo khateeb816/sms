@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             PeriodsTableSeeder::class,
             ClassRoomsTableSeeder::class,
             ClassStudentTableSeeder::class,
+            // Call the school data seeder with attendance, timetables, exams, and results
+            SchoolDataSeeder::class,
         ]);
     }
 }
