@@ -61,7 +61,7 @@ class LoginController extends Controller
                     // Log the login activity
                     ActivityService::log("User logged in", $user->id);
 
-                    return redirect()->intended('dashboard');
+                    return redirect('dash');
                 } else {
                     Auth::logout();
                     $request->session()->invalidate();

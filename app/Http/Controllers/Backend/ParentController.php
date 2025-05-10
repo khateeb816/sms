@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use App\Services\ActivityService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class ParentController extends Controller
 {
@@ -46,7 +46,7 @@ class ParentController extends Controller
             $user->password = Hash::make($request->password);
             $user->address = $request->address;
             $user->status = $request->status;
-            $user->role = 3; // 3 = parent
+            $user->role = 3;  // 3 = parent
             $user->save();
 
             // Log the activity
@@ -60,44 +60,21 @@ class ParentController extends Controller
 
     public function show($id)
     {
-        try {
-            // Find the parent user
-            $parent = User::where('role', 3)->findOrFail($id);
+        // Find the parent user
+        $parent = User::where('role', 3)->findOrFail($id);
 
-            // Get all children associated with this parent
-            $children = DB::table('parent_student')
-                ->join('users', 'parent_student.student_id', '=', 'users.id')
-                ->leftJoin('student_details', 'users.id', '=', 'student_details.user_id')
-                ->where('parent_student.parent_id', $id)
-                ->select(
-                    'users.id',
-                    'users.name',
-                    'users.email',
-                    'users.phone',
-                    'users.address',
-                    'users.image',
-                    'users.status',
-                    'student_details.class',
-                    'student_details.roll_number'
-                )
-                ->get();
+        // Get all children associated with this parent
+        $children = User::where('role', 4)->where('parent_id', $id)->get();
 
-            return view('backend.pages.parents.show', compact('parent', 'children'));
-        } catch (\Exception $e) {
-            return redirect('/dash/parents')->with('error', 'Parent not found!');
-        }
+        return view('backend.pages.parents.show', compact('parent', 'children'));
     }
 
     public function edit($id)
     {
-        try {
-            // Find the parent user
-            $parent = User::where('role', 3)->findOrFail($id);
+        // Find the parent user
+        $parent = User::where('role', 3)->findOrFail($id);
 
-            return view('backend.pages.parents.edit', compact('parent'));
-        } catch (\Exception $e) {
-            return redirect('/dash/parents')->with('error', 'Parent not found!');
-        }
+        return view('backend.pages.parents.edit', compact('parent'));
     }
 
     public function update(Request $request, $id)
@@ -173,25 +150,21 @@ class ParentController extends Controller
      */
     public function addChildForm($id)
     {
-        try {
-            // Find the parent user
-            $parent = User::where('role', 3)->findOrFail($id);
+        // Find the parent user
+        $parent = User::where('role', 3)->findOrFail($id);
 
-            // Get all students (users with role=1) who are not already children of this parent
-            $students = DB::table('users')
-                ->leftJoin('parent_student', function ($join) use ($id) {
-                    $join->on('users.id', '=', 'parent_student.student_id')
-                        ->where('parent_student.parent_id', '=', $id);
-                })
-                ->whereNull('parent_student.parent_id')
-                ->where('users.role', 1)
-                ->select('users.id', 'users.name', 'users.email')
-                ->get();
+        // Get all students (users with role=1) who are not already children of this parent
+        // Get all students who don't have this parent assigned
+        $students = User::where('role', 4)  // role 4 = student
+            ->where(function ($query) use ($id) {
+                $query
+                    ->whereNull('parent_id')
+                    ->orWhere('parent_id', '!=', $id);
+            })
+            ->select('id', 'name', 'email', 'roll_number', 'class')
+            ->get();
 
-            return view('backend.pages.parents.add_child', compact('parent', 'students'));
-        } catch (\Exception $e) {
-            return redirect('/dash/parents')->with('error', 'Parent not found!');
-        }
+        return view('backend.pages.parents.add-child', compact('parent', 'students'));
     }
 
     /**
@@ -202,7 +175,6 @@ class ParentController extends Controller
         // Validate the request
         $request->validate([
             'student_id' => 'required|exists:users,id',
-            'relationship' => 'required|string|max:50',
         ]);
 
         try {
@@ -210,26 +182,15 @@ class ParentController extends Controller
             $parent = User::where('role', 3)->findOrFail($id);
 
             // Find the student user
-            $student = User::where('role', 1)->findOrFail($request->student_id);
+            $student = User::where('role', 4)->findOrFail($request->student_id);
 
             // Check if the relationship already exists
-            $exists = DB::table('parent_student')
-                ->where('parent_id', $id)
-                ->where('student_id', $request->student_id)
-                ->exists();
-
-            if ($exists) {
+            if ($student->parent_id == $id) {
                 return redirect()->back()->with('warning', 'This student is already associated with this parent!');
             }
 
-            // Create the relationship
-            DB::table('parent_student')->insert([
-                'parent_id' => $id,
-                'student_id' => $request->student_id,
-                'relationship' => $request->relationship,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $student->parent_id = $id;
+            $student->save();
 
             return redirect()->route('parents.show', $id)->with('success', "Student '{$student->name}' added as a child successfully!");
         } catch (\Exception $e) {
@@ -247,22 +208,16 @@ class ParentController extends Controller
             $parent = User::where('role', 3)->findOrFail($parentId);
 
             // Find the student user
-            $student = User::where('role', 1)->findOrFail($childId);
+            $student = User::where('role', 4)->findOrFail($childId);
 
             // Remove the relationship
-            $deleted = DB::table('parent_student')
-                ->where('parent_id', $parentId)
-                ->where('student_id', $childId)
-                ->delete();
+            $student->parent_id = null;
+            $student->save();
 
-            if ($deleted) {
-                return redirect()->route('parents.show', $parentId)->with('success', "Student '{$student->name}' removed successfully!");
-            } else {
-                return redirect()->route('parents.show', $parentId)->with('warning', 'No relationship found to remove!');
-            }
+            return redirect()->route('parents.show', $parentId)->with('success', "Student '{$student->name}' removed successfully!");
         } catch (\Exception $e) {
             return redirect()->route('parents.show', $parentId)->with('error', 'Failed to remove child: ' . $e->getMessage());
-        }
+        }   
     }
 
     public function updateProfilePicture(Request $request, $id)
