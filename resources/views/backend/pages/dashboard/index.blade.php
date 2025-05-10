@@ -908,6 +908,10 @@
                     </div>
                 </div>
 
+                
+            </div>
+
+            <div class="col-12">
                 <!-- Unpaid Fees -->
                 <div class="card mt-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1066,6 +1070,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     @endif
     <!--End Dashboard Content-->
