@@ -3,7 +3,7 @@
 @section('title', 'Exam Results')
 
 @section('content')
-<div class="content-wrapper">
+<div class=" ">
     <div class="container-fluid">
         <!-- Breadcrumb-->
         <div class="row pt-2 pb-2">

@@ -626,7 +626,7 @@
             color: #000 !important;
         }
 
-        .content-wrapper,
+        . ,
         .page-wrapper,
         .page-content,
         .content-page,
