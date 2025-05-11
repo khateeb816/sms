@@ -132,7 +132,7 @@
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                                 @else
-                                                <span class="text-muted">Not marked</span>
+                                                <span class=" ">Not marked</span>
                                                 @endif
                                             </td>
                                         </tr>

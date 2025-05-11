@@ -168,7 +168,7 @@
                                                     @method('DELETE')
                                                 </form>
                                                 @else
-                                                <span class="text-muted">Not marked</span>
+                                                <span class=" ">Not marked</span>
                                                 @endif
                                             </td>
                                             @endif

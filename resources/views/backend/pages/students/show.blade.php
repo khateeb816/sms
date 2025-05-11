@@ -30,7 +30,7 @@
                                 onchange="submitProfilePicture()">
                         </form>
                         <h4 class="mt-3">{{ $student->name }}</h4>
-                        <p class="text-muted">Student</p>
+                        <p class=" ">Student</p>
                         <div class="d-flex justify-content-center">
                             <span class="badge badge-primary mr-2">Class: {{ isset($student->classes) &&
                                 count($student->classes) > 0 ? $student->classes->first()->name : 'Not assigned'
@@ -42,21 +42,21 @@
                     <div class="profile-details mt-4">
                         <h5 class="mb-3">Contact Information</h5>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Phone:</div>
+                            <div class="col-sm-4  ">Phone:</div>
                             <div class="col-sm-8">{{ $student->phone ?? 'Not provided' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Email:</div>
+                            <div class="col-sm-4  ">Email:</div>
                             <div class="col-sm-8">
                                 <span class="badge badge-secondary">{{ $student->email }}</span>
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Address:</div>
+                            <div class="col-sm-4  ">Address:</div>
                             <div class="col-sm-8">{{ $student->address ?? 'Not provided' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Status:</div>
+                            <div class="col-sm-4  ">Status:</div>
                             <div class="col-sm-8">
                                 @if($student->status == 'active')
                                 <span class="badge badge-success">Active</span>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Password:</div>
+                            <div class="col-sm-4  ">Password:</div>
                             <div class="col-sm-8">
                                 <span class="badge badge-secondary">Default (123456)</span>
                             </div>
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div class="text-center mt-3">
-                        <p class="text-muted">More academic information will be available here.</p>
+                        <p class=" ">More academic information will be available here.</p>
                     </div>
                 </div>
             </div>
@@ -157,7 +157,7 @@
                             <span class="timeline-point"></span>
                             <div class="timeline-content">
                                 <h5 class="mb-1">Account Created</h5>
-                                <p class="text-muted">{{ $student->created_at->format('F d, Y h:i A') }}</p>
+                                <p class=" ">{{ $student->created_at->format('F d, Y h:i A') }}</p>
                             </div>
                         </li>
                         @if($student->created_at != $student->updated_at)
@@ -165,7 +165,7 @@
                             <span class="timeline-point"></span>
                             <div class="timeline-content">
                                 <h5 class="mb-1">Profile Updated</h5>
-                                <p class="text-muted">{{ $student->updated_at->format('F d, Y h:i A') }}</p>
+                                <p class=" ">{{ $student->updated_at->format('F d, Y h:i A') }}</p>
                             </div>
                         </li>
                         @endif

@@ -158,7 +158,7 @@
                                         <span class="badge badge-success p-2">
                                             <i class="fa fa-check-circle mr-1"></i> Exam Results Published
                                         </span>
-                                        <small class="text-muted ml-2">Results are visible to parents and students</small>
+                                        <small class="  ml-2">Results are visible to parents and students</small>
                                     </div>
                                 </div>
                             @endif

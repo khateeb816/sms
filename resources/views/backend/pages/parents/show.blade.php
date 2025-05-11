@@ -13,25 +13,25 @@
                             class="rounded-circle img-thumbnail" alt="Profile Image"
                             style="width: 150px; height: 150px;">
                         <h4 class="mt-3">{{ $parent->name }}</h4>
-                        <p class="text-muted">Parent</p>
+                        <p class=" ">Parent</p>
                     </div>
                     <hr>
                     <div class="profile-details mt-4">
                         <h5 class="mb-3">Contact Information</h5>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Email:</div>
+                            <div class="col-sm-4  ">Email:</div>
                             <div class="col-sm-8">{{ $parent->email }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Phone:</div>
+                            <div class="col-sm-4  ">Phone:</div>
                             <div class="col-sm-8">{{ $parent->phone ?? 'Not provided' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Address:</div>
+                            <div class="col-sm-4  ">Address:</div>
                             <div class="col-sm-8">{{ $parent->address ?? 'Not provided' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Status:</div>
+                            <div class="col-sm-4  ">Status:</div>
                             <div class="col-sm-8">
                                 @if($parent->status == 'active')
                                 <span class="badge badge-success">Active</span>
@@ -122,7 +122,7 @@
                             <span class="timeline-point"></span>
                             <div class="timeline-content">
                                 <h5 class="mb-1">Account Created</h5>
-                                <p class="text-muted">{{ $parent->created_at->format('F d, Y h:i A') }}</p>
+                                <p class=" ">{{ $parent->created_at->format('F d, Y h:i A') }}</p>
                             </div>
                         </li>
                         @if($parent->created_at != $parent->updated_at)
@@ -130,7 +130,7 @@
                             <span class="timeline-point"></span>
                             <div class="timeline-content">
                                 <h5 class="mb-1">Profile Updated</h5>
-                                <p class="text-muted">{{ $parent->updated_at->format('F d, Y h:i A') }}</p>
+                                <p class=" ">{{ $parent->updated_at->format('F d, Y h:i A') }}</p>
                             </div>
                         </li>
                         @endif

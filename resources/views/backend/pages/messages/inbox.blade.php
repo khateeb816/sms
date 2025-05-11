@@ -62,7 +62,7 @@
                                     <span class="badge badge-info">Broadcast</span>
                                     @endif
                                     {{ $message->sender->name ?? 'Unknown' }}
-                                    <small class="text-muted">({{ ucfirst($message->sender_type) }})</small>
+                                    <small class=" ">({{ ucfirst($message->sender_type) }})</small>
                                 </td>
                                 <td>{{ $message->subject }}</td>
                                 <td>

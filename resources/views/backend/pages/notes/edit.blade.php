@@ -69,7 +69,7 @@
                         @endif
                         <input type="file" class="form-control @error('attachment') is-invalid @enderror"
                             id="attachment" name="attachment">
-                        <small class="form-text text-muted">Max file size: 10MB. Leave empty to keep the current
+                        <small class="form-text  ">Max file size: 10MB. Leave empty to keep the current
                             file.</small>
                         @error('attachment')
                         <div class="invalid-feedback">{{ $message }}</div>

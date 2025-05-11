@@ -66,7 +66,7 @@
                                         <td>
                                             {{ $complaint->complainant->name }}
                                             <br>
-                                            <small class="text-muted">({{ ucfirst($complaint->complainant_type)
+                                            <small class=" ">({{ ucfirst($complaint->complainant_type)
                                                 }})</small>
                                         </td>
                                         @endif
@@ -75,7 +75,7 @@
                                             @if($complaint->complaint_type === 'against_teacher')
                                             Against Teacher
                                             @if($complaint->againstUser)
-                                            <br><small class="text-muted">{{ $complaint->againstUser->name }}</small>
+                                            <br><small class=" ">{{ $complaint->againstUser->name }}</small>
                                             @endif
                                             @elseif($complaint->complaint_type === 'against_admin')
                                             Against Admin

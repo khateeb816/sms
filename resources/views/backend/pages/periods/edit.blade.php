@@ -46,7 +46,7 @@
                             @error('end_time')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">End time must be after start time</small>
+                            <small class="form-text  ">End time must be after start time</small>
                         </div>
                     </div>
                     <div class="form-group row">

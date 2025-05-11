@@ -73,7 +73,7 @@
 
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Phone <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="phone"
                                                 class="form-control @error('phone') is-invalid @enderror"
@@ -86,7 +86,7 @@
 
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Qualification <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="qualification"
                                                 class="form-control @error('qualification') is-invalid @enderror"
@@ -99,7 +99,7 @@
 
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Specialization <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="specialization"
                                                 class="form-control @error('specialization') is-invalid @enderror"
@@ -112,7 +112,7 @@
 
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Address <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <textarea name="address"
                                                 class="form-control @error('address') is-invalid @enderror"
@@ -154,7 +154,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Education Level <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="education_level"
                                                 class="form-control @error('education_level') is-invalid @enderror"
@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">University <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="university"
                                                 class="form-control @error('university') is-invalid @enderror"
@@ -178,7 +178,7 @@
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Degree <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="degree"
                                                 class="form-control @error('degree') is-invalid @enderror"
@@ -192,7 +192,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Major <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="major"
                                                 class="form-control @error('major') is-invalid @enderror"
@@ -204,7 +204,7 @@
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Graduation Year <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="number" name="graduation_year"
                                                 class="form-control @error('graduation_year') is-invalid @enderror"
@@ -217,7 +217,7 @@
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Certification <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="certification"
                                                 class="form-control @error('certification') is-invalid @enderror"
@@ -232,7 +232,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label>Teaching Experience <small class="text-muted">(Optional)</small>:</label>
+                                        <label>Teaching Experience <small class=" ">(Optional)</small>:</label>
                                         <textarea name="teaching_experience"
                                             class="form-control @error('teaching_experience') is-invalid @enderror"
                                             rows="4">{{ old('teaching_experience') }}</textarea>
@@ -245,7 +245,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label>Biography <small class="text-muted">(Optional)</small>:</label>
+                                        <label>Biography <small class=" ">(Optional)</small>:</label>
                                         <textarea name="biography"
                                             class="form-control @error('biography') is-invalid @enderror"
                                             rows="4">{{ old('biography') }}</textarea>
@@ -268,7 +268,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Contact Name <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_name"
                                                 class="form-control @error('emergency_contact_name') is-invalid @enderror"
@@ -282,7 +282,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Contact Phone <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_phone"
                                                 class="form-control @error('emergency_contact_phone') is-invalid @enderror"
@@ -298,7 +298,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Relationship <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="emergency_contact_relationship"
                                                 class="form-control @error('emergency_contact_relationship') is-invalid @enderror"
@@ -323,7 +323,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Bank Name <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_name"
                                                 class="form-control @error('bank_name') is-invalid @enderror"
@@ -335,7 +335,7 @@
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Account Number <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_account_number"
                                                 class="form-control @error('bank_account_number') is-invalid @enderror"
@@ -349,7 +349,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label class="col-sm-4 col-form-label">Branch <small
-                                                class="text-muted">(Optional)</small>:</label>
+                                                class=" ">(Optional)</small>:</label>
                                         <div class="col-sm-8">
                                             <input type="text" name="bank_branch"
                                                 class="form-control @error('bank_branch') is-invalid @enderror"
@@ -424,7 +424,7 @@
         margin-top: 0.25rem;
     }
 
-    .text-muted {
+    .  {
         color: rgba(255, 255, 255, 0.5) !important;
     }
 </style>

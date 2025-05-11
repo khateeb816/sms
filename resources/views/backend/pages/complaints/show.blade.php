@@ -58,7 +58,7 @@
                                     @if($complaint->complaint_type === 'against_teacher')
                                     Against Teacher
                                     @if($complaint->againstUser)
-                                    <br><small class="text-muted">{{ $complaint->againstUser->name }}</small>
+                                    <br><small class=" ">{{ $complaint->againstUser->name }}</small>
                                     @endif
                                     @elseif($complaint->complaint_type === 'against_admin')
                                     Against Admin
@@ -89,7 +89,7 @@
                                 <dd class="col-sm-9">
                                     {{ $complaint->complainant->name }}
                                     <br>
-                                    <small class="text-muted">{{ ucfirst($complaint->complainant_type) }}</small>
+                                    <small class=" ">{{ ucfirst($complaint->complainant_type) }}</small>
                                 </dd>
 
                                 <dt class="col-sm-3">Submitted On</dt>
@@ -101,7 +101,7 @@
                                     {{ $complaint->response }}
                                     @if($complaint->responder)
                                     <br>
-                                    <small class="text-muted">
+                                    <small class=" ">
                                         - {{ $complaint->responder->name }}
                                         ({{ $complaint->resolved_at ? $complaint->resolved_at->format('F j, Y g:i A') :
                                         '' }})

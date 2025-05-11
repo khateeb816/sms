@@ -220,7 +220,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <h4 class="mb-0">Student Attendance</h4>
-                            <p class="text-muted">Last 30 days statistics</p>
+                            <p class=" ">Last 30 days statistics</p>
                         </div>
                     </div>
                     <div class="row">
@@ -268,7 +268,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <h4 class="mb-0">Teacher Attendance</h4>
-                            <p class="text-muted">Last 30 days statistics</p>
+                            <p class=" ">Last 30 days statistics</p>
                         </div>
                     </div>
                     <div class="row">
@@ -387,7 +387,7 @@
                                         <h6 class="mb-1">{{ $activity['title'] }}</h6>
                                         <p class="mb-0">{{ $activity['description'] }}</p>
                                         @if (isset($activity['user']))
-                                            <small class="text-muted">By:
+                                            <small class=" ">By:
                                                 {{ $activity['user']->name ?? 'System' }}</small>
                                         @endif
                                     </div>

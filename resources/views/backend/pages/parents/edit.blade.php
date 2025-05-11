@@ -59,7 +59,7 @@
                         <div class="col-sm-10">
                             <input type="password" class="form-control @error('password') is-invalid @enderror"
                                 id="password" name="password" placeholder="Leave blank to keep current password">
-                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                            <small class="form-text  ">Leave blank to keep current password</small>
                             @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

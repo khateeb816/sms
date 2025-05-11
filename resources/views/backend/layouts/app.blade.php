@@ -692,9 +692,9 @@
                                     </div>
                                     <div class="ml-2">
                                         <h6 class="mb-0">{{ $message->subject }}</h6>
-                                        <small class="text-muted">From: {{ $message->sender ? $message->sender->name :
+                                        <small class=" ">From: {{ $message->sender ? $message->sender->name :
                                             'System' }}</small>
-                                        <small class="text-muted d-block">{{ $message->created_at->diffForHumans()
+                                        <small class="  d-block">{{ $message->created_at->diffForHumans()
                                             }}</small>
                                     </div>
                                 </div>
@@ -755,11 +755,11 @@
                                     <div class="d-flex align-items-center">
                                         <div class="ml-2">
                                             <h6 class="mb-0">{{ $complaint->subject }}</h6>
-                                            <small class="text-muted">From: {{ $complaint->complainant->name }}</small>
+                                            <small class=" ">From: {{ $complaint->complainant->name }}</small>
                                             @if($complaint->againstUser)
-                                            <small class="text-muted d-block">Against: {{ $complaint->againstUser->name }}</small>
+                                            <small class="  d-block">Against: {{ $complaint->againstUser->name }}</small>
                                             @endif
-                                            <small class="text-muted d-block">{{ $complaint->created_at->diffForHumans() }}</small>
+                                            <small class="  d-block">{{ $complaint->created_at->diffForHumans() }}</small>
                                         </div>
                                     </div>
                                 </a>

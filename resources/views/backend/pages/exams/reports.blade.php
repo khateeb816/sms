@@ -86,8 +86,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body text-center">
-                        <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">No Completed Exams Found</h4>
+                        <i class="fas fa-clipboard-list fa-4x   mb-3"></i>
+                        <h4 class=" ">No Completed Exams Found</h4>
                         <p>There are no completed exams to generate reports from.</p>
                         @if(auth()->user()->role === 2)
                         <a href="{{ route('exams.create') }}" class="btn btn-primary">Create New Exam</a>

@@ -59,7 +59,7 @@
                         <label for="attachment">Attachment</label>
                         <input type="file" class="form-control @error('attachment') is-invalid @enderror"
                             id="attachment" name="attachment">
-                        <small class="form-text text-muted">Max file size: 10MB</small>
+                        <small class="form-text  ">Max file size: 10MB</small>
                         @error('attachment')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

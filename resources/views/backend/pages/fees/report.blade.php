@@ -283,7 +283,7 @@
                 </div>
                 @endif
             </div>
-            <div class="card-footer text-muted">
+            <div class="card-footer  ">
                 <p>Report generated on {{ date('F d, Y h:i A') }}</p>
             </div>
         </div>

@@ -59,7 +59,7 @@
                                     @endif
                                     @else
                                     {{ $message->recipient->name ?? 'Unknown' }}
-                                    <small class="text-muted">({{ ucfirst($message->recipient_type) }})</small>
+                                    <small class=" ">({{ ucfirst($message->recipient_type) }})</small>
                                     @endif
                                 </td>
                                 <td>{{ $message->subject }}</td>

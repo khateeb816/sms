@@ -45,7 +45,7 @@
                         </div>
                         @endif
                         <h4 class="mt-3">{{ auth()->user()->name }}</h4>
-                        <p class="text-muted">
+                        <p class=" ">
                             @if(auth()->user()->role == 1)
                             Administrator
                             @elseif(auth()->user()->role == 2)
@@ -61,19 +61,19 @@
                     <div class="profile-details mt-4">
                         <h5 class="mb-3">Contact Information</h5>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Email:</div>
+                            <div class="col-sm-4  ">Email:</div>
                             <div class="col-sm-8">{{ auth()->user()->email }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Phone:</div>
+                            <div class="col-sm-4  ">Phone:</div>
                             <div class="col-sm-8">{{ auth()->user()->phone ?? 'Not set' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Address:</div>
+                            <div class="col-sm-4  ">Address:</div>
                             <div class="col-sm-8">{{ auth()->user()->address ?? 'Not set' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">Joined:</div>
+                            <div class="col-sm-4  ">Joined:</div>
                             <div class="col-sm-8">{{ auth()->user()->created_at->format('M d, Y') }}</div>
                         </div>
                     </div>

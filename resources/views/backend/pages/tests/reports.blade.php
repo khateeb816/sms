@@ -218,13 +218,13 @@
                         @endphp
                         <div class="row mb-2">
                             <div class="col-md-2">
-                                <small class="text-muted">Subject</small>
+                                <small class=" ">Subject</small>
                             </div>
                             <div class="col-md-5">
-                                <small class="text-muted">Average Score</small>
+                                <small class=" ">Average Score</small>
                             </div>
                             <div class="col-md-5">
-                                <small class="text-muted">Pass Rate</small>
+                                <small class=" ">Pass Rate</small>
                             </div>
                         </div>
                         @foreach($subjectStats as $subject => $stats)

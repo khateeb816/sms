@@ -241,10 +241,10 @@
                                                                 <div class="student-name font-weight-bold">{{
                                                                     $student->name }}</div>
                                                                 <div class="student-details small">
-                                                                    <span class="text-muted">ID: {{ $student->id
+                                                                    <span class=" ">ID: {{ $student->id
                                                                         }}</span>
                                                                     @if($student->roll_number)
-                                                                    <span class="text-muted ml-1">| Roll: {{
+                                                                    <span class="  ml-1">| Roll: {{
                                                                         $student->roll_number }}</span>
                                                                     @endif
                                                                 </div>

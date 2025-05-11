@@ -40,7 +40,7 @@
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="search_term"
                                         placeholder="Enter roll number or student name">
-                                    <small class="form-text text-muted">Enter partial roll number or name to find matching
+                                    <small class="form-text  ">Enter partial roll number or name to find matching
                                         students</small>
                                 </div>
                                 <div class="col-sm-2">

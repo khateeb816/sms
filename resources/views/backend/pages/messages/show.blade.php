@@ -81,7 +81,7 @@
                                 @endif
                                 @else
                                 {{ $message->recipient->name ?? 'Unknown' }}
-                                <small class="text-muted">({{ ucfirst($message->recipient_type) }})</small>
+                                <small class=" ">({{ ucfirst($message->recipient_type) }})</small>
                                 @endif
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                                 @if($message->is_read)
                                 <span class="badge badge-success">Read</span>
                                 @if($message->read_at)
-                                <small class="text-muted">({{ $message->read_at->format('M d, Y h:i A') }})</small>
+                                <small class=" ">({{ $message->read_at->format('M d, Y h:i A') }})</small>
                                 @endif
                                 @else
                                 <span class="badge badge-warning">Unread</span>

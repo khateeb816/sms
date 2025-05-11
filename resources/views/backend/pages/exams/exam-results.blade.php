@@ -212,9 +212,9 @@
         @else
             <div class="card">
                 <div class="card-body text-center py-5">
-                    <i class="fa fa-search fa-3x text-muted mb-3"></i>
+                    <i class="fa fa-search fa-3x   mb-3"></i>
                     <h4>No Exam Results Found</h4>
-                    <p class="text-muted mb-0">
+                    <p class="  mb-0">
                         @if(Auth::user()->role === 3)
                             There are no published exam results for your children at this time. Please check back later.
                         @elseif(Auth::user()->role === 2)
