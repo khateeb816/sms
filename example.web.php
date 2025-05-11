@@ -1,30 +1,44 @@
 <?php
 
+use App\Http\Controllers\Backend\ActivityController;
+use App\Http\Controllers\Backend\AttendanceController;
 use App\Http\Controllers\Backend\Auth\ForgotPasswordController;
 use App\Http\Controllers\Backend\Auth\LoginController;
 use App\Http\Controllers\Backend\Auth\RegisterController;
 use App\Http\Controllers\Backend\Auth\ResetPasswordController;
 use App\Http\Controllers\Backend\ClassController;
+use App\Http\Controllers\Backend\ComplaintController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\DatesheetController;
+use App\Http\Controllers\Backend\ExamController;
 use App\Http\Controllers\Backend\FeeController;
+use App\Http\Controllers\Backend\FineController;
 use App\Http\Controllers\Backend\MessageController;
+use App\Http\Controllers\Backend\NotesController;
 use App\Http\Controllers\Backend\ParentController;
 use App\Http\Controllers\Backend\PeriodController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\StudentController;
 use App\Http\Controllers\Backend\TeacherController;
-use App\Http\Controllers\Backend\TimetableController;
-use App\Http\Controllers\Backend\ActivityController;
-use App\Http\Controllers\Backend\AttendanceController;
-use App\Http\Controllers\Backend\NotesController;
-use App\Http\Controllers\Backend\FineController;
-use App\Http\Controllers\Backend\ComplaintController;
-use App\Http\Controllers\Backend\ExamController;
 use App\Http\Controllers\Backend\TestController;
-use App\Http\Controllers\Backend\DatesheetController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Backend\TimetableController;
+use App\Http\Controllers\Frontend\AboutController;
+use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\ContactController;
+use App\Http\Controllers\Frontend\GalleryController;
+use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
+use App\Http\Controllers\Frontend\ClassController as FrontendClassController;
+use App\Http\Controllers\Frontend\AboutController as FrontendAboutController;
+use App\Http\Controllers\Frontend\TeacherController as FrontendTeacherController;
+use App\Http\Controllers\Frontend\GalleryController as FrontendGalleryController;
+use App\Http\Controllers\Frontend\BlogController as FrontendBlogController;
+use App\Http\Controllers\Frontend\ContactController as FrontendContactController;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+
+
+
 
 
 
@@ -40,10 +54,30 @@ use App\Models\User;
 |
 */
 
-Route::get('/', function () {
+//********************************************Frontend Routes************************************************* */
+Route::get('/', [FrontendHomeController::class , 'index'])->name('home');
+Route::get('/about', [FrontendAboutController::class , 'index'])->name('about');
+Route::get('/class', [FrontendClassController::class , 'index'])->name('class');
+Route::get('/teacher', [FrontendTeacherController::class , 'index'])->name('teacher');
+Route::get('/gallery', [FrontendGalleryController::class , 'index'])->name('gallery');
+Route::get('/blog', [FrontendBlogController::class , 'index'])->name('blog');
+Route::get('/contact', [FrontendContactController::class , 'index'])->name('contact');
+
+
+
+
+
+
+//********************************************Backend Routes************************************************* */
+Route::get('/dash', function () {
     return redirect('/dash/login');
 });
-Route::get('/dash', function () {
+
+Route::get('/dashboard', function () {
+    return redirect('/dash/login');
+});
+
+Route::get('/admin', function () {
     return redirect('/dash/login');
 });
 
